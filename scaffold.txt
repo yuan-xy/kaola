@@ -1,0 +1,4 @@
+cp ~/.rvm/gems/ruby-2.3.0/gems/railties-4.2.6/lib/rails/generators/rails/scaffold_controller/templates/controller.rb  ./lib/templates/rails/scaffold_controller/
+
+cp ~/.rvm/gems/ruby-2.3.0/gems/railties-4.2.6/lib/rails/generators/erb/scaffold/templates/index.html.erb  ./lib/templates/erb/scaffold/
+

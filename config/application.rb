@@ -25,6 +25,7 @@ module ScmApi
     config.generators do |g|
       g.orm             :active_record, migration: false
       g.template_engine :erb
+      g.helper          false
       g.test_framework  false
       g.stylesheets     false
       g.javascripts     false      
