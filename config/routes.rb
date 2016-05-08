@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  resources :base_suppliers
+  resources :tb_suppliers
+  resources :tb_suppliers
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
