@@ -61,7 +61,7 @@ class <%= controller_class_name %>Controller < ApplicationController
       <%- if attributes_names.empty? -%>
       params[:<%= singular_table_name %>]
       <%- else -%>
-      params.require(:<%= singular_table_name %>).permit(:all)
+      params.require(:<%= singular_table_name %>).permit!
       <%- end -%>
     end
 end
