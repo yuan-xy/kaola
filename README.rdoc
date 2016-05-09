@@ -1,28 +1,15 @@
-== README
+列表接口：
+curl http://localhost:3000/base_suppliers.json
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+浏览接口：
+curl http://localhost:3000/base_suppliers/1.json
 
-Things you may want to cover:
+新增接口：
+curl  -d "base_supplier[fax]=1234&base_supplier[old_supplier_id]=456" http://localhost:3000/base_suppliers.json
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+修改接口：
+curl  -X PUT -d "base_supplier[fax]=12" http://localhost:3000/base_suppliers/1.json
 
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+删除接口：
+curl  -X DELETE http://localhost:3000/base_suppliers/4.json
