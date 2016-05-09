@@ -1,0 +1,58 @@
+class BaseSuppliersController < ApplicationController
+  before_action :set_base_supplier, only: [:show, :edit, :update, :destroy]
+
+  # GET /base_suppliers
+  def index
+    @base_suppliers = BaseSupplier.all
+  end
+
+  # GET /base_suppliers/1
+  def show
+  end
+
+  # GET /base_suppliers/new
+  def new
+    @base_supplier = BaseSupplier.new
+  end
+
+  # GET /base_suppliers/1/edit
+  def edit
+  end
+
+  # POST /base_suppliers
+  def create
+    @base_supplier = BaseSupplier.new(base_supplier_params)
+
+    if @base_supplier.save
+      redirect_to @base_supplier, notice: 'Base supplier was successfully created.'
+    else
+      render :new
+    end
+  end
+
+  # PATCH/PUT /base_suppliers/1
+  def update
+    if @base_supplier.update(base_supplier_params)
+      redirect_to @base_supplier, notice: 'Base supplier was successfully updated.'
+    else
+      render :edit
+    end
+  end
+
+  # DELETE /base_suppliers/1
+  def destroy
+    @base_supplier.destroy
+    redirect_to base_suppliers_url, notice: 'Base supplier was successfully destroyed.'
+  end
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_base_supplier
+      @base_supplier = BaseSupplier.find(params[:id])
+    end
+
+    # Only allow a trusted parameter "white list" through.
+    def base_supplier_params
+      params.require(:base_supplier).permit! #(:all)
+    end
+end
