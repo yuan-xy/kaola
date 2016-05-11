@@ -26,7 +26,11 @@ class BaseSuppliersController < ApplicationController
     if @base_supplier.save
       redirect_to @base_supplier, notice: 'Base supplier was successfully created.'
     else
-      render :new
+      if request.format == 'application/json'
+        render :status => 400, :json => {:error => @base_supplier.errors.full_messages.join("\n")}.to_json
+      else
+        render :new
+      end
     end
   end
 
@@ -53,6 +57,6 @@ class BaseSuppliersController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def base_supplier_params
-      params.require(:base_supplier).permit! #(:all)
+      params.require(:base_supplier).permit!
     end
 end
