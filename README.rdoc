@@ -1,30 +1,37 @@
-####列表接口
+###列表接口
 
 	curl http://localhost:3000/base_suppliers.json
 	
 
-####分页/排序/查询
+###分页/排序
 
 	curl "http://localhost:3000/base_suppliers.json?page=1"
 	curl "http://localhost:3000/base_suppliers.json?page=1&per=100"
 	curl "http://localhost:3000/base_suppliers.json?page=1&order=id+desc"
 
+###查询
+####等于查询
+
 	curl -g "http://localhost:3000/base_suppliers.json?s[fax]=fax"
 	curl -g "http://localhost:3000/base_suppliers.json?s[fax]=fax&page=1&order=id+desc"
 	
-####浏览接口：
+####Like查询
+	curl -g "http://localhost:3000/base_suppliers.json?s[like[fax]]=f%25"
+	curl -g "http://localhost:3000/base_suppliers.json?s[like[fax]]=f%25&s[fax]=fax&s[old_supplier_id]=abcd"
+
+###浏览接口：
 
 	curl http://localhost:3000/base_suppliers/1.json
 
-####新增接口：
+###新增接口：
 
 	curl  -d "base_supplier[fax]=1234&base_supplier[old_supplier_id]=456" http://localhost:3000/base_suppliers.json
 
-####修改接口：
+###修改接口：
 
 	curl  -X PUT -d "base_supplier[fax]=12" http://localhost:3000/base_suppliers/1.json
 
 
-####删除接口：
+###删除接口：
 
 	curl  -X DELETE http://localhost:3000/base_suppliers/4.json

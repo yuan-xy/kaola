@@ -3,11 +3,19 @@ class BaseSuppliersController < ApplicationController
 
   # GET /base_suppliers
   def index
-    query = {}
+    @base_suppliers = BaseSupplier.page(params[:page]).per(params[:per]).order(params[:order])
     if params[:s]
-      query.merge! params[:s]
+      if params[:s][:like]
+        params[:s][:like].each {|k,v| @base_suppliers = @base_suppliers.where("#{k} like ?",v)}
+      end
+      params[:s].delete(:like)
+      if params[:s]
+        query = {}
+        query.merge! params[:s]
+        @base_suppliers = @base_suppliers.where(query) 
+      end
     end
-    @base_suppliers = BaseSupplier.where(query).page(params[:page]).per(params[:per]).order(params[:order])
+    @base_suppliers
   end
 
   # GET /base_suppliers/1

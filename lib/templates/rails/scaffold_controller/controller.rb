@@ -8,11 +8,19 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   # GET <%= route_url %>
   def index
-    query = {}
+    @<%= plural_table_name %> = <%= class_name %>.page(params[:page]).per(params[:per]).order(params[:order])
     if params[:s]
-      query.merge! params[:s]
+      if params[:s][:like]
+        params[:s][:like].each {|k,v| @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} like ?",v)}
+      end
+      params[:s].delete(:like)
+      if params[:s]
+        query = {}
+        query.merge! params[:s]
+        @<%= plural_table_name %> = @<%= plural_table_name %>.where(query) 
+      end
     end
-    @<%= plural_table_name %> = <%= class_name %>.where(query).page(params[:page]).per(params[:per]).order(params[:order])
+    @<%= plural_table_name %>
   end
 
   # GET <%= route_url %>/1
