@@ -2,10 +2,11 @@
 
 	curl http://localhost:3000/base_suppliers.json
 	
-####列表分页
+####列表分页/排序
 
-	curl http://localhost:3000/base_suppliers.json?page=1
-	curl http://localhost:3000/base_suppliers.json?page=1&per=100
+	curl "http://localhost:3000/base_suppliers.json?page=1"
+	curl "http://localhost:3000/base_suppliers.json?page=1&per=100"
+	curl "http://localhost:3000/base_suppliers.json?page=1&order=id+desc"
 
 
 ####浏览接口：

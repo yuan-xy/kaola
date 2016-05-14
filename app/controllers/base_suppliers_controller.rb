@@ -3,7 +3,7 @@ class BaseSuppliersController < ApplicationController
 
   # GET /base_suppliers
   def index
-    @base_suppliers = BaseSupplier.page(params[:page]).per(params[:per])
+    @base_suppliers = BaseSupplier.page(params[:page]).per(params[:per]).order(params[:order])
   end
 
   # GET /base_suppliers/1
