@@ -1,6 +1,8 @@
 source 'https://gems.ruby-china.org'
 
 gem "schema_validations"
+gem 'kaminari'
+
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.6'

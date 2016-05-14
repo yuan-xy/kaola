@@ -5,3 +5,6 @@ cp ~/.rvm/gems/ruby-2.3.0/gems/railties-4.2.6/lib/rails/generators/erb/scaffold/
 ln -s ~/.rvm/gems/ruby-2.3.0/gems/jbuilder-2.4.1/lib/generators/rails/templates/index.json.jbuilder ./lib/templates/jbuilder/index.json.jbuilder
 
 ln -s ~/.rvm/gems/ruby-2.3.0/gems/jbuilder-2.4.1/lib/generators/rails/templates/show.json.jbuilder ./lib/templates/jbuilder/show.json.jbuilder
+
+
+#rails g scaffold BaseSupplier old_supplier_id:string code_no:string supplier_name:string
