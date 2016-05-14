@@ -8,7 +8,11 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   # GET <%= route_url %>
   def index
-    @<%= plural_table_name %> = <%= class_name %>.page(params[:page]).per(params[:per]).order(params[:order])
+    query = {}
+    if params[:s]
+      query.merge! params[:s]
+    end
+    @<%= plural_table_name %> = <%= class_name %>.where(query).page(params[:page]).per(params[:per]).order(params[:order])
   end
 
   # GET <%= route_url %>/1

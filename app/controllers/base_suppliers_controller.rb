@@ -3,7 +3,11 @@ class BaseSuppliersController < ApplicationController
 
   # GET /base_suppliers
   def index
-    @base_suppliers = BaseSupplier.page(params[:page]).per(params[:per]).order(params[:order])
+    query = {}
+    if params[:s]
+      query.merge! params[:s]
+    end
+    @base_suppliers = BaseSupplier.where(query).page(params[:page]).per(params[:per]).order(params[:order])
   end
 
   # GET /base_suppliers/1
