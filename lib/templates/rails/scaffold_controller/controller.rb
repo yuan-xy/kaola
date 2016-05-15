@@ -13,6 +13,7 @@ class <%= controller_class_name %>Controller < ApplicationController
       like_search
       date_search
       range_search
+      in_search
       equal_search
     end
     @<%= plural_table_name %>
@@ -113,6 +114,15 @@ class <%= controller_class_name %>Controller < ApplicationController
     params[:s].delete(:range)      
   end   
 
+  def in_search
+    return unless params[:s][:in]
+    params[:s][:in].each do |k,v|
+      arr = v.split(",")
+      @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} in (?)", arr)
+    end
+    params[:s].delete(:in)      
+  end 
+  
     # Use callbacks to share common setup or constraints between actions.
     def set_<%= singular_table_name %>
       @<%= singular_table_name %> = <%= orm_class.find(class_name, "params[:id]") %>

@@ -29,6 +29,10 @@
 	curl -g "http://localhost:3000/base_suppliers.json?s[range[id]]=,5"
 	curl -g "http://localhost:3000/base_suppliers.json?s[range[id]]=3,"
 
+####枚举In查询
+	curl -g "http://localhost:3000/base_suppliers.json?s[in[id]]=1,2,5"
+
+
 
 ###浏览接口：
 

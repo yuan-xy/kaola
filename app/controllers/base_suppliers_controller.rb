@@ -8,6 +8,7 @@ class BaseSuppliersController < ApplicationController
       like_search
       date_search
       range_search
+      in_search
       equal_search
     end
     @base_suppliers
@@ -108,6 +109,15 @@ class BaseSuppliersController < ApplicationController
     params[:s].delete(:range)      
   end   
 
+  def in_search
+    return unless params[:s][:in]
+    params[:s][:in].each do |k,v|
+      arr = v.split(",")
+      @base_suppliers = @base_suppliers.where("#{k} in (?)", arr)
+    end
+    params[:s].delete(:in)      
+  end 
+  
     # Use callbacks to share common setup or constraints between actions.
     def set_base_supplier
       @base_supplier = BaseSupplier.find(params[:id])
