@@ -24,6 +24,11 @@
 	curl -g "http://localhost:3000/base_suppliers.json?s[date[created_at]]=2016-05-11"
 	curl -g "http://localhost:3000/base_suppliers.json?s[date[created_at]]=2016-05-11,2016-05-12"
 
+####数值范围查询
+	curl -g "http://localhost:3000/base_suppliers.json?s[range[id]]=1,5"
+	curl -g "http://localhost:3000/base_suppliers.json?s[range[id]]=,5"
+	curl -g "http://localhost:3000/base_suppliers.json?s[range[id]]=3,"
+
 
 ###浏览接口：
 

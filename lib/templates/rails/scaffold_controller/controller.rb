@@ -10,31 +10,10 @@ class <%= controller_class_name %>Controller < ApplicationController
   def index
     @<%= plural_table_name %> = <%= class_name %>.page(params[:page]).per(params[:per]).order(params[:order])
     if params[:s]
-      if params[:s][:like]
-        params[:s][:like].each {|k,v| @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} like ?",v)}
-      end
-      params[:s].delete(:like)
-      if params[:s][:date]
-        params[:s][:date].each do |k,v|
-          arr = v.split(",")
-          if arr.size==1
-            day = DateTime.parse(arr[0])
-            @<%= plural_table_name %> = @<%= plural_table_name %>.where(k => day.beginning_of_day..day.end_of_day)
-          elsif arr.size==2
-            day1 = DateTime.parse(arr[0])
-            day2 = DateTime.parse(arr[1])
-            @<%= plural_table_name %> = @<%= plural_table_name %>.where(k => day1.beginning_of_day..day2.end_of_day)
-          else
-            logger.warn("date search 错误: #{k},#{v}")
-          end
-        end
-      end
-      params[:s].delete(:date) 
-      if params[:s]
-        query = {}
-        query.merge! params[:s]
-        @<%= plural_table_name %> = @<%= plural_table_name %>.where(query) 
-      end
+      like_search
+      date_search
+      range_search
+      equal_search
     end
     @<%= plural_table_name %>
   end
@@ -83,6 +62,57 @@ class <%= controller_class_name %>Controller < ApplicationController
   end
 
   private
+
+  def equal_search
+    return unless params[:s]
+    query = {}
+    query.merge! params[:s]
+    @<%= plural_table_name %> = @<%= plural_table_name %>.where(query) 
+  end
+
+  def like_search
+    return unless params[:s][:like]
+    params[:s][:like].each {|k,v| @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} like ?",v)}
+    params[:s].delete(:like)
+  end
+
+  def date_search
+    return unless params[:s][:date]
+    params[:s][:date].each do |k,v|
+      arr = v.split(",")
+      if arr.size==1
+        day = DateTime.parse(arr[0])
+        @<%= plural_table_name %> = @<%= plural_table_name %>.where(k => day.beginning_of_day..day.end_of_day)
+      elsif arr.size==2
+        day1 = DateTime.parse(arr[0])
+        day2 = DateTime.parse(arr[1])
+        @<%= plural_table_name %> = @<%= plural_table_name %>.where(k => day1.beginning_of_day..day2.end_of_day)
+      else
+        logger.warn("date search 错误: #{k},#{v}")
+      end
+    end
+    params[:s].delete(:date)
+  end
+
+  def range_search
+    return unless params[:s][:range]
+    params[:s][:range].each do |k,v|
+      arr = v.split(",")
+      if arr.size==1
+        v1 = arr[0].to_f
+        operator = (v[0]==","?  "<=" : ">=")
+        @<%= plural_table_name %> = @<%= plural_table_name %>.where("id #{operator} ?", v1)
+      elsif arr.size==2
+        v1 = arr[0].to_f
+        v2 = arr[1].to_f
+        @<%= plural_table_name %> = @<%= plural_table_name %>.where(k => v1..v2)
+      else
+        logger.warn("range search 错误: #{k},#{v}")
+      end
+    end
+    params[:s].delete(:range)      
+  end   
+
     # Use callbacks to share common setup or constraints between actions.
     def set_<%= singular_table_name %>
       @<%= singular_table_name %> = <%= orm_class.find(class_name, "params[:id]") %>
