@@ -19,6 +19,12 @@
 	curl -g "http://localhost:3000/base_suppliers.json?s[like[fax]]=f%25"
 	curl -g "http://localhost:3000/base_suppliers.json?s[like[fax]]=f%25&s[fax]=fax&s[old_supplier_id]=abcd"
 
+
+####日期查询
+	curl -g "http://localhost:3000/base_suppliers.json?s[date[created_at]]=2016-05-11"
+	curl -g "http://localhost:3000/base_suppliers.json?s[date[created_at]]=2016-05-11,2016-05-12"
+
+
 ###浏览接口：
 
 	curl http://localhost:3000/base_suppliers/1.json

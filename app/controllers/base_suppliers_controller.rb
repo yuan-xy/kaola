@@ -9,6 +9,22 @@ class BaseSuppliersController < ApplicationController
         params[:s][:like].each {|k,v| @base_suppliers = @base_suppliers.where("#{k} like ?",v)}
       end
       params[:s].delete(:like)
+      if params[:s][:date]
+        params[:s][:date].each do |k,v|
+          arr = v.split(",")
+          if arr.size==1
+            day = DateTime.parse(arr[0])
+            @base_suppliers = @base_suppliers.where(k => day.beginning_of_day..day.end_of_day)
+          elsif arr.size==2
+            day1 = DateTime.parse(arr[0])
+            day2 = DateTime.parse(arr[1])
+            @base_suppliers = @base_suppliers.where(k => day1.beginning_of_day..day2.end_of_day)
+          else
+            logger.warn("date search 错误: #{k},#{v}")
+          end
+        end
+      end
+      params[:s].delete(:date) 
       if params[:s]
         query = {}
         query.merge! params[:s]

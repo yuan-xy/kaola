@@ -14,6 +14,22 @@ class <%= controller_class_name %>Controller < ApplicationController
         params[:s][:like].each {|k,v| @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} like ?",v)}
       end
       params[:s].delete(:like)
+      if params[:s][:date]
+        params[:s][:date].each do |k,v|
+          arr = v.split(",")
+          if arr.size==1
+            day = DateTime.parse(arr[0])
+            @<%= plural_table_name %> = @<%= plural_table_name %>.where(k => day.beginning_of_day..day.end_of_day)
+          elsif arr.size==2
+            day1 = DateTime.parse(arr[0])
+            day2 = DateTime.parse(arr[1])
+            @<%= plural_table_name %> = @<%= plural_table_name %>.where(k => day1.beginning_of_day..day2.end_of_day)
+          else
+            logger.warn("date search 错误: #{k},#{v}")
+          end
+        end
+      end
+      params[:s].delete(:date) 
       if params[:s]
         query = {}
         query.merge! params[:s]
