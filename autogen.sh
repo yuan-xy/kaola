@@ -1,0 +1,2 @@
+rails r autogen.rb 
+
