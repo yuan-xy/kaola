@@ -1,7 +1,7 @@
 #!/usr/bin/env puma
 
 directory '/ebaolife/ScmApi'
-environment 'production'
+environment 'development'
 
 daemonize true
 
