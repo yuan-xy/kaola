@@ -1,4 +1,13 @@
 Rails.application.routes.draw do
+  resources :sys_codes
+  resources :base_suppliers
+  resources :base_store_categories
+  resources :base_store_bintypes
+  resources :base_store_bins
+  resources :base_store_binpriorities
+  resources :base_store_areas
+  resources :base_payment_rules
+  resources :base_payment_rule_details
   resources :base_suppliers
 
   # The priority is based upon order of creation: first created -> highest priority.
