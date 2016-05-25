@@ -1,0 +1,6 @@
+<h1>编辑 <%= singular_table_name.titleize %></h1>
+
+<%%= render 'form' %>
+
+<%%= link_to '查看', @<%= singular_table_name %> %> |
+<%%= link_to '返回', <%= index_helper %>_path %>
