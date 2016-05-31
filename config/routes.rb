@@ -1,14 +1,8 @@
 Rails.application.routes.draw do
-  resources :sys_codes
-  resources :base_suppliers
-  resources :base_store_categories
-  resources :base_store_bintypes
-  resources :base_store_bins
-  resources :base_store_binpriorities
-  resources :base_store_areas
-  resources :base_payment_rules
-  resources :base_payment_rule_details
-  resources :base_suppliers
+  resources :ts_codes
+  resources :tbs_first_suppliers
+  resources :tbc_imgs
+  resources :tbc_certificate_imgs
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
