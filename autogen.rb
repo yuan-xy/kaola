@@ -20,11 +20,8 @@ def fix_table_name(t)
   end
 end
 
-$flag=false
 ActiveRecord::Base.connection.tables.each do |t|
   next if t.match /_\d/ #表的名字类似goodslist_20151127
-  $flag=true if t=="so_send_store_order"
-  next unless $flag
   gen_model(t)
   fix_table_name(t)
   gen_scaffold(t)
