@@ -3,6 +3,7 @@ source 'https://gems.ruby-china.org'
 gem "schema_validations"
 gem 'kaminari'
 gem 'puma'
+gem "spring", group: :development
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
