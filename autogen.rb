@@ -9,8 +9,8 @@ def gen_scaffold(t)
   clazz = Object.const_get(clazz_name)
   cols = clazz.columns.delete_if{|x| x.name=="created_at" || x.name=="updated_at"}
   fields = cols.map{|x| x.name+":"+x.type.to_s}.join(" ")
-  puts "rails g scaffold #{clazz} #{fields}"
-  #`rails g scaffold #{clazz} #{fields}`  
+  puts "rails g scaffold #{clazz} #{fields} -f"
+  `rails g scaffold #{clazz} #{fields} -f`  
 end
 
 def fix_table_name(t)
