@@ -1,12 +1,12 @@
 <p id="notice"><%%= notice %></p>
 
-<h1><%= plural_table_name.titleize %> 列表</h1>
+<h1><%= human_table_name %> 列表</h1>
 
 <table>
   <thead>
     <tr>
 <% attributes.reject(&:password_digest?).each do |attribute| -%>
-      <th><%= attribute.human_name %></th>
+      <th><%= human_column_name(attribute.name) %></th>
 <% end -%>
       <th colspan="3"></th>
     </tr>
@@ -28,5 +28,5 @@
 
 <br>
 
-<%%= link_to '添加 <%= human_name %>', new_<%= singular_table_name %>_path %>
+<%%= link_to '添加 <%= human_table_name %>', new_<%= singular_table_name %>_path %>
 <%%= paginate @<%= plural_table_name %> %>

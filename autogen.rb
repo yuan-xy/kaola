@@ -14,9 +14,13 @@ def gen_scaffold(t)
 end
 
 def fix_table_name(t)
-  if t.singularize == t #表的名字不是复数，不符合rails规范
-    filename = "app/models/#{t}.rb"
+  single = t.singularize
+  if single == t || single+"s" != t #表的名字是单数，或者是类似y结尾的不规则英文复数规则
+    filename = "app/models/#{single}.rb"
     `rpl "\nend" "\n  self.table_name = '#{t}'\nend" #{filename}`
+  end
+  if t.singularize+"s" != t
+    
   end
 end
 
