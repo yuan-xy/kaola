@@ -1,6 +1,7 @@
 source 'https://gems.ruby-china.org'
 
 gem "schema_validations"
+gem "migration_comments"
 gem 'kaminari'
 gem 'puma'
 gem "spring", group: :development

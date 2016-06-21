@@ -2,7 +2,7 @@
 
 <% attributes.reject(&:password_digest?).each do |attribute| -%>
 <p>
-  <strong><%= attribute.human_name %>:</strong>
+  <strong><%= human_column_name(attribute.name) %>:</strong>
   <%%= @<%= singular_table_name %>.<%= attribute.name %> %>
 </p>
 
