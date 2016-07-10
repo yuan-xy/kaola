@@ -21,6 +21,10 @@ class ApplicationController < ActionController::Base
   around_filter :exception_catch if true || ENV["RAILS_ENV"] == "production"
   def exception_catch
     begin
+      headers['Access-Control-Allow-Origin'] = '*'
+      headers['Access-Control-Allow-Credentials'] = true
+      headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET'
+      headers['X-Frame-Options'] = "ALLOWALL"
       yield
     rescue  Exception => err
       error_log "\nInternal Server Error: #{err.class.name}, #{Time.now}"
