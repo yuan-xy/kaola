@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  match ':controller(/:action(/:id(.:format)))', via: [:options], to:  lambda {|env| [200, {'Content-Type' => 'text/plain'}, ["OK\n"]]}
   resources :ts_codes
   resources :tbw_warehouses
   resources :tbw_warehouse_logs
