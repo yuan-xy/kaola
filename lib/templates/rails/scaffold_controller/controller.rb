@@ -38,7 +38,7 @@ class <%= controller_class_name %>Controller < ApplicationController
 
     if @<%= orm_instance.save %>
       if request.format == 'application/json'
-        render :status => 200, :json => @<%= orm_instance %>.to_json
+        render :status => 200, :json => @<%= singular_table_name %>.to_json
       else
         redirect_to @<%= singular_table_name %>, notice: <%= "'#{human_name} was successfully created.'" %>
       end
