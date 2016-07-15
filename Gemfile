@@ -4,7 +4,6 @@ gem "schema_validations"
 gem "migration_comments"
 gem 'kaminari'
 gem 'puma'
-gem "spring", group: :development
 gem 'rack-cors', :require => 'rack/cors'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
