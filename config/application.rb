@@ -1,6 +1,8 @@
 require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
+require 'rack/cors'
+
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -29,6 +31,12 @@ module ScmApi
       g.test_framework  false
       g.stylesheets     false
       g.javascripts     false      
+    end
+    config.middleware.insert_before 0, "Rack::Cors" do
+      allow do
+        origins '*'
+        resource '*', :headers => :any, :methods => [:get, :post, :delete, :put, :patch, :options, :head]
+      end
     end
   end
 end
