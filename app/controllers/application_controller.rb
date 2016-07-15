@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
     begin
       headers['Access-Control-Allow-Origin'] = '*'
       headers['Access-Control-Allow-Credentials'] = true
-      headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET'
+      headers['Access-Control-Allow-Methods'] = 'POST, PUT, OPTIONS, GET'
       headers['X-Frame-Options'] = "ALLOWALL"
       yield
     rescue  Exception => err
