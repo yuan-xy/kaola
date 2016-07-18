@@ -70,8 +70,12 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   # DELETE <%= route_url %>/1
   def destroy
-    @<%= orm_instance.destroy %>
-    redirect_to <%= index_helper %>_url, notice: <%= "'#{human_name} was successfully destroyed.'" %>
+    @<%= orm_instance.destroy %>   #TODO: 删除报错如何处理？
+    if request.format == 'application/json'
+      render :status => 200, :json => {}.to_json
+    else
+      redirect_to <%= index_helper %>_url, notice: <%= "'#{human_name} was successfully destroyed.'" %>
+    end
   end
 
   private
