@@ -54,9 +54,17 @@ class <%= controller_class_name %>Controller < ApplicationController
   # PATCH/PUT <%= route_url %>/1
   def update
     if @<%= orm_instance.update("#{singular_table_name}_params") %>
-      redirect_to @<%= singular_table_name %>, notice: <%= "'#{human_name} was successfully updated.'" %>
+      if request.format == 'application/json'
+              render :status => 200, :json => @<%= singular_table_name %>.to_json
+            else
+              redirect_to @<%= singular_table_name %>, notice: <%= "'#{human_name} was successfully updated.'" %>
+      end
     else
-      render :edit
+      if request.format == 'application/json'
+        render :status => 400, :json => {:error => @<%= singular_table_name %>.errors.full_messages.join("\n")}.to_json
+      else
+        render :edit
+      end
     end
   end
 
