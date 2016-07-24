@@ -1,6 +1,6 @@
 def gen_model(t)
   model = t.singularize
-  Rails.logger.debug "rails g model #{model}"
+  puts "rails g model #{model}"
   `rails g model #{model}`
 end
 
@@ -9,7 +9,7 @@ def gen_scaffold(t)
   clazz = Object.const_get(clazz_name)
   cols = clazz.columns.delete_if{|x| x.name=="created_at" || x.name=="updated_at"}
   fields = cols.map{|x| x.name+":"+x.type.to_s}.join(" ")
-  Rails.logger.debug "rails g scaffold #{clazz} #{fields} -f"
+  puts "rails g scaffold #{clazz} #{fields} -f"
   `rails g scaffold #{clazz} #{fields} -f`  
 end
 
@@ -42,12 +42,12 @@ ActiveRecord::Base.connection.tables.each do |t|
   clazz_name = t.camelize.singularize
   clazz = Object.const_get(clazz_name)
   cols = clazz.columns.find_all{|x| x.name[-3..-1]=="_id"}
-  Rails.logger.debug "try finding relationship: #{t}"
+  puts "try finding relationship: #{t}"
   cols.each do |col|
     sname = col.name[0..-4]
     begin
       clazz = Object.const_get(sname.camelize)
-      Rails.logger.info "found: #{t} -> #{clazz}"
+      puts "  found: #{t} -> #{clazz}"
       if $belongs[single].nil?
           $belongs[single] = [sname]
       else
@@ -59,7 +59,7 @@ ActiveRecord::Base.connection.tables.each do |t|
           $many[sname] = $many[sname] << single
       end
     rescue
-      Rails.logger.warn "not found: #{t} -> #{col.name}"
+      puts "  not found: #{t} -> #{col.name}"
     end
   end
 end
