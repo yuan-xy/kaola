@@ -24,15 +24,21 @@ def fix_table_name(t)
   end
 end
 
-def gen_rel(t, to)
-  single = t.singularize
-  filename = "app/models/#{single}.rb"
-  `rpl "\nend" "\n  belongs_to :#{to}\nend" #{filename}` 
-  filename = "app/models/#{to}.rb"
-  `rpl "\nend" "\n  has_many :#{t}\nend" #{filename}`   
+
+ActiveRecord::Base.connection.tables.each do |t|
+  next if t.match /_\d/ #表的名字类似goodslist_20151127
+  gen_model(t)
+  fix_table_name(t)
+  gen_scaffold(t)
+  fix_table_name(t)
 end
 
-def gen_relations(t)
+$belongs={}
+$many={}
+
+ActiveRecord::Base.connection.tables.each do |t|
+  next if t.match /_\d/ #表的名字类似goodslist_20151127
+  single = t.singularize
   clazz_name = t.camelize.singularize
   clazz = Object.const_get(clazz_name)
   cols = clazz.columns.find_all{|x| x.name[-3..-1]=="_id"}
@@ -42,23 +48,37 @@ def gen_relations(t)
     begin
       clazz = Object.const_get(sname.camelize)
       Rails.logger.info "found: #{t} -> #{clazz}"
-      gen_rel(t, sname)
+      if $belongs[single].nil?
+          $belongs[single] = [sname]
+      else
+          $belongs[single] = $belongs[single] << sname
+      end
+      if $many[sname].nil?
+          $many[sname] = [single]
+      else
+          $many[sname] = $many[sname] << single
+      end
     rescue
       Rails.logger.warn "not found: #{t} -> #{col.name}"
     end
   end
 end
 
+File.open('./belongs.yaml', 'w') {|f| f.write(YAML.dump($belongs)) }
+File.open('./many.yaml', 'w') {|f| f.write(YAML.dump($many)) }
 
-ActiveRecord::Base.connection.tables.each do |t|
-  next if t.match /_\d/ #表的名字类似goodslist_20151127
-  gen_model(t)
-  fix_table_name(t)
-  gen_scaffold(t)
-  fix_table_name(t)
-  gen_relations(t)
+$belongs.each do |key, arr|
+  filename = "app/models/#{key}.rb"
+  arr.each do |x|
+    `rpl "\nend" "\n  belongs_to :#{x}\nend" #{filename}` 
+  end
 end
 
-
+$many.each do |key, arr|
+  filename = "app/models/#{key}.rb"
+  arr.each do |x|
+    `rpl "\nend" "\n  has_many :#{x.pluralize}\nend" #{filename}` 
+  end
+end
 
 

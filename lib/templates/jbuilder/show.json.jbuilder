@@ -1,1 +1,12 @@
-/Users/ylt/.rvm/gems/ruby-2.3.0/gems/jbuilder-2.4.1/lib/generators/rails/templates/show.json.jbuilder
+json.merge! @<%= singular_table_name %>.attributes
+$belongs['<%= singular_table_name %>'].try(:each) do |x|
+	json.set! x, @<%= singular_table_name %>.send(x).attributes
+end
+$many['<%= singular_table_name %>'].try(:each) do |x|
+	json.set! x do 
+		json.array!(@<%= singular_table_name %>.send(x.pluralize)) do |arr|
+		  json.merge! arr.attributes
+		end
+	end
+end
+
