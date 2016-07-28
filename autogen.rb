@@ -57,7 +57,7 @@ $many={}
 
 
 def find_relation(t)
-  next if t.match /_\d/ #表的名字类似goodslist_20151127
+  return if t.match /_\d/ #表的名字类似goodslist_20151127
   single = t.singularize
   clazz_name = t.camelize.singularize
   clazz = Object.const_get(clazz_name)
