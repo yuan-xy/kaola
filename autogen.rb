@@ -1,3 +1,5 @@
+require_relative 'extra_databases'
+
 def gen_model(t)
   model = t.singularize
   puts "rails g model #{model}"
@@ -19,9 +21,14 @@ def fix_table_name(t)
     filename = "app/models/#{single}.rb"
     `rpl "\nend" "\n  self.table_name = '#{t}'\nend" #{filename}`
   end
-  if t.singularize+"s" != t
-    
-  end
+end
+
+def fix_connection(t, extra_db)
+  single = t.singularize
+  filename = "app/models/#{single}.rb"
+  env_str = '#{Rails.env}'
+  str = "#{extra_db}_#{env_str}"
+  `rpl "\nend" '\n  establish_connection "#{str}".to_sym\nend' #{filename}`
 end
 
 
@@ -33,10 +40,23 @@ ActiveRecord::Base.connection.tables.each do |t|
   fix_table_name(t)
 end
 
+$extra_databases.each do |extra|
+  ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym).connection.tables.each do |t|
+    next if t.match /_\d/ #表的名字类似goodslist_20151127
+    gen_model(t)
+    fix_table_name(t)
+    gen_scaffold(t)
+    fix_table_name(t)
+    fix_connection(t, extra)
+  end
+end
+
+
 $belongs={}
 $many={}
 
-ActiveRecord::Base.connection.tables.each do |t|
+
+def find_relation(t)
   next if t.match /_\d/ #表的名字类似goodslist_20151127
   single = t.singularize
   clazz_name = t.camelize.singularize
@@ -61,6 +81,16 @@ ActiveRecord::Base.connection.tables.each do |t|
     rescue
       puts "  not found: #{t} -> #{col.name}"
     end
+  end
+end
+
+ActiveRecord::Base.connection.tables.each do |t|
+  find_relation(t)
+end
+
+$extra_databases.each do |extra|
+  ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym).connection.tables.each do |t|
+    find_relation(t)
   end
 end
 
