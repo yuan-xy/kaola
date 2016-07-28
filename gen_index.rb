@@ -16,6 +16,9 @@ File.open("public/index.html","w") do |f|
     f.puts "</tr>"
   end
   $extra_databases.each do |extra|
+    f.puts "<tr>"
+    f.puts "<td>---database:#{extra}---</td>"
+    f.puts "</tr>"
     ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym).connection.tables.each do |t|
       next if t.match /_\d/ #表的名字类似goodslist_20151127
       f.puts "<tr>"
