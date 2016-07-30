@@ -83,8 +83,13 @@ class <%= controller_class_name %>Controller < ApplicationController
   def equal_search
     return unless params[:s]
     query = {}
-    query.merge! params[:s]
+    query.merge!(params[:s].select{|k,v| !k.index(".")})
     @<%= plural_table_name %> = @<%= plural_table_name %>.where(query) 
+    params[:s].select{|k,v| k.index(".")}.each do |k,v|
+      arr = k.split(".")
+      hash = {(arr[0].pluralize) => { arr[1] => v}}
+      @<%= plural_table_name %> = @<%= plural_table_name %>.joins(arr[0].to_sym).where(hash)
+    end
   end
 
   def like_search

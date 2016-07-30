@@ -32,6 +32,8 @@
 #### 枚举In查询
 	curl -g "http://localhost:3000/base_suppliers.json?s[in[id]]=1,2,5"
 
+#### 多表连接的等于查询
+	curl -g "http://localhost:3000/tbw_warehouses.json?s[tbc_company.address]=测试地址"
 
 
 ### 浏览接口
