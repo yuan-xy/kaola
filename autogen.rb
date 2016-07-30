@@ -84,7 +84,7 @@ def find_relation(t)
   end
 end
 
-ActiveRecord::Base.connection.tables.each do |t|
+ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym).connection.tables.each do |t|
   find_relation(t)
 end
 
