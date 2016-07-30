@@ -1,22 +1,15 @@
 require_relative 'extra_databases'
 
-def gen_model(t)
-  model = t.singularize
-  puts "rails g model #{model}"
-  #`rails g model #{model}`
-  Rails::Generators.invoke "model", [model, "-f", "--orm=active_record"], behavior: :invoke, destination_root: Rails.root
-end
-
 def gen_scaffold(t)
   clazz_name = t.camelize.singularize
-  clazz = Object.const_get(clazz_name)
-  cols = clazz.columns.delete_if{|x| x.name=="created_at" || x.name=="updated_at"}
+  cols = ActiveRecord::Base.connection.columns(t).delete_if{|x| x.name=="created_at" || x.name=="updated_at"}
   fields = cols.map{|x| x.name+":"+x.type.to_s}.join(" ")
-  puts "rails g scaffold #{clazz} #{fields} -f"
-  #`rails g scaffold #{clazz} #{fields} -f`  
-  arr = [clazz.name, "-f", "--orm=active_record"]
-  cols.map{|x| arr<<(x.name+":"+x.type.to_s)}
-  Rails::Generators.invoke "scaffold", arr, behavior: :invoke, destination_root: Rails.root
+  puts "rails g scaffold #{clazz_name} #{fields} -f"
+  `rails g scaffold #{clazz_name} #{fields} -f`
+  #下面的进程内执行方式，环境不对，没使用自定义的scaffold, 如何解决？
+  #arr = [clazz_name, "-f", "--no-javascripts", "--no-helper","--no-stylesheets", "--orm=active_record"]
+  #cols.map{|x| arr<<(x.name+":"+x.type.to_s)}
+  #Rails::Generators.invoke "scaffold", arr, behavior: :invoke, destination_root: Rails.root
 end
 
 def fix_table_name(t)
@@ -38,8 +31,6 @@ end
 
 ActiveRecord::Base.connection.tables.each do |t|
   next if t.match /_\d/ #表的名字类似goodslist_20151127
-  gen_model(t)
-  fix_table_name(t)
   gen_scaffold(t)
   fix_table_name(t)
 end
@@ -47,8 +38,6 @@ end
 $extra_databases.each do |extra|
   ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym).connection.tables.each do |t|
     next if t.match /_\d/ #表的名字类似goodslist_20151127
-    gen_model(t)
-    fix_table_name(t)
     gen_scaffold(t)
     fix_table_name(t)
     fix_connection(t, extra)
