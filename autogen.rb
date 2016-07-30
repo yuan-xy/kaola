@@ -1,13 +1,10 @@
 require_relative 'extra_databases'
 
-Rails::Generators::DEFAULT_OPTIONS[:rails][:orm]=true
-
 def gen_model(t)
   model = t.singularize
   puts "rails g model #{model}"
-  `rails g model #{model}`
-  #Rails::Generators.invoke "model", [model], behavior: :invoke, destination_root: Rails.root
-  #Rails::CommandsTasks.new(["model",model]).run_command!("generate")
+  #`rails g model #{model}`
+  Rails::Generators.invoke "model", [model, "-f", "--orm=active_record"], behavior: :invoke, destination_root: Rails.root
 end
 
 def gen_scaffold(t)
@@ -17,7 +14,7 @@ def gen_scaffold(t)
   fields = cols.map{|x| x.name+":"+x.type.to_s}.join(" ")
   puts "rails g scaffold #{clazz} #{fields} -f"
   #`rails g scaffold #{clazz} #{fields} -f`  
-  arr = [clazz.name, "-f"]
+  arr = [clazz.name, "-f", "--orm=active_record"]
   cols.map{|x| arr<<(x.name+":"+x.type.to_s)}
   Rails::Generators.invoke "scaffold", arr, behavior: :invoke, destination_root: Rails.root
 end
