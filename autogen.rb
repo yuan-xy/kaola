@@ -1,9 +1,13 @@
 require_relative 'extra_databases'
 
+Rails::Generators::DEFAULT_OPTIONS[:rails][:orm]=true
+
 def gen_model(t)
   model = t.singularize
   puts "rails g model #{model}"
   `rails g model #{model}`
+  #Rails::Generators.invoke "model", [model], behavior: :invoke, destination_root: Rails.root
+  #Rails::CommandsTasks.new(["model",model]).run_command!("generate")
 end
 
 def gen_scaffold(t)
@@ -12,7 +16,10 @@ def gen_scaffold(t)
   cols = clazz.columns.delete_if{|x| x.name=="created_at" || x.name=="updated_at"}
   fields = cols.map{|x| x.name+":"+x.type.to_s}.join(" ")
   puts "rails g scaffold #{clazz} #{fields} -f"
-  `rails g scaffold #{clazz} #{fields} -f`  
+  #`rails g scaffold #{clazz} #{fields} -f`  
+  arr = [clazz.name, "-f"]
+  cols.map{|x| arr<<(x.name+":"+x.type.to_s)}
+  Rails::Generators.invoke "scaffold", arr, behavior: :invoke, destination_root: Rails.root
 end
 
 def fix_table_name(t)
