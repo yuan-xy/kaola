@@ -46,6 +46,7 @@ end
 
 
 $belongs={}
+$belongs2={}
 $many={}
 
 def test_relation(table_name,col_name,col_prefix)
@@ -56,8 +57,10 @@ def test_relation(table_name,col_name,col_prefix)
     if col_prefix+"_id" == col_name
       if $belongs[single].nil?
           $belongs[single] = [col_prefix]
+          $belongs2[single] = [col_prefix]
       else
           $belongs[single] = $belongs[single] << col_prefix
+          $belongs2[single] = $belongs2[single] << col_prefix
       end
       if $many[col_prefix].nil?
           $many[col_prefix] = [single]
@@ -65,11 +68,14 @@ def test_relation(table_name,col_name,col_prefix)
           $many[col_prefix] = $many[col_prefix] << single
       end
     else
+      col_prefix = col_name[0..-4]
       arr = [col_prefix,clazz,col_name]
       if $belongs[single].nil?
           $belongs[single] = [arr]
+          $belongs2[single] = [col_prefix]
       else
           $belongs[single] = $belongs[single] << arr
+          $belongs2[single] = $belongs2[single] << col_prefix
       end
       #一个模型有多个同一的表的外键时（前缀不同），不自动反向建立many关系
     end
@@ -109,7 +115,8 @@ $extra_databases.each do |extra|
   end
 end
 
-File.open('./belongs.yaml', 'w') {|f| f.write(YAML.dump($belongs)) }
+
+File.open('./belongs.yaml', 'w') {|f| f.write(YAML.dump($belongs2)) }
 File.open('./many.yaml', 'w') {|f| f.write(YAML.dump($many)) }
 
 $belongs.each do |key, arr|
@@ -119,8 +126,7 @@ $belongs.each do |key, arr|
       `rpl "\nend" "\n  belongs_to :#{x}\nend" #{filename}`
     else
       col_prefix,clazz,col_name = x
-      col_name_without_id = col_name[0..-4]
-      `rpl "\nend" "\n  belongs_to :#{col_name_without_id}, class_name: '#{clazz.name}', foreign_key: '#{col_name}' \nend" #{filename}`     
+      `rpl "\nend" "\n  belongs_to :#{col_prefix}, class_name: '#{clazz.name}', foreign_key: '#{col_name}' \nend" #{filename}`     
     end
   end
 end
