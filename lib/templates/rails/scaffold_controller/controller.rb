@@ -83,9 +83,9 @@ class <%= controller_class_name %>Controller < ApplicationController
   def equal_search
     return unless params[:s]
     query = {}
-    query.merge!(params[:s].select{|k,v| !k.index(".")})
+    query.merge!(without_dot_query(params[:s]))
     @<%= plural_table_name %> = @<%= plural_table_name %>.where(query) 
-    params[:s].select{|k,v| k.index(".")}.each do |k,v|
+    with_dot_query(params[:s]).each do |k,v|
       arr = k.split(".")
       hash = {(arr[0].pluralize) => { arr[1] => v}}
       @<%= plural_table_name %> = @<%= plural_table_name %>.joins(arr[0].to_sym).where(hash)
@@ -94,7 +94,12 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   def like_search
     return unless params[:s][:like]
-    params[:s][:like].each {|k,v| @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} like ?",v)}
+    without_dot_query(params[:s][:like]).each {|k,v| @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} like ?",v)}
+    with_dot_query(params[:s][:like]).each do |k,v|
+      arr = k.split(".")
+      @<%= plural_table_name %> = @<%= plural_table_name %>.joins(arr[0].to_sym)
+      @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{arr[0].pluralize}.#{arr[1]} like ?",v)
+    end
     params[:s].delete(:like)
   end
 
@@ -144,6 +149,14 @@ class <%= controller_class_name %>Controller < ApplicationController
     params[:s].delete(:in)      
   end 
   
+  def with_dot_query(hash)
+    hash.select{|k,v| k.index(".")}
+  end
+
+  def without_dot_query(hash)
+    hash.select{|k,v| !k.index(".")}
+  end
+    
     # Use callbacks to share common setup or constraints between actions.
     def set_<%= singular_table_name %>
       @<%= singular_table_name %> = <%= orm_class.find(class_name, "params[:id]") %>
