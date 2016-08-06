@@ -48,6 +48,38 @@ end
 $belongs={}
 $many={}
 
+def test_relation(table_name,col_name,col_prefix)
+  single = table_name.singularize
+  begin
+    clazz = Object.const_get(col_prefix.camelize)
+    puts "  found: #{table_name} -> #{clazz}"
+    if col_prefix+"_id" == col_name
+      if $belongs[single].nil?
+          $belongs[single] = [col_prefix]
+      else
+          $belongs[single] = $belongs[single] << col_prefix
+      end
+      if $many[col_prefix].nil?
+          $many[col_prefix] = [single]
+      else
+          $many[col_prefix] = $many[col_prefix] << single
+      end
+    else
+      arr = [col_prefix,clazz,col_name]
+      if $belongs[single].nil?
+          $belongs[single] = [arr]
+      else
+          $belongs[single] = $belongs[single] << arr
+      end
+      #一个模型有多个同一的表的外键时（前缀不同），不自动反向建立many关系
+    end
+    return true
+  rescue Exception => e
+    puts e
+    puts "  not found: #{table_name} -> #{col_name}"
+    return false
+  end
+end
 
 def find_relation(t)
   return if t.match /_\d/ #表的名字类似goodslist_20151127
@@ -57,22 +89,12 @@ def find_relation(t)
   cols = clazz.columns.find_all{|x| x.name[-3..-1]=="_id"}
   puts "try finding relationship: #{t}"
   cols.each do |col|
-    sname = col.name[0..-4]
-    begin
-      clazz = Object.const_get(sname.camelize)
-      puts "  found: #{t} -> #{clazz}"
-      if $belongs[single].nil?
-          $belongs[single] = [sname]
-      else
-          $belongs[single] = $belongs[single] << sname
-      end
-      if $many[sname].nil?
-          $many[sname] = [single]
-      else
-          $many[sname] = $many[sname] << single
-      end
-    rescue
-      puts "  not found: #{t} -> #{col.name}"
+    col_prefix = col.name[0..-4]
+    while col_prefix.size>0
+      break if test_relation(t,col.name,col_prefix)
+      position = col_prefix.index("_")
+      break unless position
+      col_prefix = col_prefix[position+1..-1]
     end
   end
 end
@@ -93,7 +115,13 @@ File.open('./many.yaml', 'w') {|f| f.write(YAML.dump($many)) }
 $belongs.each do |key, arr|
   filename = "app/models/#{key}.rb"
   arr.each do |x|
-    `rpl "\nend" "\n  belongs_to :#{x}\nend" #{filename}` 
+    if x.class==String
+      `rpl "\nend" "\n  belongs_to :#{x}\nend" #{filename}`
+    else
+      col_prefix,clazz,col_name = x
+      col_name_without_id = col_name[0..-4]
+      `rpl "\nend" "\n  belongs_to :#{col_name_without_id}, class_name: '#{clazz.name}', foreign_key: '#{col_name}' \nend" #{filename}`     
+    end
   end
 end
 
