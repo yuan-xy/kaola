@@ -32,8 +32,12 @@
 #### 枚举In查询
 	curl -g "http://localhost:3000/base_suppliers.json?s[in[id]]=1,2,5"
 
-#### 多表连接的等于查询
-	curl -g "http://localhost:3000/tbw_warehouses.json?s[tbc_company.address]=测试地址"
+#### 多表连接的查询
+	curl -g "http://scm.laobao.com:9291/tbw_warehouses.json?s[tbc_company.address]=测试地址"
+	curl -g "http://scm.laobao.com:9291/tbw_warehouses.json?s[like[tbc_company.address]]=1%25"
+	curl -g "http://scm.laobao.com:9291/tbw_warehouses.json?s[date[tbc_company.created_at]]=2016-05-11"
+	curl -g "http://scm.laobao.com:9291/tbw_warehouses.json?s[range[tbc_company.company_code]]=1,"
+	curl -g "http://scm.laobao.com:9291/tbw_warehouses.json?s[in[tbc_company.company_code]]=11,12"
 
 
 ### 浏览接口

@@ -86,9 +86,9 @@ class <%= controller_class_name %>Controller < ApplicationController
     query.merge!(without_dot_query(params[:s]))
     @<%= plural_table_name %> = @<%= plural_table_name %>.where(query) 
     with_dot_query(params[:s]).each do |k,v|
-      arr = k.split(".")
-      hash = {(arr[0].pluralize) => { arr[1] => v}}
-      @<%= plural_table_name %> = @<%= plural_table_name %>.joins(arr[0].to_sym).where(hash)
+      model_field = k.split(".")
+      hash = {(model_field[0].pluralize) => { model_field[1] => v}}
+      @<%= plural_table_name %> = @<%= plural_table_name %>.joins(model_field[0].to_sym).where(hash)
     end
   end
 
@@ -96,16 +96,16 @@ class <%= controller_class_name %>Controller < ApplicationController
     return unless params[:s][:like]
     without_dot_query(params[:s][:like]).each {|k,v| @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} like ?",v)}
     with_dot_query(params[:s][:like]).each do |k,v|
-      arr = k.split(".")
-      @<%= plural_table_name %> = @<%= plural_table_name %>.joins(arr[0].to_sym)
-      @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{arr[0].pluralize}.#{arr[1]} like ?",v)
+      model_field = k.split(".")
+      @<%= plural_table_name %> = @<%= plural_table_name %>.joins(model_field[0].to_sym)
+      @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{model_field[0].pluralize}.#{model_field[1]} like ?",v)
     end
     params[:s].delete(:like)
   end
 
   def date_search
     return unless params[:s][:date]
-    params[:s][:date].each do |k,v|
+    without_dot_query(params[:s][:date]).each do |k,v|
       arr = v.split(",")
       if arr.size==1
         day = DateTime.parse(arr[0])
@@ -118,12 +118,29 @@ class <%= controller_class_name %>Controller < ApplicationController
         logger.warn("date search 错误: #{k},#{v}")
       end
     end
+    with_dot_query(params[:s][:date]).each do |k,v|
+      model_field = k.split(".")
+      @<%= plural_table_name %> = @<%= plural_table_name %>.joins(model_field[0].to_sym)
+      arr = v.split(",")
+      if arr.size==1
+        day = DateTime.parse(arr[0])
+        hash = {(model_field[0].pluralize) => { model_field[1] => day.beginning_of_day..day.end_of_day}}
+        @<%= plural_table_name %> = @<%= plural_table_name %>.where(hash)
+      elsif arr.size==2
+        day1 = DateTime.parse(arr[0])
+        day2 = DateTime.parse(arr[1])
+        hash = {(model_field[0].pluralize) => { model_field[1] => day1.beginning_of_day..day2.end_of_day}}
+        @<%= plural_table_name %> = @<%= plural_table_name %>.where(hash)
+       else
+        logger.warn("date search 错误: #{k},#{v}")
+      end
+    end
     params[:s].delete(:date)
   end
 
   def range_search
     return unless params[:s][:range]
-    params[:s][:range].each do |k,v|
+    without_dot_query(params[:s][:range]).each do |k,v|
       arr = v.split(",")
       if arr.size==1
         v1 = arr[0].to_f
@@ -137,14 +154,37 @@ class <%= controller_class_name %>Controller < ApplicationController
         logger.warn("range search 错误: #{k},#{v}")
       end
     end
+    with_dot_query(params[:s][:range]).each do |k,v|
+      model_field = k.split(".")
+      @<%= plural_table_name %> = @<%= plural_table_name %>.joins(model_field[0].to_sym)
+      arr = v.split(",")
+      if arr.size==1
+        v1 = arr[0].to_f
+        operator = (v[0]==","?  "<=" : ">=")
+        @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{model_field[0].pluralize}.#{model_field[1]} #{operator} ?", v1)
+      elsif arr.size==2
+        v1 = arr[0].to_f
+        v2 = arr[1].to_f
+        hash = {(model_field[0].pluralize) => { model_field[1] => v1..v2}}
+        @<%= plural_table_name %> = @<%= plural_table_name %>.where(hash)
+      else
+        logger.warn("range search 错误: #{k},#{v}")
+      end
+    end
     params[:s].delete(:range)      
   end   
 
   def in_search
     return unless params[:s][:in]
-    params[:s][:in].each do |k,v|
+    without_dot_query(params[:s][:in]).each do |k,v|
       arr = v.split(",")
       @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} in (?)", arr)
+    end
+    with_dot_query(params[:s][:in]).each do |k,v|
+      model_field = k.split(".")
+      @<%= plural_table_name %> = @<%= plural_table_name %>.joins(model_field[0].to_sym)
+      arr = v.split(",")
+      @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{model_field[0].pluralize}.#{model_field[1]} in (?)", arr)
     end
     params[:s].delete(:in)      
   end 
