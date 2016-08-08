@@ -3,7 +3,7 @@ $belongs['<%= singular_table_name %>'].try(:each) do |x|
 	json.set! x, @<%= singular_table_name %>.send(x).try(:attributes)
 end
 
-if params[:many]=="1"
+if params[:many]=="1" && Rails.env != "production"
   $many['<%= singular_table_name %>'].try(:each) do |x|
     xs = x.pluralize
   	json.set! xs do 

@@ -8,7 +8,8 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   # GET <%= route_url %>
   def index
-    @<%= plural_table_name %> = <%= class_name %>.page(params[:page]).per(params[:per]).order(params[:order])
+    page_count = params[:per] || 100
+    @<%= plural_table_name %> = <%= class_name %>.page(params[:page]).per(page_count).order(params[:order])
     if params[:s]
       like_search
       date_search
