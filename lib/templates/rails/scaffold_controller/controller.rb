@@ -37,7 +37,7 @@ class <%= controller_class_name %>Controller < ApplicationController
   def create
     @<%= singular_table_name %> = <%= orm_class.build(class_name, "#{singular_table_name}_params") %>
 
-    if @<%= orm_instance.save %>
+    if @<%= singular_table_name %>.nested_save(params)
       if request.format == 'application/json'
         render :status => 200, :json => @<%= singular_table_name %>.to_json
       else
