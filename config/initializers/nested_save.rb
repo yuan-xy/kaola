@@ -1,9 +1,18 @@
 class ActiveRecord::Base
   
+  def get_create_sql
+    self.class.arel_table.create_insert.tap do |im| 
+      im.insert(self.send(:arel_attributes_with_values_for_create,
+        self.class.attribute_names)) 
+    end.to_sql
+  end
+  
   def nested_save(params)
     begin
+      sqls = []
       transaction do
-        self.method(:save!).super_method.call  #确保只有一个事务
+        #self.method(:save!).super_method.call  #确保只有一个事务, save默认启动一个事务
+        sqls << self.get_create_sql
         single = self.class.name.underscore
         return true unless $many[single]
         $many[single].each do |x|
@@ -13,11 +22,14 @@ class ActiveRecord::Base
             clazz = Object.const_get(x.camelize)
             arr.each do |hash|
               obj = clazz.new(hash.permit!)
-              obj.tjb_role = self
-              obj.method(:save!).super_method.call #如果存在外键，这里有死锁
+              obj.method(single).call(self)
+              obj.method("#{single}_id=").call(self.id)
+              #obj.method(:save!).super_method.call #如果存在外键，这里有死锁
+              sqls << obj.get_create_sql
             end
           end
         end
+        sqls.each{|sql| self.class.connection.execute(sql)}
       end
       true
     rescue Exception => e
