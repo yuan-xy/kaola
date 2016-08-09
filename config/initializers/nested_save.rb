@@ -9,12 +9,13 @@ class ActiveRecord::Base
   
   def nested_save(params)
     begin
+      ret = [self]
       sqls = []
       transaction do
         #self.method(:save!).super_method.call  #确保只有一个事务, save默认启动一个事务
         sqls << self.get_create_sql
         single = self.class.name.underscore
-        return true unless $many[single]
+        return ret unless $many[single]
         $many[single].each do |x|
           xs = x.pluralize
           arr = params[xs]
@@ -22,20 +23,21 @@ class ActiveRecord::Base
             clazz = Object.const_get(x.camelize)
             arr.each do |hash|
               obj = clazz.new(hash.permit!)
-              obj.method(single).call(self)
               obj.method("#{single}_id=").call(self.id)
               #obj.method(:save!).super_method.call #如果存在外键，这里有死锁
               sqls << obj.get_create_sql
+              ret << obj
             end
           end
         end
         sqls.each{|sql| self.class.connection.execute(sql)}
       end
-      true
+      ret
     rescue Exception => e
       puts e.backtrace
       logger.warn e
-      false
+      self.errors.add(:name, message:e.to_s)
+      nil
     end
   end
   

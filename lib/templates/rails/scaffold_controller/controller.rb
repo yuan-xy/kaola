@@ -36,10 +36,10 @@ class <%= controller_class_name %>Controller < ApplicationController
   # POST <%= route_url %>
   def create
     @<%= singular_table_name %> = <%= orm_class.build(class_name, "#{singular_table_name}_params") %>
-
-    if @<%= singular_table_name %>.nested_save(params)
+    arr = @<%= singular_table_name %>.nested_save(params)
+    if arr
       if request.format == 'application/json'
-        render :status => 200, :json => @<%= singular_table_name %>.to_json
+        render :status => 200, :json => arr.to_json
       else
         redirect_to @<%= singular_table_name %>, notice: <%= "'#{human_name} was successfully created.'" %>
       end
