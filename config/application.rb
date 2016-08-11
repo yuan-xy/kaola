@@ -3,8 +3,8 @@ require File.expand_path('../boot', __FILE__)
 require 'rails/all'
 require 'rack/cors'
 
-$many = YAML.load(File.read('./many.yaml'))
-$belongs = YAML.load(File.read('./belongs.yaml'))
+$many = YAML.load(File.read('./public/many.yaml'))
+$belongs = YAML.load(File.read('./public/belongs.yaml'))
 
 
 # Require the gems listed in Gemfile, including any gems

@@ -116,8 +116,8 @@ $extra_databases.each do |extra|
 end
 
 
-File.open('./belongs.yaml', 'w') {|f| f.write(YAML.dump($belongs2)) }
-File.open('./many.yaml', 'w') {|f| f.write(YAML.dump($many)) }
+File.open('./public/belongs.yaml', 'w') {|f| f.write(YAML.dump($belongs2)) }
+File.open('./public/many.yaml', 'w') {|f| f.write(YAML.dump($many)) }
 
 $belongs.each do |key, arr|
   filename = "app/models/#{key}.rb"
