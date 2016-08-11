@@ -2,6 +2,11 @@ app/views/*
 app/models/*
 app/controllers/t*
 bin/*
+belongs.yaml
+many.yaml
+public/index.html
+public/index2.html
+
 /.bundle
 
 # Ignore the default SQLite database.
