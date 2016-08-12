@@ -7,15 +7,25 @@ class ActiveRecord::Base
     end.to_sql
   end
   
+  def need_nested_save(params)
+    single = self.class.name.underscore
+    return false  unless $many[single]
+    $many[single].each do |x|
+      xs = x.pluralize
+      arr = params[xs]
+      return true if arr && arr.size>0
+    end
+    false
+  end
+  
   def nested_save(params)
+    return self.save unless need_nested_save(params)
     begin
       ret = [self]
       sqls = []
       transaction do
-        #self.method(:save!).super_method.call  #确保只有一个事务, save默认启动一个事务
         sqls << self.get_create_sql
         single = self.class.name.underscore
-        return ret unless $many[single]
         $many[single].each do |x|
           xs = x.pluralize
           arr = params[xs]
@@ -24,7 +34,6 @@ class ActiveRecord::Base
             arr.each do |hash|
               obj = clazz.new(hash.permit!)
               obj.method("#{single}_id=").call(self.id)
-              #obj.method(:save!).super_method.call #如果存在外键，这里有死锁
               sqls << obj.get_create_sql
               ret << obj
             end
