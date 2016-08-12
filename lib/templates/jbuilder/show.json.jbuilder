@@ -8,7 +8,7 @@ if params[:many]=="1" && Rails.env != "production"
     xs = x.pluralize
   	json.set! xs do 
   		json.array!(@<%= singular_table_name %>.send(xs)) do |arr|
-  		  json.merge! arr.attributes
+  		  json.merge! arr.try(:attributes)
   		end
   	end
   end
@@ -18,7 +18,7 @@ if params[:many] && params[:many].size>1
   params[:many].split(",").each do |x|
   	json.set! x do 
   		json.array!(@<%= singular_table_name %>.send(x)) do |arr|
-  		  json.merge! arr.attributes
+  		  json.merge! arr.try(:attributes)
   		end
   	end
   end
