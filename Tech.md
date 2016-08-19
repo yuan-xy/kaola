@@ -36,21 +36,24 @@ format目前支持两种：一个是json，这个是提供给前端使用的api�
 ## 代码生成过程
 ### 第一步，获取数据库的表信息
 获取所有的表名
-ActiveRecord::Base.connection.tables
+
+    ActiveRecord::Base.connection.tables
 
 获取表的字段名
-ActiveRecord::Base.connection.columns("tbw_warehouses")
-ActiveRecord::Base.connection.columns("tbw_warehouses").map{|x| x.name}
-ActiveRecord::Base.connection.columns("tbw_warehouses").map{|x| x.sql_type}
+
+    ActiveRecord::Base.connection.columns("tbw_warehouses")
+    ActiveRecord::Base.connection.columns("tbw_warehouses").map{|x| x.name}
+    ActiveRecord::Base.connection.columns("tbw_warehouses").map{|x| x.sql_type}
 
 获取表的注释信息
-TbcImg.connection.retrieve_table_comment("tbw_warehouses")
-TbcImg.connection.retrieve_column_comments("tbw_warehouses")
+
+    TbcImg.connection.retrieve_table_comment("tbw_warehouses")
+    TbcImg.connection.retrieve_column_comments("tbw_warehouses")
 
 ### 第二步，针对每张表生成CRUD功能代码
-根据数据库表名和字段名，生成shell代码，该代码利用rails框架自带的scaffold功能，自动生成单表的带CRUD（创建／读取／更新／删除）功能的接口和页面代码。
+根据数据库表名和字段名，生成shell代码，该代码利用rails框架自带的scaffold功能，自动生成单表的带CRUD（创建／读取／更新／删除）功能的接口和页面代码。比如：
 
-rails g scaffold TbcImg id:string img_type:integer img_title:string img_desc:string img_url:string updated_tjb_operator_id:string updated_operator_name:string -f
+    rails g scaffold TbcImg id:string img_type:integer img_title:string img_desc:string img_url:string updated_tjb_operator_id:string updated_operator_name:string -f
 
 ### 第三步，通过外键的命名规则扫描所有数据库，建立表关联
 #### 1.全匹配
