@@ -15,6 +15,7 @@
 * 主键的名字都是”id“
 * 外键的名字都是“表名单数_id”，如果一张表里有多个关联到另外一张表的外键，命名规则是“前缀_表名单数_id”
 * 每张表可以添加默认的创建时间／修改时间字段， 字段名称必须是"created_at" "updated_at"，类型是datetime
+* 字段的名字除了字母／数字／下划线，不能包含"."或者其它特殊字符
 * 给数据库的表和字段添加注释，主要是表和字段的名字。如果要添加其它内容，在名字后加空格。比如有一个字段op_type，其注释是“类型	1-亿保健康，2-签约商家，3-商铺，4-保险公司，5-投保单位，6-保单分组”。那么字段名称就是“类型”，后面是字段的详细说明。
 
 ### URL命名约定
@@ -87,38 +88,57 @@ Table2 has_many  table1s
 
 	http://scm.laobai.com:9291/index2.html
 	
-查看所有的隶属关系
+查看所有的belongs_to(隶属)关系
 
 	http://scm.laobai.com:9291/belongs.yaml
 	
-查看所有的包含关系
+查看所有的many(包含)关系
 
 	http://scm.laobai.com:9291/many.yaml
 
 ### CRUD功能
 
-标准REST接口
+标准REST接口, 支持两种调用方式: 网页调用和json调用，对应的Content-Type的值分别为 application/x-www-form-urlencoded, application/json。如果json接口调用出错，那么返回的json中包含error字段提供错误的说明信息。
+
 
 #### 新增接口
+模拟x-www-form-urlencoded编码调用：
 
-	curl  -d "base_supplier[fax]=1234&base_supplier[old_supplier_id]=456" http://scm.laobai.com:9291/tbw_warehouses.json
+	curl  -d "tjb_role[id]=1234&tjb_role[role_name]=name" http://scm.laobai.com:9291/tjb_roles.json
+
+模拟json编码调用：
+
+	curl -X POST --header "Content-Type: application/json" -d @roles.json http://scm.laobai.com:9291/tjb_roles.json
 
 #### 读取接口
 
-	curl http://scm.laobai.com:9291/tbw_warehouses/1.json
+	curl http://scm.laobai.com:9291/tjb_roles/1234.json
 
 #### 修改接口
 
-	curl  -X PUT -d "base_supplier[fax]=12" http://scm.laobai.com:9291/tbw_warehouses/1.json
+	curl  -X PUT -d "tjb_role[role_name]=name2" http://scm.laobai.com:9291/tjb_roles/1234.json
 
 
 #### 删除接口
 
-	curl  -X DELETE http://scm.laobai.com:9291/tbw_warehouses/4.json
+	curl  -X DELETE http://scm.laobai.com:9291/tjb_roles/1234.json
+	
+很多浏览器不支持出了GET／POST以外的其它方法，那么可以通过下面的方式调用
+	
+	curl  -X POST -d "_method=delete" http://scm.laobai.com:9291/tjb_roles/1234.json
 	
 
 ### 搜索相关功能
 Rails的scaffold自动生成的代码只有基本的CRUD功能，没有提供查询功能，所以这里的搜索功能是我自定义的一套查询语法，包含查询／分页／排序功能，且所有的功能可自由组合。多个查询条件之间是逻辑与的关系。
+
+s[key]=value
+s[like[key]]=value
+s[date[key]]=value
+s[range[key]]=value
+s[in[key]]=value
+
+s[key]=value&s[like[key]]=value
+
 ### 列表接口
 
 	curl http://scm.laobai.com:9291/tbw_warehouses.json
@@ -157,35 +177,61 @@ Rails的scaffold自动生成的代码只有基本的CRUD功能，没有提供查
 ## 关联表功能的使用
 
 ### 关联表查看
-支持在查看一条数据时，自动带出关联的子表的数据
-many=1  仅支持在开发环境下使用
-many=表1[,表2]
+支持在查看一条数据时，自动带出关联的belongs_to的父表的数据。
 
+要自动带出所有的关联子表的数据（仅支持在开发环境下使用），传递“many=1”参数
+
+	http://scm.laobai.com:9291/tbw_warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=1
+
+带出给定的几个关联子表数据：传递参数many=表1[,表2]
+
+	http://118.178.17.98:3000/tbw_warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=tso_saleorder_details
+	http://scm.laobai.com:9291/tbw_warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=tbe_express_print_templates,tbp_curing_headers
 ### 关联表保存
-支持在一个事务里保存主表和关联的多个子表
+支持在一个事务里保存主表和关联的多个子表。
 在test/jsontest目录下有一个例子。
 
+	{
+		"tjb_role": {
+			"id": "57",
+			"owner_module": "test",
+			"role_name": "测试角色",
+			"role_desc": "HELLO1",
+			"state": 0,
+			"updated_tjb_operator_id": "048e7eb9-c533-40cc-ad39-738d24f0452d",
+			"updated_operator_name": "测试"
+		},
+		"tjb_operator_roles": [{
+			"id": "57",
+			"tjb_operator_id": "f9f5ae4b-50d6-42e5-b46e-46b0b3a44c50",
+			"state": 0,
+			"updated_tjb_operator_id": "048e7eb9-c533-40cc-ad39-738d24f0452d",
+			"updated_operator_name": "测试"
+		}]
+	}
+
+
+	curl -X POST --header "Content-Type: application/json" -d @roles.json http://scm.laobai.com:9291/tjb_roles.json
+	
 
 ### 关联表查询
 关联表的查询支持所有单表查询的功能，包括等于／Like／日期／数值范围／枚举查询。
 #### 等于查询
 
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[fax]=fax"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[fax]=fax&page=1&order=id+desc"
+	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[tbc_company.company_name]=测试公司"
+	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[tbc_company.company_name]=测试公司&page=1&order=id+desc"
 
 #### Like查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[fax]]=f%25"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[fax]]=f%25&s[fax]=fax&s[old_supplier_id]=abcd"
-
+	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[tbc_company.company_name]=测试%25"
 
 #### 日期查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=2016-05-11"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=2016-05-11,2016-05-12"
+	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[tbc_company.created_at]]=2016-05-11"
+	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[tbc_company.created_at]]=2016-05-11,2016-05-12"
 
 #### 数值范围查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[id]]=1,5"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[id]]=,5"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[id]]=3,"
+	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[tbc_company.id]]=1,5"
+	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[tbc_company.id]]=,5"
+	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[tbc_company.id]]=3,"
 
 #### 枚举In查询
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[in[id]]=1,2,5"
