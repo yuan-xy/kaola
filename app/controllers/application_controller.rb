@@ -65,6 +65,26 @@ class ApplicationController < ActionController::Base
     hash.merge!(hash2) if hash2
     render :status => 400, :json => hash.to_json
   end
+  
+  before_action :set_search_params, only: [:index]
+  
+  def set_search_params
+    @page_count = params[:per] || 100
+    @page = params[:page].to_i
+    @order = params[:order]
+    if @page<0
+      @page = -@page
+      @order = @order.split(",").map do |x|
+        if x.match(" desc")
+          x.sub!("desc","asc")
+        elsif x.match(" asc")
+          x.sub!("asc","desc")
+        end
+        x
+      end.join(",")
+    end
+  end
+  
 
   
 end
