@@ -13,7 +13,6 @@ class <%= controller_class_name %>Controller < ApplicationController
       @<%= plural_table_name %> = <%= class_name %>.find_by_sql($raw_sqls[params[:s][:raw_sql].to_i])
       return @<%= plural_table_name %>
     end
-    page_count = params[:per] || 100
     @<%= plural_table_name %> = <%= class_name %>.page(@page).per(@page_count).order(@order)
     if params[:s]
       like_search
