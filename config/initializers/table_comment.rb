@@ -37,10 +37,7 @@ module Rails
           with_cache($cached_table_names,singular_table_name) do
             clazz = Object.const_get(singular_table_name.camelize)
             find_database(clazz) unless clazz.table_exists?
-            hash = with_cache($cached_table_hash,clazz.connection.current_database) do
-              clazz.connection.retrieve_table_comments
-            end
-            str = hash[plural_table_name]
+            str = clazz.connection.retrieve_table_comment(plural_table_name)
             return human_name unless str
             str.force_encoding('ASCII-8BIT')
           end
@@ -67,7 +64,7 @@ module Rails
         end
         
         $cached_table_names = {}  # table_name -> 中文表名
-        $cached_table_hash = {}   # database_name -> {table_name -> 中文表名}
+#        $cached_table_hash = {}   # database_name -> {table_name -> 中文表名}
         $cached_column_names = {} # column_name -> 中文字段名
         $cached_column_hash = {}  # table_name -> {column_name -> 中文字段名}
         
