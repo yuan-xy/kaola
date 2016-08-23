@@ -74,6 +74,7 @@ class ApplicationController < ActionController::Base
     @order = params[:order]
     if @page<0
       @page = -@page
+      @order = "created_at asc" if @order.nil?
       @order = @order.split(",").map do |x|
         if x.match(" desc")
           x.sub!(" desc"," asc")

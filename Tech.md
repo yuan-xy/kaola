@@ -150,6 +150,15 @@ s[key]=value&s[like[key]]=value
 	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=1&per=100"
 	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=1&order=id+desc"
 
+分页参数page支持负数，-1代表最后一页，也就是采用逆序以后的第一页。
+
+	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=-1"
+	
+排序order参数支持多个排序条件，以“,”号分隔，比如:
+
+	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=1&order=warehouse_name+desc,warehouse_category+asc"
+
+
 ### 查询
 #### 等于查询
 
