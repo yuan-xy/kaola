@@ -76,9 +76,9 @@ class ApplicationController < ActionController::Base
       @page = -@page
       @order = @order.split(",").map do |x|
         if x.match(" desc")
-          x.sub!("desc","asc")
+          x.sub!(" desc"," asc")
         elsif x.match(" asc")
-          x.sub!("asc","desc")
+          x.sub!(" asc"," desc")
         end
         x
       end.join(",")
