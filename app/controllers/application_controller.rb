@@ -85,6 +85,10 @@ class ApplicationController < ActionController::Base
     end
   end
   
+  def check_rawsql_json
+    raise "raw_sql needs json output" unless request.format == 'application/json'
+  end
+  
 
   
 end

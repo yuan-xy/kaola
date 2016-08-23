@@ -1,44 +1,7 @@
 Rails.application.routes.draw do
   match ':controller(/:action(/:id(.:format)))', via: [:options], to:  lambda {|env| [200, {'Content-Type' => 'text/plain'}, ["OK\n"]]}
-  resources :ts_codes
-  resources :tbw_warehouses
-  resources :tbw_warehouse_logs
-  resources :tbw_locations
-  resources :tbw_bins
-  resources :tbw_bin_types
-  resources :tbs_suppliers
-  resources :tbs_supplier_warehouses
-  resources :tbs_supplier_stores
-  resources :tbs_first_suppliers
-  resources :tbp_product_types
-  resources :tbp_product_suppliers
-  resources :tbp_product_skus
-  resources :tbp_product_minmaxes
-  resources :tbp_product_logs
-  resources :tbp_product_locations
-  resources :tbp_product_exts
-  resources :tbp_product_costs
-  resources :tbp_product_barcodes
-  resources :tbp_products
-  resources :tbp_package_units
-  resources :tbp_first_products
-  resources :tbp_combin_headers
-  resources :tbp_combin_details
-  resources :tbp_brands
-  resources :tbp_barcode_print_logs
-  resources :tbe_expresses
-  resources :tbe_express_print_templates
-  resources :tbe_express_platforms
-  resources :tbe_express_onlineatts
-  resources :tbe_express_onlineattr_warehouses
-  resources :tbe_express_areas
-  resources :tbc_imgs
-  resources :tbc_companies
-  resources :tbc_certificate_imgs
-  resources :ts_codes
-  resources :tbs_first_suppliers
-  resources :tbc_imgs
-  resources :tbc_certificate_imgs
+  get 'sql/search/:id', to: 'sql#search'
+  get 'sql/exec/:id', to: 'sql#exec'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

@@ -9,12 +9,8 @@ class <%= controller_class_name %>Controller < ApplicationController
   # GET <%= route_url %>
   def index
     if params[:s] && params[:s][:raw_sql] && params[:s][:raw_sql].to_i>0
-      raise "raw_sql needs json output" unless request.format == 'application/json'
-      raw_sqls=[nil,
-              "select * from  tbp_products where id in (select tbp_product_id  from tbp_product_mappings)",
-              "select * from  tbp_products where id in (select tbp_product_id  from tbp_product_mappings)"
-            ]
-      @<%= plural_table_name %> = <%= class_name %>.find_by_sql(raw_sqls[params[:s][:raw_sql].to_i])
+      check_rawsql_json
+      @<%= plural_table_name %> = <%= class_name %>.find_by_sql($raw_sqls[params[:s][:raw_sql].to_i])
       return @<%= plural_table_name %>
     end
     page_count = params[:per] || 100

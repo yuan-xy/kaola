@@ -6,6 +6,11 @@ require 'rack/cors'
 $many = YAML.load(File.read('./public/many.yaml'))
 $belongs = YAML.load(File.read('./public/belongs.yaml'))
 
+$raw_sqls=[nil,
+        "select * from  tbp_products where id in (select tbp_product_id  from tbp_product_mappings)",
+        "select * from  tbp_products where id in (select tbp_product_id  from tbp_product_mappings)"
+      ]
+
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
