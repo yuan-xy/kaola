@@ -5,11 +5,31 @@ $belongs={}
 $belongs2={}
 $many={}
 
+$tables = []
+$tables << ActiveRecord::Base.connection.tables
+$extra_databases.each do |extra|
+  $tables << ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym).connection.tables
+end
+$tables.flatten!
+
+def table_exsits?(str)
+  $tables.find {|x| x==str.pluralize} != nil
+end
+
 def test_relation(table_name,col_name,col_prefix)
   single = table_name.singularize
-  begin
-    clazz = Object.const_get(col_prefix.camelize)
-    puts "  found: #{table_name} -> #{clazz}"
+  if table_exsits?(col_prefix)
+    if col_prefix==col_prefix.pluralize 
+      puts "警告： 外键#{col_name}应该使用单数表名#{col_prefix.singularize}"
+    end
+    if col_prefix!=col_prefix.pluralize.singularize
+      puts "警告： 外键#{col_name}应该使用单数表名#{col_prefix.singularize}"
+    end
+    if col_name.match("tbe_express")
+      Rails.logger.error("#{table_name} , #{col_name}")
+    end
+    clazz = Object.const_get(col_prefix.pluralize.singularize.camelize)
+    puts "  found: #{table_name} -> #{col_prefix}"
     if col_prefix+"_id" == col_name
       if $belongs[single].nil?
           $belongs[single] = [col_prefix]
@@ -36,9 +56,8 @@ def test_relation(table_name,col_name,col_prefix)
       #一个模型有多个同一的表的外键时（前缀不同），不自动反向建立many关系
     end
     return true
-  rescue Exception => e
-    puts e
-    puts "  not found: #{table_name} -> #{col_name}"
+  else
+    puts "  not found: #{table_name} -> #{col_prefix}"
     return false
   end
 end
