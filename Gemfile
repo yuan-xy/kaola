@@ -10,6 +10,8 @@ gem 'rack-cors', :require => 'rack/cors'
 gem 'rails', '4.2.6'
 
 gem 'mysql2'
+gem 'oauth2'
+gem 'jwt'
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'

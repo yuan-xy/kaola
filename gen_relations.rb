@@ -19,14 +19,8 @@ end
 def test_relation(table_name,col_name,col_prefix)
   single = table_name.singularize
   if table_exsits?(col_prefix)
-    if col_prefix==col_prefix.pluralize 
-      puts "警告： 外键#{col_name}应该使用单数表名#{col_prefix.singularize}"
-    end
     if col_prefix!=col_prefix.pluralize.singularize
       puts "警告： 外键#{col_name}应该使用单数表名#{col_prefix.singularize}"
-    end
-    if col_name.match("tbe_express")
-      Rails.logger.error("#{table_name} , #{col_name}")
     end
     clazz = Object.const_get(col_prefix.pluralize.singularize.camelize)
     puts "  found: #{table_name} -> #{col_prefix}"
