@@ -248,6 +248,22 @@ Rails的scaffold自动生成的代码只有基本的CRUD功能，没有提供查
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[in[id]]=1,2,5"
 
 
+### 查询的Count支持
+上面提到的所有列表／查询／分页／关联表查询json接口，都支持查询的同时返回符合记录的条数总数。
+
+	curl http://scm.laobai.com:9291/tbw_warehouses.json?count=1
+
+带count的json输出的格式：
+
+	{
+		"count":数字
+		"data":[{字段名:值}]
+	}
+
+如果是不带count的搜索页输出，格式为：
+
+	[{字段名:值}]
+
 
 ## 新项目配置说明
 本系统依赖于ruby on rails， 所以在配置新项目前要安装好ROR环境。
