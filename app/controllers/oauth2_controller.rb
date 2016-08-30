@@ -2,16 +2,18 @@ require 'oauth2'
 
 class Oauth2Controller < ApplicationController
   
+  $OAUTH = YAML.load_file(Rails.root.join('config/oauth.yml'))[Rails.env]
+  
   def sso_client
-    client = OAuth2::Client.new('ebao', 'Oush5toh1F', :site => 'http://service.laobai.com/auth/oauth/authorize')    
-    client.options[:authorize_url] = "http://service.laobai.com/auth/oauth/authorize"
-    client.options[:token_url] = "http://service.laobai.com/auth/oauth/token"
+    client = OAuth2::Client.new($OAUTH["key"], $OAUTH["secret"], :site => $OAUTH["authorize_url"] )    
+    client.options[:authorize_url] = $OAUTH["authorize_url"] 
+    client.options[:token_url] = $OAUTH["token_url"] 
     client
   end
 
   def login
     @@client ||= sso_client
-    redirect_to @@client.auth_code.authorize_url(:redirect_uri => "http://localhost:3000/oauth2/callback")
+    redirect_to @@client.auth_code.authorize_url(:redirect_uri => "http://#{request.host}:#{request.port}/oauth2/callback")
   end
 
   #使用oauth2认证时的回调页
@@ -21,12 +23,13 @@ class Oauth2Controller < ApplicationController
       return
     end
     @@client ||= sso_client
-    auth = Base64.encode64("ebao:Oush5toh1F")
-    token = @@client.auth_code.get_token(params[:code], :redirect_uri => "http://localhost:3000/oauth2/callback", :headers => {'Authorization' => "Basic #{auth}"} )
-    filepath = Rails.root.join("jwt.public.key")
+    auth = Base64.encode64("#{$OAUTH['key']}:#{$OAUTH['secret']}")
+    token = @@client.auth_code.get_token(params[:code], :redirect_uri => "http://#{request.host}:#{request.port}/oauth2/callback", :headers => {'Authorization' => "Basic #{auth}"} )
+    filepath = Rails.root.join("config/jwt.public.key")
     File.open(filepath) do |file|
       key = OpenSSL::PKey.read(file)
       decoded_token = JWT.decode(token.token, key, true, { :algorithm => 'RS256' })
+      session[:user_id] = decoded_token[0]["user_name"]
       return render :json => decoded_token.to_json
     end
     render :json => token.merge!({error:"error"}).to_json

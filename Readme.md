@@ -249,7 +249,7 @@ Rails的scaffold自动生成的代码只有基本的CRUD功能，没有提供查
 
 
 ### 查询的Count支持
-上面提到的所有列表／查询／分页／关联表查询json接口，都支持查询的同时返回符合记录的条数总数。
+上面提到的所有列表／查询／分页／关联表查询json接口，都支持查询的同时返回符合记录的条数总数。方式是在url中增加count=1的参数：
 
 	curl http://scm.laobai.com:9291/tbw_warehouses.json?count=1
 
