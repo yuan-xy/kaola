@@ -6,11 +6,17 @@ $belongs2={}
 $many={}
 
 $tables = []
-$tables << ActiveRecord::Base.connection.tables
+$tables << ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym).connection.tables
 $extra_databases.each do |extra|
   $tables << ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym).connection.tables
 end
 $tables.flatten!
+
+$tables.each do |t|
+  if t.singularize.pluralize != t
+    puts "警告： 表名#{t}的复数规则有问题"
+  end
+end
 
 def table_exsits?(str)
   $tables.find {|x| x==str.pluralize} != nil
@@ -74,14 +80,9 @@ def find_relation(t)
   end
 end
 
-ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym).connection.tables.each do |t|
+ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
+$tables.each do |t|
   find_relation(t)
-end
-
-$extra_databases.each do |extra|
-  ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym).connection.tables.each do |t|
-    find_relation(t)
-  end
 end
 
 
