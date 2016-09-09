@@ -44,7 +44,7 @@ class <%= controller_class_name %>Controller < ApplicationController
     unless params[:<%= singular_table_name %>].empty?
       @<%= singular_table_name %> = <%= orm_class.build(class_name, "#{singular_table_name}_params") %>
     else
-      @<%= singular_table_name %> = <%= orm_class %>.new
+      @<%= singular_table_name %> = <%= singular_table_name.camelize %>.new
     end
     arr = @<%= singular_table_name %>.nested_save(params)
     if arr
@@ -112,21 +112,26 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   def like_search
     return unless params[:s][:like]
-    simple_query(params[:s][:like]).each {|k,v| @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} like ?",v)}
+    simple_query(params[:s][:like]).each {|k,v| @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} like ?", like_value(v))}
     with_dot_query(params[:s][:like]).each do |k,v|
       model_field = k.split(".")
       @<%= plural_table_name %> = @<%= plural_table_name %>.joins(model_field[0].to_sym)
-      @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{model_field[0].pluralize}.#{model_field[1]} like ?",v)
+      @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{model_field[0].pluralize}.#{model_field[1]} like ?", like_value(v))
     end
     with_comma_query(params[:s][:like]).each do |k,v|
       keys = k.split(",")
-      vv = "%#{v}%"
+      vv = like_value(v)
       t = <%= class_name %>.arel_table
       arel = t[keys[0].to_sym].matches(vv)
       keys[1..-1].each{|key| arel = arel.or(t[key.to_sym].matches(vv))}
       @<%= plural_table_name %> = @<%= plural_table_name %>.where(arel)
     end
     params[:s].delete(:like)
+  end
+  
+  def like_value(v)
+    return v if v.index("%") || v.index("_")
+    "%#{v}%"
   end
 
   def date_search
