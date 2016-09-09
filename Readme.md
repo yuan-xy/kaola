@@ -192,6 +192,7 @@ key可以包含三种类型：单个key;多字段的key，格式："key1,key2,..
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[fax]]=f%25"
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[fax]]=f%25&s[fax]=fax&s[old_supplier_id]=abcd"
 
+Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示匹配任意多个字符，“_”匹配任意一个字符。如果Like查询的值不包含特殊字符，则默认前后加上“%”。
 
 #### 日期查询
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=2016-05-11"
