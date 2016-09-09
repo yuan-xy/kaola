@@ -137,6 +137,9 @@ Rails的scaffold自动生成的代码只有基本的CRUD功能，没有提供查
 	s[range[key]]=value
 	s[in[key]]=value
 
+key可以包含三种类型：单个key;多字段的key，格式："key1,key2,...";主子表的key，格式：“key1.key2”。其中，多字段的key的格式表示多个字段的or查询，只支持等于和like查询。
+
+
 如果有多个查询条件，条件之间是逻辑与的关系。
 
 	s[key]=value&s[like[key]]=value
@@ -184,6 +187,15 @@ Rails的scaffold自动生成的代码只有基本的CRUD功能，没有提供查
 #### 枚举In查询
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[in[id]]=1,2,5"
 
+#### 多字段OR查询
+	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[delivery_company,address]]=测试"
+	
+这个查询的意思是查找所有delivery_company包含‘测试’或者address包含‘测试’的所有仓库。
+
+多个查询条件仍然是AND的关系，比如下面的查询
+	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[delivery_company,address]]=测试&s[warehouse_code]=11111"
+
+其含义是查找（所有delivery_company包含‘测试’或者address包含‘测试’的仓库）并且 (warehouse_code等于11111)的所有仓库。
 
 ## 关联表功能的使用
 

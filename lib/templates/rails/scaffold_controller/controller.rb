@@ -21,7 +21,7 @@ class <%= controller_class_name %>Controller < ApplicationController
       in_search
       equal_search
     end
-    @count = @<%= plural_table_name %>.count
+    @count = @<%= plural_table_name %>.count if params[:count]=="1"
     @<%= plural_table_name %> = @<%= plural_table_name %>.per(@page_count)
     @<%= plural_table_name %>
   end
@@ -90,29 +90,44 @@ class <%= controller_class_name %>Controller < ApplicationController
   def equal_search
     return unless params[:s]
     query = {}
-    query.merge!(without_dot_query(params[:s]))
+    query.merge!(simple_query(params[:s]))
     @<%= plural_table_name %> = @<%= plural_table_name %>.where(query) 
     with_dot_query(params[:s]).each do |k,v|
       model_field = k.split(".")
       hash = {(model_field[0].pluralize) => { model_field[1] => v}}
       @<%= plural_table_name %> = @<%= plural_table_name %>.joins(model_field[0].to_sym).where(hash)
     end
+    with_comma_query(params[:s]).each do |k,v|
+      keys = k.split(",")
+      t = <%= class_name %>.arel_table
+      arel = t[keys[0].to_sym].eq(v)
+      keys[1..-1].each{|key| arel = arel.or(t[key.to_sym].eq(v))}
+      @<%= plural_table_name %> = @<%= plural_table_name %>.where(arel)
+    end
   end
 
   def like_search
     return unless params[:s][:like]
-    without_dot_query(params[:s][:like]).each {|k,v| @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} like ?",v)}
+    simple_query(params[:s][:like]).each {|k,v| @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} like ?",v)}
     with_dot_query(params[:s][:like]).each do |k,v|
       model_field = k.split(".")
       @<%= plural_table_name %> = @<%= plural_table_name %>.joins(model_field[0].to_sym)
       @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{model_field[0].pluralize}.#{model_field[1]} like ?",v)
+    end
+    with_comma_query(params[:s][:like]).each do |k,v|
+      keys = k.split(",")
+      vv = "%#{v}%"
+      t = <%= class_name %>.arel_table
+      arel = t[keys[0].to_sym].matches(vv)
+      keys[1..-1].each{|key| arel = arel.or(t[key.to_sym].matches(vv))}
+      @<%= plural_table_name %> = @<%= plural_table_name %>.where(arel)
     end
     params[:s].delete(:like)
   end
 
   def date_search
     return unless params[:s][:date]
-    without_dot_query(params[:s][:date]).each do |k,v|
+    simple_query(params[:s][:date]).each do |k,v|
       arr = v.split(",")
       if arr.size==1
         day = DateTime.parse(arr[0])
@@ -147,7 +162,7 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   def range_search
     return unless params[:s][:range]
-    without_dot_query(params[:s][:range]).each do |k,v|
+    simple_query(params[:s][:range]).each do |k,v|
       arr = v.split(",")
       if arr.size==1
         v1 = arr[0].to_f
@@ -183,7 +198,7 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   def in_search
     return unless params[:s][:in]
-    without_dot_query(params[:s][:in]).each do |k,v|
+    simple_query(params[:s][:in]).each do |k,v|
       arr = v.split(",")
       @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} in (?)", arr)
     end
@@ -199,9 +214,13 @@ class <%= controller_class_name %>Controller < ApplicationController
   def with_dot_query(hash)
     hash.select{|k,v| k.index(".")}
   end
+  
+  def with_comma_query(hash)
+    hash.select{|k,v| k.index(",")}
+  end
 
-  def without_dot_query(hash)
-    hash.select{|k,v| !k.index(".")}
+  def simple_query(hash)
+    hash.select{|k,v| !k.index(".") && !k.index(",")}
   end
     
     # Use callbacks to share common setup or constraints between actions.
