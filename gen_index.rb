@@ -9,6 +9,7 @@ end
 File.open("public/index2.html","w") do |f|
   f.puts "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8' /></head><body>"
   f.puts "<table>"
+  ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
   ActiveRecord::Base.connection.tables.each do |t|
     next if t.match /_\d/ #表的名字类似goodslist_20151127
     f.puts "<tr>"
@@ -19,7 +20,8 @@ File.open("public/index2.html","w") do |f|
     f.puts "<tr>"
     f.puts "<td>---database:#{extra}---</td>"
     f.puts "</tr>"
-    ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym).connection.tables.each do |t|
+    ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym)
+    ActiveRecord::Base.connection.tables.each do |t|
       next if t.match /_\d/ #表的名字类似goodslist_20151127
       f.puts "<tr>"
       f.puts "<td>#{human_table_name(t)}</td><td><a href='./#{t}'>#{t}</a></td>"

@@ -42,7 +42,8 @@ ActiveRecord::Base.connection.tables.each do |t|
 end
 
 $extra_databases.each do |extra|
-  ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym).connection.tables.each do |t|
+  ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym)
+  ActiveRecord::Base.connection.tables.each do |t|
     next if t.match /_\d/ #表的名字类似goodslist_20151127
     if ARGV[0]=="inc_update"
       clazz_name = t.camelize.singularize

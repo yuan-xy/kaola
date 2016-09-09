@@ -6,9 +6,11 @@ $belongs2={}
 $many={}
 
 $tables = []
-$tables << ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym).connection.tables
+ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
+$tables << ActiveRecord::Base.connection.tables
 $extra_databases.each do |extra|
-  $tables << ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym).connection.tables
+  ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym)
+  $tables << ActiveRecord::Base.connection.tables
 end
 $tables.flatten!
 
