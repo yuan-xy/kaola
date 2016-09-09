@@ -41,7 +41,11 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   # POST <%= route_url %>
   def create
-    @<%= singular_table_name %> = <%= orm_class.build(class_name, "#{singular_table_name}_params") %>
+    unless params[:<%= singular_table_name %>].empty?
+      @<%= singular_table_name %> = <%= orm_class.build(class_name, "#{singular_table_name}_params") %>
+    else
+      @<%= singular_table_name %> = <%= orm_class %>.new
+    end
     arr = @<%= singular_table_name %>.nested_save(params)
     if arr
       if request.format == 'application/json'

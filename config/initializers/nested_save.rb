@@ -18,7 +18,24 @@ class ActiveRecord::Base
     false
   end
   
+  def need_batch_save(params)
+    tname = self.class.table_name
+    return true  if params[tname]
+    false
+  end
+  
+  def batch_save(params)
+    ret = []
+    tname = self.class.table_name
+    params[tname].each do |hash|
+      ret << self.class.new(hash.permit!)
+    end
+    self.class.import ret
+    ret
+  end
+  
   def nested_save(params)
+    return batch_save(params) if need_batch_save(params)
     return self.save unless need_nested_save(params)
     begin
       ret = [self]

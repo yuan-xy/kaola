@@ -128,6 +128,24 @@ Table2 has_many  table1s
 	curl  -X POST -d "_method=delete" http://scm.laobai.com:9291/tjb_roles/1234.json
 	
 
+#### 批量新增接口
+
+批量新增接口的url地址和新增接口一样，只是提交的数据格式不一样。
+批量新增的话，提交的数据是一个数组
+
+	{
+	    "tpos_sale_details": [{},{}...]
+	}
+
+单个新增的话，提交的是一个hash对象
+
+	{
+	    "tpos_sale_detail": {}
+	}
+
+单个新增的话，有数据的验证，批量新增接口的是否对字段进行验证未知。
+
+
 ### 搜索相关功能
 Rails的scaffold自动生成的代码只有基本的CRUD功能，没有提供查询功能，所以这里的搜索功能是我自定义的一套查询语法，包含查询／分页／排序功能，且所有的功能可自由组合。目前支持的查询条件类型包括：
 
@@ -341,4 +359,18 @@ key可以包含三种类型：单个key;多字段的key，格式："key1,key2,..
 重启服务
 
 	./restart.sh
+
+##多项目的支持
+
+如果有多个项目都需要这套自动生成的后端API，那么可以为每一个项目建立一个独立的分支。通用功能的开发在master分支，每个项目特定的配置保存在自己的分支。
+
+	git branch 					#查看当前有哪些分支
+
+	git branch a_new_branch		#建立一个分支a_new_branch
+
+如果master有功能更新，那么需要把主分支的功能合并到当前分支
+	
+	git merge master				#合并主分支的代码
+	git push origin a_new_branch	#合并后的代码提交的当前分支
+	
 

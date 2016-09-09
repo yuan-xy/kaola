@@ -1,6 +1,7 @@
 source 'https://gems.ruby-china.org'
 
 gem "schema_validations"
+gem "activerecord-import" , '~> 0.9.0'
 gem "migration_comments"
 gem 'kaminari'
 gem 'puma'
