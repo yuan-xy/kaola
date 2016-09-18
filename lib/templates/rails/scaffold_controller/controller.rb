@@ -4,7 +4,7 @@ require_dependency "<%= namespaced_path %>/application_controller"
 <% end -%>
 <% module_namespacing do -%>
 class <%= controller_class_name %>Controller < ApplicationController
-  before_action :set_<%= singular_table_name %>, only: [:show, :edit, :update, :destroy]
+  before_action :set_<%= singular_table_name %>, only: [:show, :edit, :update]
 
   # GET <%= route_url %>
   def index
@@ -81,9 +81,14 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   # DELETE <%= route_url %>/1
   def destroy
-    @<%= orm_instance.destroy %>   #TODO: 删除报错如何处理？
+    ids = params[:id].split(",")
+    ActiveRecord::Base.transaction do
+      ids.each do |id|
+        <%= class_name %>.find(id).destroy
+      end
+    end
     if request.format == 'application/json'
-      render :status => 200, :json => {}.to_json
+      render :status => 200, :json => {id:ids, deleted:true}.to_json
     else
       redirect_to <%= index_helper %>_url, notice: <%= "'#{human_name} was successfully destroyed.'" %>
     end
