@@ -77,6 +77,16 @@ format目前支持两种：一个是json，这个是提供给前端使用的api�
 	curl  -X POST -d "_method=delete" http://scm.laobai.com:9291/tjb_roles/1234.json
 	
 
+#### 批量删除接口
+批量删除接口的url地址和删除接口一样，只是id的格式不一样。批量删除接口，一次传入多个id，id之间以英文逗号“,”分割。比如
+
+	curl  -X DELETE http://scm.laobai.com:9291/tjb_roles/1234,5678.json
+
+表示删除id为1234和5678的两条记录。如果删除成功，返回值格式：
+
+		{id:[被删除的id], deleted:true}
+
+
 #### 批量新增接口
 
 批量新增接口的url地址和新增接口一样，只是提交的数据格式不一样。
