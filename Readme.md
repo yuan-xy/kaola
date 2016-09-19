@@ -5,7 +5,7 @@
 这套系统能够运行的关键是命名约定。
 
 ### URL命名约定
-本系统生成的Api接口是基于http的web接口，URL的命名符合REST规范。
+本系统生成的Api接口是基于http的web接口，URL的命名符合REST规范。其中的表名都是复数形式。
 
 | 操作 | HTTP Method  | URI |
 | :--------- | :-----| :---------- |
@@ -17,6 +17,9 @@
 | 修改已有数据	|	PATCH	|   /表名/:id(.:format)       |
 | 修改已有数据	|	PUT	|     /表名/:id(.:format)         |
 | 删除已有数据	|	DELETE	|  /表名/:id(.:format)        |
+| 批量添加数据	|	POST	|    /表名(.:format)          | 
+| 批量修改数据	|	POST	|    /表名/batch_update(.:format)    | 
+| 批量删除数据	|	DELETE	|  /表名/:id[,:id](.:format)          |
 
 format目前支持两种：一个是json，这个是提供给前端使用的api接口；一个是空，也就是不带format，这个是后台提供的html显示界面。
 
@@ -106,8 +109,7 @@ format目前支持两种：一个是json，这个是提供给前端使用的api�
 
 #### 批量修改接口
 
-批量修改接口的url地址和修改接口一样，只是提交的数据格式不一样。
-批量修改的话，提交的数据是一个嵌套的多层hash, 内部结构以id为key的hash
+批量修改接口的url地址是“/表名/batch_update.json”，提交的数据是一个嵌套的多层hash, 内部结构以id的值为key的hash，如：
 
 	{
 	    "表名复数": {
@@ -116,13 +118,27 @@ format目前支持两种：一个是json，这个是提供给前端使用的api�
 		}
 	}
 
-单个修改的话，提交的是一个hash对象
+作为对比，单个修改的话，提交的是一个hash对象
 
 	{
 	    "表名单数": {id:id, key:value,...}
 	}
 
-单个修改的话，有数据的验证，批量修改接口的是否对字段进行验证未知。
+参考的输入例子：
+	
+	{
+	    "ttr_request_headers": {
+	        "0909d36d-15db-4cd1-b9b7-e084afd45d18": {
+	            "approve_state": "0",
+	            "audit_state": "0",
+	            "close_reason": "close"
+	        },
+	        "0f4810f6-1c8f-47d8-9b4b-a1a6a8b7757a": {
+	            "approve_state": "0",
+	            "audit_state": "0"
+	        }
+	    }
+	}
 
 
 ### 搜索相关功能

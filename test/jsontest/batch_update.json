@@ -1,0 +1,25 @@
+{
+    "ttr_request_headers": {
+        "0909d36d-15db-4cd1-b9b7-e084afd45d18": {
+            "approve_state": "0",
+            "audit_state": "0",
+            "close_reason": "close"
+        },
+        "0f4810f6-1c8f-47d8-9b4b-a1a6a8b7757a": {
+            "approve_state": "0",
+            "audit_state": "0"
+        },
+        "16689e52-8ffd-4d60-94a8-46d1790fd119": {
+            "approve_state": "0",
+            "audit_state": "0"
+        },
+        "4dc6b2c0-0ae1-4679-8b43-8997418579ba": {
+            "approve_state": "0",
+            "audit_state": "0"
+        },
+        "51efbd7e-abe1-4256-af96-ee08fdcdbc3c": {
+            "approve_state": "0",
+            "audit_state": "0"
+        }
+    }
+}

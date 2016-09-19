@@ -79,6 +79,13 @@ class <%= controller_class_name %>Controller < ApplicationController
     end
   end
 
+  def batch_update
+    raise "only support json input" unless request.format == 'application/json'
+    hash = params[:<%= plural_table_name %>]
+    <%= class_name %>.update(hash.keys, hash.values)
+    render :json => hash.to_json
+  end
+  
   # DELETE <%= route_url %>/1
   def destroy
     ids = params[:id].split(",")
