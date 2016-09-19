@@ -1,3 +1,4 @@
+config/routes.rb
 app/views/*
 app/models/*
 app/controllers/t*
