@@ -13,7 +13,7 @@ class <%= controller_class_name %>Controller < ApplicationController
       @<%= plural_table_name %> = <%= class_name %>.find_by_sql($raw_sqls[params[:s][:raw_sql].to_i])
       return @<%= plural_table_name %>
     end
-    @<%= plural_table_name %> = <%= class_name %>.page(@page).order(@order)
+    @<%= plural_table_name %> = <%= class_name %>.order(@order)
     if params[:s]
       like_search
       date_search
@@ -22,7 +22,7 @@ class <%= controller_class_name %>Controller < ApplicationController
       equal_search
     end
     @count = @<%= plural_table_name %>.count if params[:count]=="1"
-    @<%= plural_table_name %> = @<%= plural_table_name %>.per(@page_count)
+    @<%= plural_table_name %> = @<%= plural_table_name %>.page(@page).per(@page_count)
     @<%= plural_table_name %>
   end
 
