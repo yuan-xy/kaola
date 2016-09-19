@@ -90,19 +90,39 @@ format目前支持两种：一个是json，这个是提供给前端使用的api�
 #### 批量新增接口
 
 批量新增接口的url地址和新增接口一样，只是提交的数据格式不一样。
-批量新增的话，提交的数据是一个数组
+批量新增的话，提交的里层数据是一个数组
 
 	{
-	    "tpos_sale_details": [{},{}...]
+	    "表名复数": [{id:id, key:value,...},{}...]
 	}
 
 单个新增的话，提交的是一个hash对象
 
 	{
-	    "tpos_sale_detail": {}
+	    "表名单数": {id:id, key:value,...}
 	}
 
 单个新增的话，有数据的验证，批量新增接口的是否对字段进行验证未知。
+
+#### 批量修改接口
+
+批量修改接口的url地址和修改接口一样，只是提交的数据格式不一样。
+批量修改的话，提交的数据是一个嵌套的多层hash, 内部结构以id为key的hash
+
+	{
+	    "表名复数": {
+		   id1 : { key:value,... },
+		   id2 : { key:value },		   
+		}
+	}
+
+单个修改的话，提交的是一个hash对象
+
+	{
+	    "表名单数": {id:id, key:value,...}
+	}
+
+单个修改的话，有数据的验证，批量修改接口的是否对字段进行验证未知。
 
 
 ### 搜索相关功能
@@ -151,7 +171,7 @@ key可以包含三种类型：单个key;多字段的key，格式："key1,key2,..
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[fax]]=f%25"
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[fax]]=f%25&s[fax]=fax&s[old_supplier_id]=abcd"
 
-Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示匹配任意多个字符，“_”匹配任意一个字符。如果Like查询的值不包含特殊字符，则默认前后加上“%”。
+Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示匹配任意多个字符，“_”匹配任意一个字符。如果Like查询的值不包含特殊字符，则默认前后加上“%”。大部分情况下，查询时不需要加％这样的特殊字符，因为默认查询字符串前后都会加上“%”。除了一种情况：需要占位查询，比如以给定字符串开头或者结尾的查询。
 
 #### 日期查询
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=2016-05-11"
@@ -254,6 +274,22 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 
 	[{字段名:值}]
 
+## 其它接口
+
+### 直接数据库sql查询
+
+	curl http://localhost:3000/sql/search/1.json
+	
+
+### 数据库存储过程执行
+待完善：
+
+	curl http://localhost:3000/sql/exec/
+	
+### 健康检测接口
+
+	curl http://localhost:3000/sql/heartbeat.json
+	
 ## 相关文档
 
 * [内部实现原理](http://git.ebaolife.net/SCM/ScmApiServer/blob/master/Tech.md)；

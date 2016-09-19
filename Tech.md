@@ -101,8 +101,9 @@ Table2 has_many  table1s
 	
 建立一个分支，并chekout到该分支
 
-	git branch a_new_branch		建立一个分支a_new_branch
-	git checkout a_new_branch		切换到该分支
+	git branch a_new_branch		#建立一个分支a_new_branch
+	git checkout a_new_branch		#切换到该分支
+	git update-index --assume-unchanged config/routes.rb   #忽略对路由文件的本地修改
 	
 安装项目依赖的第三方库，运行
 
@@ -156,7 +157,7 @@ Table2 has_many  table1s
 
 如果master有功能更新，那么需要把主分支的功能合并到当前分支
 	
-	git merge master				#合并主分支的代码
+	git merge origin master				#合并主分支的代码
 	git push origin a_new_branch	#合并后的代码提交的当前分支
 	
 

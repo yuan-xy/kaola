@@ -11,4 +11,8 @@ class SqlController < ApplicationController
     #ActiveRecord::Base.connection.execute("call SP_name (#{param1}, #{param2}, ... )")
   end
   
+  def heartbeat
+    render :json => {status:"alive"}.to_json
+  end
+  
 end
