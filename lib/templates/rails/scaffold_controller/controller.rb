@@ -181,7 +181,7 @@ class <%= controller_class_name %>Controller < ApplicationController
       if arr.size==1
         v1 = arr[0].to_f
         operator = (v[0]==","?  "<=" : ">=")
-        @<%= plural_table_name %> = @<%= plural_table_name %>.where("id #{operator} ?", v1)
+        @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{k} #{operator} ?", v1)
       elsif arr.size==2
         v1 = arr[0].to_f
         v2 = arr[1].to_f
