@@ -8,11 +8,6 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   # GET <%= route_url %>
   def index
-    if params[:s] && params[:s][:raw_sql] && params[:s][:raw_sql].to_i>0
-      check_rawsql_json
-      @<%= plural_table_name %> = <%= class_name %>.find_by_sql($raw_sqls[params[:s][:raw_sql].to_i])
-      return @<%= plural_table_name %>
-    end
     @<%= plural_table_name %> = <%= class_name %>.order(@order)
     if params[:s]
       like_search

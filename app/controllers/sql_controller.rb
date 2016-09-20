@@ -3,8 +3,9 @@ class SqlController < ApplicationController
   before_action :check_rawsql_json
   
   def search
-    sql = $raw_sqls[params[:id].to_i]
-    num = $raw_sql_params[params[:id].to_i]
+    info = TsSqlInfo.find(params[:id])
+    sql = info.sql_value
+    num = info.param_num
     arr = [sql]
     if num>0
       (1..num).each{|x| arr << params[x.to_s]}
