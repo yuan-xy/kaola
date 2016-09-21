@@ -5,8 +5,15 @@ class ApplicationController < ActionController::Base
   #skip_before_action :verify_authenticity_token, if: :json_request?
   skip_before_filter :verify_authenticity_token, :if => Proc.new { |c| c.request.format == 'application/json' }
 
-  #before_filter :cors_preflight_check
   after_filter :cors_set_access_control_headers
+  
+  before_filter :crud_json_check
+  
+  def crud_json_check
+     if Rails.env == "production"
+       redirect_to "/500.html" unless request.format == 'application/json'
+     end
+  end
 
   def cors_set_access_control_headers
     headers['Access-Control-Allow-Origin'] = '*'
@@ -15,17 +22,6 @@ class ApplicationController < ActionController::Base
     headers['Access-Control-Max-Age'] = "1728000"
     headers['Access-Control-Allow-Credentials'] = true
     headers['X-Frame-Options'] = "ALLOWALL"
-  end
-
-  def cors_preflight_check
-    if request.method == 'OPTIONS'
-      headers['Access-Control-Allow-Origin'] = '*'
-      headers['Access-Control-Allow-Methods'] = 'POST, GET, PUT, DELETE, OPTIONS'
-      headers['Access-Control-Allow-Headers'] = 'X-Requested-With, X-Prototype-Version, Token'
-      headers['Access-Control-Max-Age'] = '1728000'
-
-      render :text => '', :content_type => 'text/plain'
-    end
   end
 
 
@@ -41,7 +37,7 @@ class ApplicationController < ActionController::Base
     File.open("log/scm-error.log","a") {|f| f.puts msg.to_s}
   end
 
-  around_filter :exception_catch if true || ENV["RAILS_ENV"] == "production"
+  around_filter :exception_catch
   def exception_catch
     begin
       headers['Access-Control-Allow-Origin'] = '*'
