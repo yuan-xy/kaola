@@ -17,6 +17,7 @@
 | 修改已有数据	|	PATCH	|   /表名/:id(.:format)       |
 | 修改已有数据	|	PUT	|     /表名/:id(.:format)         |
 | 删除已有数据	|	DELETE	|  /表名/:id(.:format)        |
+
 | 批量添加数据	|	POST	|    /表名(.:format)          | 
 | 批量修改数据	|	POST	|    /表名/batch_update(.:format)    | 
 | 批量删除数据	|	DELETE	|  /表名/:id[,:id](.:format)          |
@@ -294,7 +295,11 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 
 ### 直接数据库sql查询
 
-	curl http://localhost:3000/sql/search/1.json
+首先ts_sql_infos，定义要查询的sql语句以及动态参数的类型，其中的动态参数传入部分用"?"表示，类型包括s/i/f/d，分别代表字符串／整数／浮点数／日期。多个参数类型，以英文逗号","分割。
+
+查询的url是"/search/:id.json", 参数通过"1=...&2=..."来传递。暂不支持可选参数。
+
+	curl http://localhost:3000/sql/search/3.json?1=5672c997783d1024b4bffa4c&2=%25%25&3=%25YD%25
 	
 
 ### 数据库存储过程执行
