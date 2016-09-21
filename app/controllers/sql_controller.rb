@@ -13,7 +13,7 @@ class SqlController < ApplicationController
       end
     end
     r = ActiveRecord::Base.send(:sanitize_sql_array, arr)
-    ret = ActiveRecord::Base.connection.select_all(r).rows
+    ret = ActiveRecord::Base.connection.select_all(r).to_a
     ret = ret[0,1000] if ret.size>1000
     render :json => ret.to_json
   end
