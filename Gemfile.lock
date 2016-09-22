@@ -101,6 +101,8 @@ GEM
       rack (>= 1.2, < 3)
     puma (3.4.0)
     rack (1.6.4)
+    rack-attack (5.0.1)
+      rack
     rack-cors (0.4.0)
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -197,6 +199,7 @@ DEPENDENCIES
   mysql2
   oauth2
   puma
+  rack-attack
   rack-cors
   rails (= 4.2.6)
   sass-rails (~> 5.0)
