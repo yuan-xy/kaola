@@ -77,7 +77,12 @@ class <%= controller_class_name %>Controller < ApplicationController
   def batch_update
     raise "only support json input" unless request.format == 'application/json'
     hash = params[:<%= plural_table_name %>]
-    <%= class_name %>.update(hash.keys, hash.values)
+    ActiveRecord::Base.transaction do
+      hash.keys.each do |id|
+        <%= class_name %>.find(id).update_attributes!(hash[id].permit!)
+      end
+    end    
+    # <%= class_name %>.update(hash.keys, hash.values)  #本update方法无法报告异常，所以弃用
     render :json => hash.to_json
   end
   
