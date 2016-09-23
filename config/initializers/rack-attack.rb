@@ -1,5 +1,3 @@
-require 'byebug'
-
 class Rack::Attack
 
   ### Configure Cache ###
@@ -24,20 +22,26 @@ class Rack::Attack
       false
     end
   end
+  
+  def self.is_intranet(ip)
+    if ip=="127.0.0.1" || ip=="::1" || ip.match(/^172\./) || ip.match(/^192\./) || ip.match(/^10\./)
+      return true
+    else
+      return false
+    end
+  end
+    
+  self.blocklist('block internet') do |req|
+    # !is_intranet(req.ip)
+    false
+  end
 
+  self.blocklisted_response = lambda do |env|
+    [ 503, {}, ['{"error":"Blocked"}']]
+  end
 
-  ### Custom Throttle Response ###
-
-  # By default, Rack::Attack returns an HTTP 429 for throttled responses,
-  # which is just fine.
-  #
-  # If you want to return 503 so that the attacker might be fooled into
-  # believing that they've successfully broken your app (or you just want to
-  # customize the response), then uncomment these lines.
-  # self.throttled_response = lambda do |env|
-  #  [ 503,  # status
-  #    {},   # headers
-  #    ['']] # body
-  # end
+  self.throttled_response = lambda do |env|
+    [ 503, {}, ['{"error":"Retry later"}']]
+  end
 
 end
