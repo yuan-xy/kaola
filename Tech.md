@@ -108,7 +108,11 @@ Table2 has_many  table1s
 安装项目依赖的第三方库，运行
 
 	bundle
+	
+忽略后续对config/routes.rb文件的修改
 
+	git update-index --assume-unchanged config/routes.rb
+	
 ### 2. 配置数据库/缓存
 
 数据库配置文件是config目录下的database.yaml，在这个文件里配置数据库连接。默认的三个数据库连接是development／test／production，分别代表开发／测试／发布环境下的默认数据库连接。如果一个环境下要连多个数据库，按照类似的命名规则加前缀即可。比如user_development/user_test/user_production等。
