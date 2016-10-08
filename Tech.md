@@ -109,9 +109,11 @@ Table2 has_many  table1s
 
 	bundle
 
-### 2. 配置数据库连接
+### 2. 配置数据库/缓存
 
 数据库配置文件是config目录下的database.yaml，在这个文件里配置数据库连接。默认的三个数据库连接是development／test／production，分别代表开发／测试／发布环境下的默认数据库连接。如果一个环境下要连多个数据库，按照类似的命名规则加前缀即可。比如user_development/user_test/user_production等。
+
+默认情况下，在开发环境使用的是本地文件缓存；在发布环境下使用的是memcache。Memcache的服务器地址要设置在环境变量“MEMCACHE_SERVERS”中。
 
 ### 3. 自动生成代码
 
