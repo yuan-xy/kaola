@@ -12,12 +12,10 @@ class ActiveRecord::Base
   end
 
   def after_update_cb
-    byebug
     Rails.logger.warn "after_update_cb #{self}"
   end
   
   def after_destroy_cb
-    byebug
     Rails.logger.warn "after_destroy_cb #{self}"
   end
   
