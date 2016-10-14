@@ -36,7 +36,10 @@ class ActiveRecord::Base
   
   def nested_save(params)
     return batch_save(params) if need_batch_save(params)
-    return self.save unless need_nested_save(params)
+    unless need_nested_save(params)
+      self.save!
+      return self
+    end
     begin
       ret = [self]
       sqls = []
