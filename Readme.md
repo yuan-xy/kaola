@@ -225,6 +225,10 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 
 	http://118.178.17.98:3000/tbw_warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=tso_saleorder_details
 	http://scm.laobai.com:9291/tbw_warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=tbe_express_print_templates,tbp_curing_headers
+
+### 关联表的列表查看
+
+
 ### 关联表保存
 支持在一个事务里保存主表和关联的多个子表。
 在test/jsontest目录下有一个例子。
