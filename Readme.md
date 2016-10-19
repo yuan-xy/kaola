@@ -231,6 +231,7 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 
 	http://scm.laobai.com:9291/tbw_warehouses.json?many=tbe_express_print_templates,tbp_curing_headers
 
+列表和浏览接口里的many关系数据自动带出功能，最多只返回100条数据，所以只支持many集合数据量较少的情况。如果数据量大，且需要排序／分页等需求，需要单独再调用一次查询接口。
 
 ### 关联表保存
 支持在一个事务里保存主表和关联的多个子表。
