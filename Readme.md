@@ -227,6 +227,9 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 	http://scm.laobai.com:9291/tbw_warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=tbe_express_print_templates,tbp_curing_headers
 
 ### 关联表的列表查看
+带出给定的几个关联子表数据：传递参数many=表1[,表2]
+
+	http://scm.laobai.com:9291/tbw_warehouses.json?many=tbe_express_print_templates,tbp_curing_headers
 
 
 ### 关联表保存
