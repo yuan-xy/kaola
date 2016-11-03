@@ -91,7 +91,13 @@ class <%= controller_class_name %>Controller < ApplicationController
     ids = params[:id].split(",")
     ActiveRecord::Base.transaction do
       ids.each do |id|
-        <%= class_name %>.find(id).destroy
+        to_be_del = <%= class_name %>.find(id)
+        if params[:many] && params[:many].size>1
+          params[:many].split(",").each do |many|
+            to_be_del.send(many).try(:each){|y| y.destroy}
+          end
+        end
+        to_be_del.destroy
       end
     end
     if request.format == 'application/json'

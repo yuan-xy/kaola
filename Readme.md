@@ -259,6 +259,11 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 
 	curl -X POST --header "Content-Type: application/json" -d @roles.json http://scm.laobai.com:9291/tjb_roles.json
 	
+### 关联表删除
+关联表之间如果存在数据库外键约束，单独删除主表的数据是不能成功的。此时就需要把依赖于该主表的所有子表数据也删除。在删除的接口增加一个many参数，用于处理这种情况，传递格式“many=表1[,表2]”，比如：
+	
+	curl  -X DELETE http://scm.laobai.com:9291/tjb_roles/1234.json?many=tjb_operator_roles
+
 
 ### 关联表查询
 关联表的查询支持所有单表查询的功能，包括等于／Like／日期／数值范围／枚举查询。

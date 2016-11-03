@@ -166,4 +166,8 @@ Table2 has_many  table1s
 	git merge origin master				#合并主分支的代码
 	git push origin a_new_branch	#合并后的代码提交的当前分支
 	
+发布脚本里对部署路径有依赖，比如新的分支名字是“a_new_branch”，那么执行下面的命令更新部署相关配置：
+
+	rpl ScmApiServer a_new_branch puma.rb 
+	find . -name "*.sh" | xargs rpl ScmApiServer a_new_branch
 
