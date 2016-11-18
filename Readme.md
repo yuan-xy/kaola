@@ -264,6 +264,9 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 	
 	curl  -X DELETE http://scm.laobai.com:9291/tjb_roles/1234.json?many=tjb_operator_roles
 
+关联表删除和批量删除是一个接口, 可以一次性删除。比如： /1,2,3,4.json?many=table1s,table2s
+代表批量删除“1,2,3,4”四个数据，其中每个数据都级联删除两个子表“table1s,table2s”的所有关联数据。
+
 
 ### 关联表查询
 关联表的查询支持所有单表查询的功能，包括等于／Like／日期／数值范围／枚举查询。
