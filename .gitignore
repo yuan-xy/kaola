@@ -2,6 +2,7 @@ config/routes.rb
 app/views/*
 app/models/*
 app/controllers/t*
+app/controllers/j*
 bin/*
 belongs.yaml
 many.yaml
