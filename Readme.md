@@ -155,8 +155,6 @@ Rails的scaffold自动生成的代码只有基本的CRUD功能，没有提供查
 
 key可以包含三种类型：单个key;多字段的Mkey，格式："key1,key2,...";主子表的Rkey，格式：“key1.key2”。其中，多字段的Mkey的格式表示多个字段的or查询，只支持等于和like查询。
 
-其中cmp的查询表示两个字段之间的数值关系，支持的OP类型包括："!=","<=",">=","=","<",">"。
-
 
 如果有多个查询条件，条件之间是逻辑与的关系。
 
@@ -205,6 +203,17 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 
 #### 枚举In查询
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[in[id]]=1,2,5"
+
+#### 比较Cmp查询
+调用方式 s[cmp[key1(OP)key2]]=
+比较cmp查询表示两个字段之间的数值关系，支持的OP类型包括："!=","<=",">=","=","<",">"。其中第二个参数可以是常量。
+注意，在url中传递时，OP中的等于号“=”需要转义为“%3D”。
+注意，本查询最后的等号“=”后面没有值
+
+	curl -g "/tout_products.json?s[cmp[weight%3D1111]]="
+	curl -g "/tout_products.json?s[cmp[out_sale_price>lb_sale_price]]="
+	
+
 
 #### 多字段OR查询
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[delivery_company,address]]=测试"
