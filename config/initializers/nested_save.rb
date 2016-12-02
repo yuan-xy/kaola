@@ -42,10 +42,8 @@ class ActiveRecord::Base
     end
     begin
       ret = [self]
-      sqls = []
       transaction do
         self.save!
-        #sqls << self.get_create_sql
         single = self.class.name.underscore
         $many[single].each do |x|
           xs = x.pluralize
@@ -55,13 +53,11 @@ class ActiveRecord::Base
             arr.each do |hash|
               obj = clazz.new(hash.permit!)
               obj.method("#{single}_id=").call(self.id)
-              #sqls << obj.get_create_sql
               obj.save!
               ret << obj
             end
           end
         end
-        #sqls.each{|sql| self.class.connection.execute(sql)}
       end
       ret
     rescue Exception => e

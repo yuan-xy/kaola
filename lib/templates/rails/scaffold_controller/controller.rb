@@ -14,6 +14,7 @@ class <%= controller_class_name %>Controller < ApplicationController
       date_search
       range_search
       in_search
+      cmp_search
       equal_search
     end
     @count = @<%= plural_table_name %>.count if params[:count]=="1"
@@ -236,6 +237,21 @@ class <%= controller_class_name %>Controller < ApplicationController
       @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{model_field[0].pluralize}.#{model_field[1]} in (?)", arr)
     end
     params[:s].delete(:in)      
+  end 
+
+  def cmp_search
+    return unless params[:s][:cmp]
+    simple_query(params[:s][:cmp]).each do |key,v|
+      ["!=","<=",">=","=","<",">"].each do |op|
+        if key.match(op)
+          arr = key.split(op)
+          next if arr.size != 2
+          @<%= plural_table_name %> = @<%= plural_table_name %>.where("#{arr[0]} #{op} #{arr[1]}")
+          break
+        end
+      end
+    end
+    params[:s].delete(:cmp)      
   end 
   
   def with_dot_query(hash)
