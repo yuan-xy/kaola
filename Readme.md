@@ -81,15 +81,7 @@ format目前支持两种：一个是json，这个是提供给前端使用的api�
 	curl  -X POST -d "_method=delete" http://scm.laobai.com:9291/tjb_roles/1234.json
 	
 
-#### 批量删除接口
-批量删除接口的url地址和删除接口一样，只是id的格式不一样。批量删除接口，一次传入多个id，id之间以英文逗号“,”分割。比如
-
-	curl  -X DELETE http://scm.laobai.com:9291/tjb_roles/1234,5678.json
-
-表示删除id为1234和5678的两条记录。如果删除成功，返回值格式：
-
-		{id:[被删除的id], deleted:true}
-
+### 批量增删改功能
 
 #### 批量新增接口
 
@@ -110,37 +102,39 @@ format目前支持两种：一个是json，这个是提供给前端使用的api�
 
 #### 批量修改接口
 
-批量修改接口的url地址是“/表名/batch_update.json”，提交的数据是一个嵌套的多层hash, 内部结构以id的值为key的hash，如：
+无法按照批量新增的模式重用修改接口，因为单条数据修改接口“PUT	/表名/:id”和单个id绑定了。所以定义了一个新的批量修改接口的url地址“/表名/batch_update.json”，提交的数据格式和批量新增接口一致。
 
-	{
-	    "表名复数": {
-		   id1 : { key:value,... },
-		   id2 : { key:value },		   
-		}
-	}
+TODO：批量修改接口的参数传递格式修改为和批量新增接口一致。
 
-作为对比，单个修改的话，提交的是一个hash对象
+#### 批量删除接口
+批量删除接口的url地址和删除接口一样，只是id的格式不一样。批量删除接口，一次传入多个id，id之间以英文逗号“,”分割。比如
 
-	{
-	    "表名单数": {id:id, key:value,...}
-	}
+	curl  -X DELETE http://scm.laobai.com:9291/tjb_roles/1234,5678.json
 
-参考的输入例子：
+表示删除id为1234和5678的两条记录。如果删除成功，返回值格式：
+
+		{id:[被删除的id], deleted:true}
+
+
+#### 通用的批量操作接口
+地址"/\_bulk.json", 在一个接口里完成多个表的数据新增／修改／删除。本接口功能太强，只在其他接口无法满足需求的情况下使用。
+
+{
+	'insert': {
+	    "表名1复数": [{id:id, key:value,...},{}...],
+	    "表名2复数": [{id:id, key:value,...},{}...],
+		...
+	},
+	'update': {
+	    "表名1复数": [{id:id, key:value,...},{}...],
+	    ...
+	},
+	'delete': {
+	    "表名1复数": [id1,id2,...],
+	    "表名2复数": [id1,id2,...],		
+	},		
+}
 	
-	{
-	    "ttr_request_headers": {
-	        "0909d36d-15db-4cd1-b9b7-e084afd45d18": {
-	            "approve_state": "0",
-	            "audit_state": "0",
-	            "close_reason": "close"
-	        },
-	        "0f4810f6-1c8f-47d8-9b4b-a1a6a8b7757a": {
-	            "approve_state": "0",
-	            "audit_state": "0"
-	        }
-	    }
-	}
-
 
 ### 搜索相关功能
 Rails的scaffold自动生成的代码只有基本的CRUD功能，没有提供查询功能，所以这里的搜索功能是我自定义的一套查询语法，包含查询／分页／排序功能，且所有的功能可自由组合。目前支持的查询条件类型包括：
@@ -335,6 +329,17 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 		"per" : 100,
 		"count" : 1
 	}'
+
+
+## 缓存
+目前支持客户端的两个缓存指令
+
+	Cache-Control: max-age=<seconds>
+	Cache-control: no-cache 
+
+max-age指示一个api接口使用缓存，且最长的缓存期限的秒数。如果该接口是首次访问，则计算输出并写入到缓存。后续所有其它带max-age访问该接口的客户端公用这个缓存。只有GET请求支持缓存，缓存的粒度是按照url带参数的完整地址来存储的，和单个的客户端无关。
+
+如果使用no-cache访问一个api接口，会清除该接口url设置过的缓存。
 
 ## 其它接口
 
