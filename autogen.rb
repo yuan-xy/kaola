@@ -8,6 +8,15 @@ def gen_scaffold(t)
   `rails g scaffold #{clazz_name} #{fields} -f`
 end
 
+def fix_primary_key(t)
+  #TODO: 目前写死primary_key为id，以后也许可以自动检测
+  # 对于数据库view类型的模型，必须手动设置primary_key。更好的方式是只有view执行这个方法。
+  single = t.singularize
+  filename = "app/models/#{single}.rb"
+  `rpl "\nend" "\n  self.primary_key = 'id'\nend" #{filename}`
+
+end
+
 def fix_table_name(t)
   single = t.singularize
   if single == t || single+"s" != t #表的名字是单数，或者是类似y结尾的不规则英文复数规则
@@ -38,6 +47,7 @@ ActiveRecord::Base.connection.tables.each do |t|
     end
   end
   gen_scaffold(t)
+  fix_primary_key(t)
   fix_table_name(t)
 end
 
@@ -56,6 +66,7 @@ $extra_databases.each do |extra|
       end
     end
     gen_scaffold(t)
+    fix_primary_key(t)
     fix_table_name(t)
     fix_connection(t, extra)
   end
