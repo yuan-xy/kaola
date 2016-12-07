@@ -17,7 +17,9 @@ class BulkController < ApplicationController
         clazz = to_model(t)
         if clazz && arr.class == Array
           arr.each do |hash|
-            obj = clazz.find(hash[:id]).update_attributes!(hash.delete(:id).permit!)
+            id = hash[:id]
+            hash.delete(:id)
+            obj = clazz.find(id).update_attributes!(hash.permit!)
             ret[:update] << obj
           end
         end

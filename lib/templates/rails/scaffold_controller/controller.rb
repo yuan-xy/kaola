@@ -86,7 +86,9 @@ class <%= controller_class_name %>Controller < ApplicationController
     if input.class == Array
       ActiveRecord::Base.transaction do
         input.each do |hash|
-          <%= class_name %>.find(hash[:id]).update_attributes!(hash.delete(:id).permit!)
+          id = hash[:id]
+          hash.delete(:id)
+          <%= class_name %>.find(id).update_attributes!(hash.permit!)
         end
       end
     elsif input.class == Hash
