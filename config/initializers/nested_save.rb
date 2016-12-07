@@ -52,7 +52,7 @@ class ActiveRecord::Base
             clazz = Object.const_get(x.camelize)
             arr.each do |hash|
               obj = clazz.new(hash.permit!)
-              obj.method("#{single}_id=").call(self.id)
+              obj.method("#{single}_id=").call(self.id)  #如果有外键，此处会有死锁。所以不建议用外键。
               obj.save!
               ret << obj
             end

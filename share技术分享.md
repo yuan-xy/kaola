@@ -92,7 +92,7 @@ REST规范没有约定如何实现批量操作，也没有说明提交参数和�
 
 对于如何定义批量修改接口，有点左右为难。首先，无法按照批量新增的模式重用修改接口，因为Restful的单条数据修改接口“PUT	/表名/:id”和单个id绑定了。如果严格参考DHH的做法，批量修改也需要抽象成一个资源，类似于点赞，而不应该增加一个动作。
 
-但是我对这个做法不习惯，批量修改我认为还是和CRUD一个性质的。所以还是决定增加了一个动作batch\_update，也是整个约定里唯一增加的动作。批量修改接口的url地址是“/表名/batch\_update.json”，提交的json数据格式和批量新增接口一致。
+但是我对这个做法不习惯，批量修改我认为还是和CRUD一个性质的。目前还是决定增加了一个动作batch\_update，也是整个约定里唯一增加的动作。批量修改接口的url地址是“/表名/batch\_update.json”，提交的json数据格式和批量新增接口一致。以后也有可能统一提供一个类似elasticsearch的bulk接口。
 
 ### 3.3 批量删除接口
 批量删除接口也没有按照DHH的说法抽象成资源，而是重用了Restful的删除接口，只是id的格式不一样。批量删除接口，一次传入多个id，id之间以英文逗号“,”分割。
@@ -118,7 +118,7 @@ REST规范没有约定如何实现批量操作，也没有说明提交参数和�
 	s[in[field]]=value
 	s[cmp[field,field]]=
 
-分别代表精确查询／like字符串模糊查询／date日期范围查询／range范围查询／in枚举查询。这些查询基本满足了OLTP业务的常见需求，报表统计类需求有专门的报表系统。
+分别代表精确查询／like字符串模糊查询／date日期范围查询／range范围查询／in枚举查询／cmp比较查询。这些查询基本满足了OLTP业务的常见需求，报表统计类需求有专门的报表系统。
 
 如果有多个查询条件，条件之间是逻辑与的关系。
 
@@ -137,13 +137,13 @@ REST规范没有约定如何实现批量操作，也没有说明提交参数和�
 	"/warehouses.json?s[range[id]]=3,"
 
 ### 4.2  分页/排序/Count计数
+分页参数page／per，排序参数order，计数参数count之间都是可以自由组合的。比如：
 
 	"/warehouses.json?page=1"
 	"/warehouses.json?page=1&per=100"
 	"/warehouses.json?page=1&order=id+desc"
 	"/warehouses.json?page=1&per=100&count=1"
 
-分页参数page／per，排序参数order，计数参数count之间都是可以自由组合的。
 
 ## 5. Restful扩展：关联表支持
 
