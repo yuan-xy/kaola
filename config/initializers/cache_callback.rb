@@ -8,10 +8,10 @@ class ActiveRecord::Base
   
   def request_cache_of_belongs_to(method_name)
     id = self.send(method_name+"_id")
-    cache = RequestStore.store[method_name+id.to_s]
-    return cache if cache
+    key = method_name+id.to_s
+    return RequestStore.store[key] if RequestStore.store.has_key? key
     ret = self.send(method_name)
-    RequestStore.store[method_name+id.to_s] = ret
+    RequestStore.store[key] = ret
     ret
   end
    
