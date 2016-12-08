@@ -65,7 +65,9 @@ class ApplicationController < ActionController::Base
   before_action :set_search_params, only: [:index]
   
   def set_search_params
-    @page_count = params[:per] || 100
+    default_page_count = 100
+    default_page_count = 10 if params[:many]
+    @page_count = params[:per] || default_page_count
     @page = params[:page].to_i
     @order = params[:order]
     if @page<0
