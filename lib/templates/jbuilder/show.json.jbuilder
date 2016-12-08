@@ -1,6 +1,6 @@
 json.merge! @<%= singular_table_name %>.attributes
 $belongs['<%= singular_table_name %>'].try(:each) do |x|
-	json.set! x, @<%= singular_table_name %>.send(x).try(:attributes)
+	json.set! x, @<%= singular_table_name %>.request_cache_of_belongs_to(x).try(:attributes)
 end
 
 if params[:many]=="1" && Rails.env != "production"

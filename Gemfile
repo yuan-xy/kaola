@@ -10,6 +10,8 @@ gem 'rack-attack'
 #gem 'derailed_benchmarks', group: :development
 #gem 'brakeman', :require => false, group: :development
 gem 'dalli'
+gem 'request_store'
+
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
