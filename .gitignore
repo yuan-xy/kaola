@@ -4,7 +4,7 @@ app/models/*
 app/controllers/t*
 app/controllers/j*
 bin/*
-belongs.yaml
+belong*.yaml
 many.yaml
 public/index.html
 public/index2.html

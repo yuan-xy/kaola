@@ -5,6 +5,7 @@ require 'rack/cors'
 
 $many = YAML.load(File.read('./public/many.yaml'))
 $belongs = YAML.load(File.read('./public/belongs.yaml'))
+$belongs_class = YAML.load(File.read('./public/belongs_class.yaml'))
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.

@@ -90,6 +90,8 @@ end
 
 File.open('./public/belongs.yaml', 'w') {|f| f.write(YAML.dump($belongs2)) }
 File.open('./public/many.yaml', 'w') {|f| f.write(YAML.dump($many)) }
+#TODO: 是否不放在public目录下，提高安全性。目前在发布环境下，不提供静态文件下载，所以没有安全性漏洞。但是这也要求不能通过nginx等提供public目录的访问。
+
 
 $belongs.each do |key, arr|
   filename = "app/models/#{key}.rb"
@@ -109,5 +111,24 @@ $many.each do |key, arr|
     `rpl "\nend" "\n  has_many :#{x.pluralize}\nend" #{filename}` 
   end
 end
+
+def extra_belongs_class
+  $belongs.map do |key, arr|
+    arr2 = arr.map do |x|
+      if x.class==String
+        nil
+      else
+        col_prefix,clazz,col_name = x
+        [col_name, clazz.name]
+      end
+    end.delete_if{|x| x.nil?}
+    [key, arr2.to_h]
+  end.to_h
+end
+
+File.open('./public/belongs_class.yaml', 'w') do |f| 
+  f.write(YAML.dump(extra_belongs_class))
+end
+
 
 
