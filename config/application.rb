@@ -36,6 +36,7 @@ module ScmApi
       g.javascripts     false      
     end
     config.middleware.use Rack::Attack
+    config.middleware.use Rack::Deflater
     config.middleware.insert_before 0, "Rack::Cors" do
       allow do
         origins '*'
