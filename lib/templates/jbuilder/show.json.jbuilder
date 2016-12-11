@@ -9,5 +9,4 @@ end
   		  json.merge! arr.try(:attributes)
   		end
   	end
-  end
 end
