@@ -4,7 +4,7 @@ class BulkController < ApplicationController
     raise "only support json input" unless request.format == 'application/json'
     ret = {"insert":[], "update":[], "delete":[]}
     ActiveRecord::Base.transaction do
-      params[:insert].each do |t, arr|
+      params[:insert].try(:each) do |t, arr|
         clazz = to_model(t)
         if clazz && arr.class == Array
           arr.each do |hash| 
@@ -13,7 +13,7 @@ class BulkController < ApplicationController
           end
         end
       end
-      params[:update].each do |t, arr|
+      params[:update].try(:each) do |t, arr|
         clazz = to_model(t)
         if clazz && arr.class == Array
           arr.each do |hash|
@@ -24,7 +24,7 @@ class BulkController < ApplicationController
           end
         end
       end
-      params[:delete].each do |t, arr|
+      params[:delete].try(:each) do |t, arr|
         clazz = to_model(t)
         if clazz && arr.class == Array
           arr.each do |id|
