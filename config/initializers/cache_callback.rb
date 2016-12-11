@@ -9,9 +9,10 @@ class ActiveRecord::Base
   end
   
   def belongs_to_multi_get
-    return {} if $belongs['tbp_combin_detail'].nil?
+    tname = self.class.name.underscore
+    return {} if $belongs[tname].nil?
     ret = {}
-	  request_caches = $belongs['tbp_combin_detail'].map do |x|
+	  request_caches = $belongs[tname].map do |x|
       cache,flag = self.request_cache_of_belongs_to_only(x)
       [x,cache,flag]
 	  end
