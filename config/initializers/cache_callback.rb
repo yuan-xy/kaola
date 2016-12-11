@@ -6,12 +6,15 @@ class ActiveRecord::Base
   def clear_cache
     Rails.logger.warn "after commit #{self}"
     Rails.cache.delete(memcache_key(self.class, self.id))
-    Rails.cache.increment("timestamp:#{self.class.name}")
+    #Rails.cache.increment("timestamp:#{self.class.name}")
+    tm = Rails.cache.read("timestamp:#{self.class.name}")
+    tm = tm.to_i + 1
+    Rails.cache.write("timestamp:#{self.class.name}", tm)
   end
   
   def self.get_class_timestamp(class_name)
     Rails.cache.fetch("timestamp:#{class_name}") do
-      "1"
+      1
     end    
   end
   
@@ -23,11 +26,31 @@ class ActiveRecord::Base
     ret
   end
   
+  def self.many_caches(table, list)
+    ret = []
+    names = list.map{|x| x.many_cache_key(table)}
+    caches = Rails.cache.read_multi(*names)
+    list.each_with_index do |obj,i|
+      cache = caches[names[i]]
+      unless cache
+        key = obj.many_cache_key(table)
+        cache = obj.many_load(table)
+        Rails.cache.write(key, cache)
+      end
+      ret[i] = cache
+    end
+    ret
+  end
+  
   def many_cache(table)
     key = many_cache_key(table)
     Rails.cache.fetch(key) do
-      self.send(table).limit(100).to_a
+      self.many_load(table)
     end
+  end
+  
+  def many_load(table, size=100)
+    self.send(table).limit(size).to_a
   end
   
   def many_cache_key(table)

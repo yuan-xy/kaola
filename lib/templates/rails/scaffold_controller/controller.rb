@@ -19,11 +19,29 @@ class <%= controller_class_name %>Controller < ApplicationController
     end
     @count = @<%= plural_table_name %>.count if params[:count]=="1"
     @<%= plural_table_name %> = @<%= plural_table_name %>.page(@page).per(@page_count)
+	  if params[:many] && params[:many].size>1
+      @many = {}
+	    params[:many].split(",").each do |x|
+        @many[x] = <%= class_name %>.many_caches(x, @<%= plural_table_name %>)
+      end
+    end
     @<%= plural_table_name %>
   end
 
   # GET <%= route_url %>/1
   def show
+    @many = {}
+    if params[:many] && params[:many].size>1
+      params[:many].split(",").each do |x|
+        @many[x] = @<%= singular_table_name %>.many_cache(x)
+      end
+    end
+    if params[:many]=="1" && Rails.env != "production"
+      $many['<%= singular_table_name %>'].try(:each) do |x|
+        x = x.pluralize
+        @many[x] = @<%= singular_table_name %>.many_cache(x)
+      end
+    end
   end
 
   # GET <%= route_url %>/new
