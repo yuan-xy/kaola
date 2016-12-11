@@ -4,7 +4,7 @@ def func(json)
 	  <%= singular_table_name %>.belongs_to_multi_get.each do |k,v|
 	    json.set! k, v.try(:attributes)
 	  end
-	  @many.each do |x,value|
+	  @many.try(:each) do |x,value|
     	json.set! x do 
     		json.array!(value[i]) do |arr|
     		  json.merge! arr.try(:attributes)

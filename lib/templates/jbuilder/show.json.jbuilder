@@ -3,7 +3,7 @@ json.merge! @<%= singular_table_name %>.attributes
   json.set! k, v.try(:attributes)
 end
 
-@many.each do |x,value|
+@many.try(:each) do |x,value|
   	json.set! x do 
   		json.array!(value) do |arr|
   		  json.merge! arr.try(:attributes)
