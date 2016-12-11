@@ -9,7 +9,7 @@ if params[:count]=="1"
 		  if params[:many] && params[:many].size>1
 		    params[:many].split(",").each do |x|
 		    	json.set! x do 
-		    		json.array!(<%= singular_table_name %>.send(x).limit(100)) do |arr|
+		    		json.array!(<%= singular_table_name %>.many_cache(x)) do |arr|
 		    		  json.merge! arr.try(:attributes)
 		    		end
 		    	end
@@ -26,7 +26,7 @@ else
 	  if params[:many] && params[:many].size>1
 	    params[:many].split(",").each do |x|
 	    	json.set! x do 
-	    		json.array!(<%= singular_table_name %>.send(x).limit(100)) do |arr|
+	    		json.array!(<%= singular_table_name %>.many_cache(x)) do |arr|
 	    		  json.merge! arr.try(:attributes)
 	    		end
 	    	end

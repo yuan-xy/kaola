@@ -7,7 +7,7 @@ if params[:many]=="1" && Rails.env != "production"
   $many['<%= singular_table_name %>'].try(:each) do |x|
     xs = x.pluralize
   	json.set! xs do 
-  		json.array!(@<%= singular_table_name %>.send(xs).limit(100)) do |arr|
+  		json.array!(@<%= singular_table_name %>.many_cache(xs)) do |arr|
   		  json.merge! arr.try(:attributes)
   		end
   	end
@@ -17,7 +17,7 @@ end
 if params[:many] && params[:many].size>1
   params[:many].split(",").each do |x|
   	json.set! x do 
-  		json.array!(@<%= singular_table_name %>.send(x).limit(100)) do |arr|
+  		json.array!(@<%= singular_table_name %>.many_cache(x)) do |arr|
   		  json.merge! arr.try(:attributes)
   		end
   	end

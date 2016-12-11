@@ -6,7 +6,36 @@ class ActiveRecord::Base
   def clear_cache
     Rails.logger.warn "after commit #{self}"
     Rails.cache.delete(memcache_key(self.class, self.id))
+    Rails.cache.increment("timestamp:#{self.class.name}")
   end
+  
+  def self.get_class_timestamp(class_name)
+    Rails.cache.fetch("timestamp:#{class_name}") do
+      "1"
+    end    
+  end
+  
+  def self.request_cache_of_class_timestamp(class_name)
+    key = "timestamp:#{class_name}"
+    return RequestStore.store[key] if RequestStore.store.has_key? key
+    ret = get_class_timestamp(class_name)   
+    RequestStore.store[key] = ret
+    ret
+  end
+  
+  def many_cache(table)
+    key = many_cache_key(table)
+    Rails.cache.fetch(key) do
+      self.send(table).limit(100).to_a
+    end
+  end
+  
+  def many_cache_key(table)
+    class_name = table.singularize.camelize
+    timestamp = self.class.request_cache_of_class_timestamp(class_name)
+    "#{table} #{timestamp} #{self.class.name} #{self.id}"
+  end
+  
   
   def belongs_to_multi_get
     tname = self.class.name.underscore
