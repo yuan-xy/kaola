@@ -5,15 +5,6 @@ $belongs={}
 $belongs2={}
 $many={}
 
-$tables = []
-ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
-$tables << ActiveRecord::Base.connection.tables
-$extra_databases.each do |extra|
-  ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym)
-  $tables << ActiveRecord::Base.connection.tables
-end
-$tables.flatten!
-
 $tables.each do |t|
   if t.singularize.pluralize != t
     puts "警告： 表名#{t}的复数规则有问题"

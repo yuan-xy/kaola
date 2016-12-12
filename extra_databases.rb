@@ -3,4 +3,18 @@ def get_extra_dbs
   size = "_development".size+1
   dbs.map{|x| x[0..-size]}
 end
+
 $extra_databases = get_extra_dbs
+
+def all_tables
+  tables = []
+  ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
+  tables << ActiveRecord::Base.connection.tables
+  $extra_databases.each do |extra|
+    ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym)
+    tables << ActiveRecord::Base.connection.tables
+  end
+  tables.flatten!
+end
+
+$tables = all_tables
