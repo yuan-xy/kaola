@@ -1,14 +1,15 @@
 class MemcacheLock
   
-  def initialize(lock_expiry=10, retries=3, sleep_base=0.5)
+  # lock_expiry：锁设置成功后的过期时间。防止进程crash等导致忘记释放锁。
+  # retries：当锁获取被阻塞时，重试的次数
+  # sleep_base：当锁获取被阻塞时，首次sleep等待的时间
+  def initialize(lock_expiry=30, retries=3, sleep_base=0.5)
     @lock_expiry = lock_expiry
     @retries = retries
     @sleep_base = sleep_base
   end
   
   def synchronize(key)
-    raise 'already synchronized with this lock' if @random
-    @random = SecureRandom.uuid
     acquire_lock(key)
     begin
       yield
@@ -20,7 +21,7 @@ class MemcacheLock
   def acquire_lock(key)
     @retries.times do |count|
       flag = Rails.cache.dalli.add(key, Process.pid, @lock_expiry)
-      return if flag
+      return true if flag
       exponential_sleep(count)
     end
     raise "Couldn't acquire memcache lock for: #{key}"
