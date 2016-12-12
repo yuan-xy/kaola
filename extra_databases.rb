@@ -14,6 +14,7 @@ def all_database_tables
     ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym)
     tables[extra] = ActiveRecord::Base.connection.tables
   end
+  ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
   tables
 end
 

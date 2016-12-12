@@ -14,6 +14,7 @@ File.open("public/index2.html","w") do |f|
       f.puts "<tr>"
       f.puts "<td>---database:#{db}---</td>"
       f.puts "</tr>"
+      ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
     end
     tables.each do |t|
       next if t.match /_\d/ #表的名字类似goodslist_20151127
