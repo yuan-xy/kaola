@@ -33,27 +33,11 @@ def fix_connection(t, extra_db)
   `rpl "\nend" '\n  establish_connection "#{str}".to_sym\nend' #{filename}`
 end
 
-
-ActiveRecord::Base.connection.tables.each do |t|
-  next if t.match /_\d/ #表的名字类似goodslist_20151127
-  if ARGV[0]=="inc_update"
-    clazz_name = t.camelize.singularize
-    begin
-      clazz = Object.const_get(clazz_name)
-      puts "skip exsits table #{t}"
-      next
-    rescue Exception => e
-      puts e
-    end
+$database_tables.each do |db, tables|
+  if db != :DEFAULT
+    ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
   end
-  gen_scaffold(t)
-  fix_primary_key(t)
-  fix_table_name(t)
-end
-
-$extra_databases.each do |extra|
-  ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym)
-  ActiveRecord::Base.connection.tables.each do |t|
+  tables.each do |t|
     next if t.match /_\d/ #表的名字类似goodslist_20151127
     if ARGV[0]=="inc_update"
       clazz_name = t.camelize.singularize
@@ -68,7 +52,7 @@ $extra_databases.each do |extra|
     gen_scaffold(t)
     fix_primary_key(t)
     fix_table_name(t)
-    fix_connection(t, extra)
+    fix_connection(t, db) if db != :DEFAULT
   end
 end
 
