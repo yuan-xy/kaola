@@ -6,15 +6,21 @@ end
 
 $extra_databases = get_extra_dbs
 
-def all_tables
-  tables = []
+def all_database_tables
+  tables = {}
   ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
-  tables << ActiveRecord::Base.connection.tables
+  tables[:DEFAULT] = ActiveRecord::Base.connection.tables
   $extra_databases.each do |extra|
     ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym)
-    tables << ActiveRecord::Base.connection.tables
+    tables[extra] = ActiveRecord::Base.connection.tables
   end
-  tables.flatten!
+  tables
+end
+
+$database_tables = all_database_tables
+
+def all_tables
+  $database_tables.values.flatten
 end
 
 $tables = all_tables
