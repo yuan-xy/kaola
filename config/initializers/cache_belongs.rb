@@ -29,7 +29,7 @@ class ActiveRecord::Base
     methods.each_with_index do |method_name,i|
       cache = caches[names[i]]
       clazz, id = clazz_id_of_belongs(method_name)
-      ret[methods[i]] = memcache_load0(clazz, id, cache)
+      ret[methods[i]] = clazz.memcache_load_nil(id, cache)
     end
     ret
   end

@@ -10,12 +10,10 @@ class ActiveRecord::Base
   
   def self.memcache_load(id)
     cache = Rails.cache.read(memcache_key(id))
-    memcache_load0(id, cache)
+    memcache_load_nil(id, cache)
   end
-  
-  private
-  
-  def self.memcache_load0(id, cache)
+    
+  def self.memcache_load_nil(id, cache)
     if cache
       if cache == nil_value(id)
         nil
