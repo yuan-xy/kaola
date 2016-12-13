@@ -165,6 +165,7 @@ class ActiveRecord::Base
   end
   
   def self.prefix
+    @@memcache_prefix ||= nil
     init_prefix unless @@memcache_prefix
     @@memcache_prefix
   end
@@ -174,7 +175,7 @@ class ActiveRecord::Base
   end
   
   def self.init_prefix
-    @memcache_prefix = Rails.cache.read(prefix_key)
+    @@memcache_prefix = Rails.cache.read(prefix_key)
     unless @@memcache_prefix
       @@memcache_prefix = 1 
       Rails.cache.write(prefix_key, @@memcache_prefix)
@@ -182,7 +183,7 @@ class ActiveRecord::Base
   end
   
   def self.inc_prefix
-    init_prefix unless @@memcache_prefix
+    init_prefix
     @@memcache_prefix += 1
     Rails.cache.write("#{prefix}:#{name}", @@memcache_prefix)
   end
