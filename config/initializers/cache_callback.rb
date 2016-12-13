@@ -185,7 +185,7 @@ class ActiveRecord::Base
   def self.inc_prefix
     init_prefix
     @@memcache_prefix += 1
-    Rails.cache.write("#{prefix}:#{name}", @@memcache_prefix)
+    Rails.cache.write(prefix_key, @@memcache_prefix)
   end
    
 end
