@@ -6,10 +6,10 @@ class ActiveRecord::Base
   def clear_cache
     Rails.logger.warn "after commit #{self}"
     Rails.cache.delete(memcache_key(self.class, self.id))
-    #Rails.cache.increment(timestamp_key(self.class.name))
-    tm = Rails.cache.read(timestamp_key(self.class.name))
+    #Rails.cache.increment(self.class.timestamp_key)
+    tm = Rails.cache.read(self.class.timestamp_key)
     tm = tm.to_i + 1
-    Rails.cache.write(timestamp_key(self.class.name), tm)
+    Rails.cache.write(self.class.timestamp_key, tm)
   end
   
   def self.get_class_timestamp(class_name)
@@ -18,7 +18,7 @@ class ActiveRecord::Base
     end    
   end
   
-  def self.timestamp_key(class_name)
+  def self.timestamp_key(class_name=self.name)
     "timestamp:#{class_name}"
   end
   
