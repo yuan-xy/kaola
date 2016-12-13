@@ -302,7 +302,7 @@ class <%= controller_class_name %>Controller < ApplicationController
     
     # Use callbacks to share common setup or constraints between actions.
     def set_<%= singular_table_name %>
-      cache = <%= class_name %>.new.memcache_load(<%= class_name %>, params[:id])
+      cache = <%= class_name %>.memcache_load(params[:id])
       @<%= singular_table_name %> = cache
     end
 
