@@ -11,6 +11,7 @@ gem 'rack-attack'
 #gem 'brakeman', :require => false, group: :development
 gem 'dalli'
 gem 'request_store'
+gem 'rest-client'
 
 
 
