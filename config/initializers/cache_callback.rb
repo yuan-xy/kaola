@@ -96,7 +96,7 @@ class ActiveRecord::Base
   end
   
   def memcache_key(clazz, id)
-    "#{clazz.name} #{id}"
+    "#{clazz.prefix}#{clazz.name} #{id}"
   end
   
   def memcache_load(clazz, id)
@@ -162,6 +162,29 @@ class ActiveRecord::Base
     clazz_name = hash[method_name+"_id"]
     return clazz_name if clazz_name
     method_name.camelize
+  end
+  
+  def self.prefix
+    init_prefix unless @@memcache_prefix
+    @@memcache_prefix
+  end
+  
+  def self.prefix_key
+    "prefix:#{name}"
+  end
+  
+  def self.init_prefix
+    @memcache_prefix = Rails.cache.read(prefix_key)
+    unless @@memcache_prefix
+      @@memcache_prefix = 1 
+      Rails.cache.write(prefix_key, @@memcache_prefix)
+    end
+  end
+  
+  def self.inc_prefix
+    init_prefix unless @@memcache_prefix
+    @@memcache_prefix += 1
+    Rails.cache.write("#{prefix}:#{name}", @@memcache_prefix)
   end
    
 end
