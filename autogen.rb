@@ -38,7 +38,6 @@ $database_tables.each do |db, tables|
     ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
   end
   tables.each do |t|
-    next if t.match /_\d/ #表的名字类似goodslist_20151127
     if ARGV[0]=="inc_update"
       clazz_name = t.camelize.singularize
       begin

@@ -17,7 +17,6 @@ File.open("public/index2.html","w") do |f|
       ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
     end
     tables.each do |t|
-      next if t.match /_\d/ #表的名字类似goodslist_20151127
       f.puts "<tr>"
       f.puts "<td>#{human_table_name(t)}</td><td><a href='./#{t}'>#{t}</a></td>"
       f.puts "</tr>"

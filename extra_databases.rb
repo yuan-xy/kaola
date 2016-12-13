@@ -6,13 +6,19 @@ end
 
 $extra_databases = get_extra_dbs
 
+
+def is_ignore_table?(t)
+  #表的名字类似goodslist_20151127, 属于备份表
+  t.match /_\d/
+end
+
 def all_database_tables
   tables = {}
   ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
-  tables[:DEFAULT] = ActiveRecord::Base.connection.tables
+  tables[:DEFAULT] = ActiveRecord::Base.connection.tables.delete_if{|t| is_ignore_table?(t)}
   $extra_databases.each do |extra|
     ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym)
-    tables[extra] = ActiveRecord::Base.connection.tables
+    tables[extra] = ActiveRecord::Base.connection.tables.delete_if{|t| is_ignore_table?(t)}
   end
   ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
   tables
