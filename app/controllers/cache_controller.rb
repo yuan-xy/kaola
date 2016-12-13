@@ -10,7 +10,7 @@ class CacheController < ApplicationController
   end
 
   def expire_all
-    tables.each do |table|
+    $tables.each do |table|
       clear_cache(table)
     end
     render :json => {status:"ok"}.to_json
@@ -19,7 +19,7 @@ class CacheController < ApplicationController
   private
   
   def clear_cache(table)
-    class_name = table.singularize.camelize
+    clazz_name = table.singularize.camelize
     clazz = Object.const_get(clazz_name)
     clazz.inc_prefix
   end
