@@ -1,10 +1,13 @@
 class CacheController < ApplicationController
   def expire
-    table = params[:table]
-    if $tables.find{|x| x==table}
-      clear_cache(table)
-    else
-      raise "table #{table} doesn't exsits."
+    table = params[:tables]
+    raise "table doesn't exsits." unless table
+    table.split(',').each do |t|
+      if $tables.find{|x| x==t}
+        clear_cache(t)
+      else
+        raise "table #{table} doesn't exsits."
+      end
     end
     render :json => {status:"ok"}.to_json
   end

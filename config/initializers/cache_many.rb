@@ -33,7 +33,7 @@ class ActiveRecord::Base
     class_name = table.singularize.camelize
     clazz = Object.const_get(class_name)
     timestamp = clazz.request_cache_of_class_timestamp
-    "#{table}_#{timestamp}:#{self.class.name}_#{self.id}"
+    "#{clazz.prefix}#{table}_#{timestamp}:#{self.class.name}_#{self.id}"
   end
   
   #记录当前的表的timestamp， 用于集合对象的缓存过期。只要表里任意一个CUD，对过期本表的所有list类缓存
