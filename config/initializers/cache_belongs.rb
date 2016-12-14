@@ -1,18 +1,31 @@
 class ActiveRecord::Base
   
+  def self.belongs_to_multi_get(list)
+    ret = []
+    names = list.map{|obj| belong_names.map{|x| obj.memcache_cache_key_of_belongs(x)}}
+    names.flatten!
+    names.uniq!
+    caches = Rails.cache.read_multi(*names)
+    names.each do |key|
+      cache = caches[key]
+      clazz, id = memceche_clazz_id(key)
+      caches[key] = clazz.memcache_load_nil(id, cache)
+    end
+    list.each_with_index do |obj,index|
+      hash = {}
+      belong_names.each do |x|
+        key = obj.memcache_cache_key_of_belongs(x)
+        hash[x] = caches[key]
+      end
+      ret[index] = hash
+    end
+    ret
+  end
+  
   # 批量获取本对象所有的belong_to对象，基于localcache和memcache两层的查找方式
   def belongs_to_multi_get
-    tname = self.class.name.underscore
-    return {} if $belongs[tname].nil?
-    ret = {}
-	  request_caches = $belongs[tname].map do |x|
-      cache,flag = self.request_cache_of_belongs_to_only(x)
-      [x,cache,flag]
-	  end
-    request_caches.each {|x, cache,flag| ret[x]=cache if flag}
-    memcache_names = request_caches.delete_if{|x, cache,flag| flag}.map{|x, cache,flag| x}
-    return ret if memcache_names.empty?
-    mem_caches = memcache_belongs_to_multi(memcache_names)
+    ret = request_caches_of_belongs_to
+    mem_caches = memcache_belongs_to_multi(request_cache_not_found)
     mem_caches.each do |k, v|
       RequestStore.store[request_cache_key_of_belongs(k)] = v
     end
@@ -44,7 +57,29 @@ class ActiveRecord::Base
     clazz, id = clazz_id_of_belongs(method_name)
     clazz.memcache_key(id)
   end
+  
+  def self.belong_names
+    tname = name.underscore
+    return [] if $belongs[tname].nil?
+    $belongs[tname]
+  end
 
+
+  def request_cache_not_found
+    hash = request_caches_of_belongs_to
+    self.class.belong_names - hash.keys
+  end
+
+  def request_caches_of_belongs_to
+    ret = {}
+	  request_caches = self.class.belong_names.map do |x|
+      cache,flag = self.request_cache_of_belongs_to_only(x)
+      [x,cache,flag]
+	  end
+    request_caches.each {|x, cache,flag| ret[x]=cache if flag}
+    ret
+  end
+  
   def request_cache_of_belongs_to_only(method_name)
     key = request_cache_key_of_belongs(method_name)
     return [RequestStore.store[key], RequestStore.store.has_key?(key)]

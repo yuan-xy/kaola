@@ -1,8 +1,8 @@
 def func(json)
 	json.array!(@<%= plural_table_name %>.each_with_index.to_a) do |(<%= singular_table_name %>, i)|
 	  json.merge! <%= singular_table_name %>.try(:attributes)
-	  <%= singular_table_name %>.belongs_to_multi_get.each do |k,v|
-	    json.set! k, v.try(:attributes)
+	  @belong_names.each do |name|
+	    json.set! name, @belongs[i][name].try(:attributes)
 	  end
 	  @many.try(:each) do |x,value|
     	json.set! x do 

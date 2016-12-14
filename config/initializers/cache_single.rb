@@ -5,8 +5,16 @@ class ActiveRecord::Base
   end
   
   def self.memcache_key(id)
-    "#{self.prefix}#{self.name} #{id}"
+    "#{self.prefix}:#{self.name}:#{id}"
   end
+  
+  def self.memceche_clazz_id(key)
+    id = key.split(":")[-1]
+    clazz_name = key.split(":")[1]
+    [Object.const_get(clazz_name), id]
+  end
+  
+  
   
   def self.memcache_load(id)
     cache = Rails.cache.read(memcache_key(id))
@@ -29,7 +37,16 @@ class ActiveRecord::Base
       ret
     end
   end
-  
+
+  def self.memcache_load_true(id)
+    ret = self.find_by_id(id)
+    if ret.nil?
+      ret = nil_value(id)
+    end
+    Rails.cache.write(memcache_key(id),ret)
+    ret
+  end
+    
   def self.nil_value(id)
     {self => [id,nil]}
   end

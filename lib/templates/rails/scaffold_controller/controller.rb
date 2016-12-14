@@ -25,6 +25,8 @@ class <%= controller_class_name %>Controller < ApplicationController
         @many[x] = <%= class_name %>.many_caches(x, @<%= plural_table_name %>)
       end
     end
+    @belong_names = <%= class_name %>.belong_names
+    @belongs = <%= class_name %>.belongs_to_multi_get(@<%= plural_table_name %>)
     @<%= plural_table_name %>
   end
 
