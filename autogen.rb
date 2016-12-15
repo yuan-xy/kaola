@@ -1,4 +1,5 @@
 require_relative 'extra_databases'
+require_relative 'insert_into_file'
 
 def gen_scaffold(t)
   clazz_name = t.camelize.singularize
@@ -13,24 +14,22 @@ def fix_primary_key(t)
   # 对于数据库view类型的模型，必须手动设置primary_key。更好的方式是只有view执行这个方法。
   single = t.singularize
   filename = "app/models/#{single}.rb"
-  `rpl "\nend" "\n  self.primary_key = 'id'\nend" #{filename}`
-
+  insert_into_file(filename, "\n  self.primary_key = 'id'", "\nend", false)
 end
 
 def fix_table_name(t)
   single = t.singularize
   if single == t || single+"s" != t #表的名字是单数，或者是类似y结尾的不规则英文复数规则
     filename = "app/models/#{single}.rb"
-    `rpl "\nend" "\n  self.table_name = '#{t}'\nend" #{filename}`
+    insert_into_file(filename, "\n  self.table_name = '#{t}'", "\nend", false)
   end
 end
 
 def fix_connection(t, extra_db)
   single = t.singularize
   filename = "app/models/#{single}.rb"
-  env_str = '#{Rails.env}'
-  str = "#{extra_db}_#{env_str}"
-  `rpl "\nend" '\n  establish_connection "#{str}".to_sym\nend' #{filename}`
+  str = "#{extra_db}_#{Rails.env}"
+  insert_into_file(filename, "\n  establish_connection '#{str}'.to_sym", "\nend", false)
 end
 
 $database_tables.each do |db, tables|

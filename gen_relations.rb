@@ -1,5 +1,5 @@
 require_relative 'extra_databases'
-
+require_relative 'insert_into_file'
 
 $belongs={}
 $belongs2={}
@@ -88,10 +88,10 @@ $belongs.each do |key, arr|
   filename = "app/models/#{key}.rb"
   arr.each do |x|
     if x.class==String
-      `rpl "\nend" "\n  belongs_to :#{x}\nend" #{filename}`
+      insert_into_file(filename, "\n  belongs_to :#{x}", "\nend", false)
     else
       col_prefix,clazz,col_name = x
-      `rpl "\nend" "\n  belongs_to :#{col_prefix}, class_name: '#{clazz.name}', foreign_key: '#{col_name}' \nend" #{filename}`     
+      insert_into_file(filename, "\n  belongs_to :#{col_prefix}, class_name: '#{clazz.name}', foreign_key: '#{col_name}' ", "\nend", false)
     end
   end
 end
@@ -99,7 +99,7 @@ end
 $many.each do |key, arr|
   filename = "app/models/#{key}.rb"
   arr.each do |x|
-    `rpl "\nend" "\n  has_many :#{x.pluralize}\nend" #{filename}` 
+    insert_into_file(filename, "\n  has_many :#{x.pluralize}", "\nend", false)
   end
 end
 
