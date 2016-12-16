@@ -12,7 +12,7 @@ gem 'rack-attack'
 gem 'dalli'
 gem 'request_store'
 gem 'rest-client'
-
+gem 'pmap'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'

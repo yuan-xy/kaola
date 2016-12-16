@@ -1,5 +1,6 @@
 require_relative 'extra_databases'
 require_relative 'insert_into_file'
+require 'pmap'
 
 def gen_scaffold(t)
   clazz_name = t.camelize.singularize
@@ -36,7 +37,7 @@ $database_tables.each do |db, tables|
   if db != :DEFAULT
     ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
   end
-  tables.each do |t|
+  tables.peach do |t|
     if ARGV[0]=="inc_update"
       clazz_name = t.camelize.singularize
       begin
