@@ -9,13 +9,12 @@ if 	[ -n "$spring_pid" ]; then
 fi
 
 
-
-if test $1 ; then
+if [ "$1" = '-v' ] ; then
 	bundle install
-	rails r autogen.rb verbose
+	rails r autogen.rb verbose $2
 else
 	bundle install --quiet
-	rails r autogen.rb
+	rails r autogen.rb $1
 fi
 
 rails r gen_index.rb

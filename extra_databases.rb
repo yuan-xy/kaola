@@ -31,3 +31,27 @@ def all_tables
 end
 
 $tables = all_tables
+
+class Hash
+  def hmap(&block)
+    self.inject({}){ |hash,(k,v)| hash.merge( block.call(k,v) ) }
+  end
+end
+
+
+def new_tables
+  $database_tables.hmap do |db, tables|
+    nts = tables.map do |t|
+        clazz_name = t.camelize.singularize
+        begin
+          clazz = Object.const_get(clazz_name)
+          nil
+        rescue Exception => e
+          t
+        end
+    end
+    { db => nts.delete_if{|x| x.nil?} }
+  end
+end
+
+

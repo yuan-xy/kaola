@@ -3,5 +3,11 @@ spring_pid=`ps -ef | grep "spring server" | grep -v grep | awk '{print $2}'`
 if 	[ -n "$spring_pid" ]; then  
 	kill -9 $spring_pid
 fi
-rails r autogen.rb inc_update $1
+
+if [ "$1" = '-v' ] ; then
+	rails r incremental_update.rb verbose $2
+else
+	rails r incremental_update.rb $1
+fi
+
 rails r gen_index.rb
