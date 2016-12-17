@@ -7,6 +7,15 @@ spring_pid=`ps -ef | grep "spring server" | grep -v grep | awk '{print $2}'`
 if 	[ -n "$spring_pid" ]; then  
 	kill -9 $spring_pid
 fi
-bundle install
-rails r autogen.rb 
+
+
+
+if test $1 ; then
+	bundle install
+	rails r autogen.rb verbose
+else
+	bundle install --quiet
+	rails r autogen.rb
+fi
+
 rails r gen_index.rb

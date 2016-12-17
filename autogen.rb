@@ -8,7 +8,7 @@ def gen_scaffold(t)
   clazz_name = t.camelize.singularize
   cols = ActiveRecord::Base.connection.columns(t).delete_if{|x| x.name=="created_at" || x.name=="updated_at"}
   fields = cols.map{|x| x.name+":"+x.type.to_s}.join(" ")
-  puts "rails g scaffold #{clazz_name} #{fields} -f"
+  puts "rails g scaffold #{clazz_name} #{fields} -f" if ARGV[0]=="verbose"
   `rails g scaffold #{clazz_name} #{fields} -f`
 end
 
@@ -35,11 +35,18 @@ def fix_connection(t, extra_db)
   insert_into_file(filename, "\n  establish_connection '#{str}'.to_sym", "\nend", false)
 end
 
+def proc_num
+  ret = Etc.nprocessors
+  ret = 20 if ret>20
+  ret
+end
+
 $database_tables.each do |db, tables|
   if db != :DEFAULT
     ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
   end
-  tables.peach(Etc.nprocessors) do |t|
+  tables.peach(proc_num) do |t|
+    print '.' unless ARGV[0]=="verbose"
     if ARGV[0]=="inc_update"
       clazz_name = t.camelize.singularize
       begin

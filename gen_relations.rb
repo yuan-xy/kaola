@@ -22,7 +22,7 @@ def test_relation(table_name,col_name,col_prefix)
       puts "警告： 外键#{col_name}应该使用单数表名#{col_prefix.singularize}"
     end
     clazz = Object.const_get(col_prefix.pluralize.singularize.camelize)
-    puts "  found: #{table_name} -> #{col_prefix}"
+    #puts "  found: #{table_name} -> #{col_prefix}"
     if col_prefix+"_id" == col_name
       if $belongs[single].nil?
           $belongs[single] = [col_prefix]
@@ -50,7 +50,7 @@ def test_relation(table_name,col_name,col_prefix)
     end
     return true
   else
-    puts "  not found: #{table_name} -> #{col_prefix}"
+    #puts "  not found: #{table_name} -> #{col_prefix}"
     return false
   end
 end
@@ -61,7 +61,7 @@ def find_relation(t)
   clazz_name = t.camelize.singularize
   clazz = Object.const_get(clazz_name)
   cols = clazz.columns.find_all{|x| x.name[-3..-1]=="_id"}
-  puts "try finding relationship: #{t}"
+  #puts "try finding relationship: #{t}"
   cols.each do |col|
     col_prefix = col.name[0..-4]
     while col_prefix.size>0
