@@ -69,8 +69,16 @@ https://www.ibm.com/developerworks/cn/linux/l-memmod/
 
 
 ### java内存模型
-voliate
+volatile
 cpu私有缓存／L2L3共享缓存／主存
+
+深入理解Java内存模型（一）——基础
+http://www.infoq.com/cn/articles/java-memory-model-1
+
+Jvm内存模型
+http://gityuan.com/2016/01/09/java-memory/
+
+
 ### Web应用内存模型
 内存／外部内存缓存memcache／数据库
 一级缓存／二级缓存
