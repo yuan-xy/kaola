@@ -125,6 +125,16 @@ namespace ／ class ／ timestamp ／ list
 
 ## 5. 缓存请求合并
 
+https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped
+
+getq
+
+https://github.com/memcached/memcached/blob/master/doc/protocol.txt
+
+gets
+
+
+getq vs gets ??
 
 ## 分布式锁
 

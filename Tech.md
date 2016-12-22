@@ -106,11 +106,60 @@ Table2 has_many  table1s
 还有一种缓存是利用ThreadLocal存储实现的单次请求的本机内存缓存，加载方式是：
  
 	Class.request_cache_load(id)
-	
-单个对象的本机内存缓存，一般称为IdentifyMap。通常所有的ORM框架，针对同一个对象的
+
+#### 外键对象的缓存
+
+单个对象的本机内存缓存，一般称为IdentifyMap。通常所有的ORM框架，针对同一个对象的多次find请求，会利用到本机内存缓存。但是如果多个不同的对象，都指向同一个外键对象，这种情况下不一定会利用到本机内存缓存。而且ORM框架不知道应用场景，所以也没法做深入的优化。针对本系统的众多belongs_to外键对象，在一次web请求的过程中，会利用到本机内存缓存。调用方式如下：
+ 
+	object.cache_of_belongs_to 'belongs_to_name'
+
+其中object是主对象，belongs_to_name是外键字段的名字，返回的是加载好的外键对象。整个方法的执行分三步：1.首先查看本次请求的内存缓存中是否有外键对象；2.如果没用尝试从memcache加载；3.如果没有从数据库加载。
+
+### 多个对象缓存
+
+首先，针对列表页请求，目前没有进行缓存。主要的原因是列表页的数据太灵活，查询条件／分页／排序／总数都会影响到最终结果，不太适合用key-value式的缓存。而且目前所有的列表页请求都是单表查询，不做join，所以数据库执行的速度还可以。
+
+所以本系统的多个对象缓存只有一种情况，就是一对多的many关系的缓存。many对象最多支持加载100条，所以缓存最多也是100条。
+
+#### 缓存Key的设计
+many关系的列表缓存的key设计如下：
+
+    "#{prefix}#{table}_#{timestamp}:#{name}_#{id}"
+
+其中，prefix是关联的many表的一个全局编号。主要用于批量过期一张表的所有相关缓存数据。table是关联表的名字。timestamp是内部维护的关联表的版本时间戳。name是主对象的名字，对应到一张表。id是主对象的主键。
+
+比如一个部门Depart对象有很多个员工User对象，假设user表当前的prefix为2，timestamp为33，那么部门1的所有员工的缓存key为：
+
+    "2users_33:Depart_1"
+
+如果users表有增删改的变更，那么时间戳会加1，下次加载部门1的所有员工，其缓存的key就是
+
+    "2users_34:Depart_1"
+
+这样老的缓存数据就自动过期了。同理，如果有外部程序直接更改了数据库的users表，则需要将prefix加1，那么新的缓存的key就是
+
+    "3users_34:Depart_1"
 
 #### 缓存的使用
 
+	obj.many_cache(table)
+
+
+### 缓存请求的合并
+一个对象往往有多个外键对象，可以利用memcache的pipeline特性加速网络请求，调用方式如：
+
+	objecct.belongs_to_multi_get
+
+如果一组列表对象，而每个对象又要获取所有的外键对象，那么可以通过两种方式加速：1. 重复请求的合并，2. 多个请求的pipeline加速，调用方式如：
+
+	Class.belongs_to_multi_get(list)
+
+
+如果一组列表对象，每个对象要获取table指向的many关系对象，调用方式如：
+
+	Class.many_caches(table, list)
+
+其中list表示一组列表对象，其中的每个对象都要加载table的集合，而Class则是list对象的类对象。
 
 ## 新项目配置说明
 本系统依赖于ruby on rails， 所以在配置新项目前要安装好ROR环境。
