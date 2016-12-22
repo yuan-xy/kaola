@@ -53,6 +53,14 @@ class ActiveRecord::Base
     clazz_name+id.to_s
   end
   
+  def self.request_cache_key(id)
+    self.name+id.to_s
+  end
+  
+  def self.request_cache_load(id)
+    RequestStore.store[request_cache_key(id)]
+  end
+  
   def memcache_cache_key_of_belongs(method_name)
     clazz, id = clazz_id_of_belongs(method_name)
     clazz.memcache_key(id)

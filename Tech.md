@@ -81,6 +81,37 @@ Table2 has_many  table1s
 上面扫描得到的两个关系：belongs_to和has_many，组织成两个hash表，key是表名，value是对应关系的表名的数组，然后把这两个hash对象序列化成YAML文件，文件名分别是belongs.yaml和many.yaml。Rails程序启动时，会读取这两个文件，然后重新反序列化得到belongs_to和has_many的两个hash表。
 
 
+## 缓存系统的说明
+
+整个缓存系统分为两大类：单个对象缓存，many关系的列表缓存。其中，单个对象缓存过期是精确删除该缓存；而列表缓存则不主动清除，采用被动清除策略。
+
+### 单个对象缓存
+#### 缓存Key的设计
+
+单个对象的缓存的key设计如下：
+
+    "#{prefix}:#{name}:#{id}"
+
+其中，prefix是整张表的一个全局编号。主要用于批量过期一张表的所有相关缓存数据。name是该对象的名字，对应到一张表。id是该对象的主键。
+
+#### 缓存的使用
+根据id加载对象有三种方式，第一种是通过数据库查询加载：
+
+	Class.find(id)
+	
+另一种是通过Memcache缓存加载，如果缓存没有则通过数据库查询加载：
+	
+	Class.memcache_load(id)
+	
+还有一种缓存是利用ThreadLocal存储实现的单次请求的本机内存缓存，加载方式是：
+ 
+	Class.request_cache_load(id)
+	
+单个对象的本机内存缓存，一般称为IdentifyMap。通常所有的ORM框架，针对同一个对象的
+
+#### 缓存的使用
+
+
 ## 新项目配置说明
 本系统依赖于ruby on rails， 所以在配置新项目前要安装好ROR环境。
 
