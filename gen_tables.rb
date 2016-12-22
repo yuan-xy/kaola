@@ -35,7 +35,7 @@ def fix_connection(t, extra_db)
 end
 
 def proc_num
-  ret = Etc.nprocessors
+  ret = 2 * Etc.nprocessors
   ret = 20 if ret>20
   ret
 end
@@ -46,20 +46,27 @@ def gen_db_tables(hash, re_try=true, parallel=true)
     errors[db] = []
     if db != :DEFAULT
       ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
+    else
+      ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
     end
     proc = Proc.new do |t|
       print '.' unless $verbose
+      succ = true
       begin
         flag = gen_scaffold(t)
         unless flag
           errors[db] << t 
+          succ = false
         end
       rescue Exception => e
         errors[db] << t
+        succ = false
       end
-      fix_primary_key(t)
-      fix_table_name(t)
-      fix_connection(t, db) if db != :DEFAULT
+      if succ
+        fix_primary_key(t)
+        fix_table_name(t)
+        fix_connection(t, db) if db != :DEFAULT
+      end
     end
     if parallel
       tables.peach(proc_num, &proc)
