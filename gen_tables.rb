@@ -8,7 +8,7 @@ def gen_scaffold(t)
   cols = ActiveRecord::Base.connection.columns(t).delete_if{|x| x.name=="created_at" || x.name=="updated_at"}
   fields = cols.map{|x| x.name+":"+x.type.to_s}.join(" ")
   puts "rails g scaffold #{clazz_name} #{fields} -f" if $verbose
-  `rails g scaffold #{clazz_name} #{fields} -f`
+  system("rails g scaffold #{clazz_name} #{fields} -f > /dev/null")
 end
 
 def fix_primary_key(t)
@@ -40,21 +40,30 @@ def proc_num
   ret
 end
 
-def gen_db_tables(hash)
+def gen_db_tables(hash, re_try=true)
+  errors = {}
   hash.each do |db, tables|
+    errors[db] = []
     if db != :DEFAULT
       ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
     end
     tables.peach(proc_num) do |t|
       print '.' unless $verbose
       begin
-        gen_scaffold(t)
+        flag = gen_scaffold(t)
+        unless flag
+          errors[db] << t 
+        end
       rescue Exception => e
-        gen_scaffold(t)
+        errors[db] << t
       end
       fix_primary_key(t)
       fix_table_name(t)
       fix_connection(t, db) if db != :DEFAULT
     end
+  end
+  if re_try
+    puts "retry #{errors}" 
+    gen_db_tables(errors, false)
   end
 end
