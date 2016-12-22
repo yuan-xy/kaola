@@ -40,14 +40,14 @@ def proc_num
   ret
 end
 
-def gen_db_tables(hash, re_try=true)
+def gen_db_tables(hash, re_try=true, parallel=true)
   errors = {}
   hash.each do |db, tables|
     errors[db] = []
     if db != :DEFAULT
       ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
     end
-    tables.peach(proc_num) do |t|
+    proc = Proc.new do |t|
       print '.' unless $verbose
       begin
         flag = gen_scaffold(t)
@@ -61,9 +61,14 @@ def gen_db_tables(hash, re_try=true)
       fix_table_name(t)
       fix_connection(t, db) if db != :DEFAULT
     end
+    if parallel
+      tables.peach(proc_num, &proc)
+    else
+      tables.each &proc
+    end
   end
   if re_try
-    puts "retry #{errors}" 
-    gen_db_tables(errors, false)
+    puts "\nretry #{errors}" 
+    gen_db_tables(errors, false, false)
   end
 end
