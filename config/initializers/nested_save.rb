@@ -28,9 +28,11 @@ class ActiveRecord::Base
     ret = []
     tname = self.class.table_name
     params[tname].each do |hash|
-      ret << self.class.new(hash.permit!)
+      obj = self.class.new(hash.permit!)
+      obj.save!
+      ret << obj
     end
-    self.class.import ret
+    # self.class.import ret  #批量导入失败不抛异常，返回对象包括num_inserts/failed_instances
     ret
   end
   
