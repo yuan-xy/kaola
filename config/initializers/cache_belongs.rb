@@ -110,7 +110,11 @@ class ActiveRecord::Base
   end  
   
   def get_belongs_class_name(method_name)
-    hash = $belongs_class[self.class.name.underscore]
+    self.class.get_belongs_class_name(method_name)
+  end
+  
+  def self.get_belongs_class_name(method_name)
+    hash = $belongs_class[self.name.underscore]
     clazz_name = hash[method_name+"_id"]
     return clazz_name if clazz_name
     method_name.camelize

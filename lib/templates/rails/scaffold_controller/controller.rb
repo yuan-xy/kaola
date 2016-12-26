@@ -8,6 +8,7 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   # GET <%= route_url %>
   def index
+    check_search_param_exsit(params[:s].to_hash, <%= class_name %>) if params[:s]
     @<%= plural_table_name %> = <%= class_name %>.order(@order)
     if params[:s]
       like_search
