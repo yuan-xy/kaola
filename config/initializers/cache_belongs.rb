@@ -14,8 +14,8 @@ class ActiveRecord::Base
   
   # 批量获取本对象所有的belong_to对象，基于localcache和memcache两层的查找方式
   def belongs_to_multi_get
-    ret = request_caches_of_belongs_to
-    mem_caches = memcache_belongs_to_multi(request_cache_not_found)
+    ret, not_found = request_caches_of_belongs_to
+    mem_caches = memcache_belongs_to_multi(not_found)
     mem_caches.each do |k, v|
       RequestStore.store[request_cache_key_of_belongs(k)] = v
     end
@@ -65,20 +65,19 @@ class ActiveRecord::Base
     $belongs[tname]
   end
 
-
-  def request_cache_not_found
-    hash = request_caches_of_belongs_to
-    self.class.belong_names - hash.keys
-  end
-
-  def request_caches_of_belongs_to
+  def request_caches_of_belongs_to(with_not_found_keys=true)
     ret = {}
 	  request_caches = self.class.belong_names.map do |x|
       cache,flag = self.request_cache_of_belongs_to_only(x)
       [x,cache,flag]
 	  end
     request_caches.each {|x, cache,flag| ret[x]=cache if flag}
-    ret
+    if with_not_found_keys
+      keys = self.class.belong_names - ret.keys
+      [ret,keys]
+    else
+      ret
+    end
   end
   
   def request_cache_of_belongs_to_only(method_name)
