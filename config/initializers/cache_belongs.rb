@@ -4,23 +4,13 @@ class ActiveRecord::Base
     ret = []
     names = list.map{|obj| belong_names.map{|x| obj.memcache_cache_key_of_belongs(x)}}
     names.flatten!
-    names.uniq!
-    caches = Rails.cache.read_multi(*names)
-    names.each do |key|
-      cache = caches[key]
-      clazz, id = memceche_clazz_id(key)
-      caches[key] = clazz.memcache_load_nil(id, cache)
-    end
+    caches = multi_read_of_single_keys(names)
     list.each_with_index do |obj,index|
-      hash = {}
-      belong_names.each do |x|
-        key = obj.memcache_cache_key_of_belongs(x)
-        hash[x] = caches[key]
-      end
-      ret[index] = hash
+      ret[index] = obj.map_memcache_key_to_belong_name(belong_names, caches)
     end
     ret
   end
+
   
   # 批量获取本对象所有的belong_to对象，基于localcache和memcache两层的查找方式
   def belongs_to_multi_get
@@ -36,13 +26,16 @@ class ActiveRecord::Base
   
   # 批量获取多个belong_to方法指向的对象
   def memcache_belongs_to_multi(methods)
-    ret = {}
     names = methods.map{|x| memcache_cache_key_of_belongs(x)}
-    caches = Rails.cache.read_multi(*names)
-    methods.each_with_index do |method_name,i|
-      cache = caches[names[i]]
-      clazz, id = clazz_id_of_belongs(method_name)
-      ret[methods[i]] = clazz.memcache_load_nil(id, cache)
+    caches = self.class.multi_read_of_single_keys(names)
+    map_memcache_key_to_belong_name(methods, caches)
+  end
+  
+  def map_memcache_key_to_belong_name(methods, caches)
+    ret = {}
+    methods.each do |x|
+      key = self.memcache_cache_key_of_belongs(x)
+      ret[x] = caches[key]
     end
     ret
   end

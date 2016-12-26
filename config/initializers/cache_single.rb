@@ -8,9 +8,20 @@ class ActiveRecord::Base
     "#{self.prefix}:#{self.name}:#{id}"
   end
   
+  def self.memcache_key_nil?(key)
+    key.ends_with? ":" 
+  end
+  
   def self.memceche_clazz_id(key)
-    id = key.split(":")[-1]
-    clazz_name = key.split(":")[1]
+    arr = key.split(":")
+    clazz_name = arr[1]
+    if arr.size==3
+      id = arr[2] 
+    elsif arr.size==2
+      id = nil
+    else
+      raise "illegal memcache single key: #{key}"
+    end
     [Object.const_get(clazz_name), id]
   end
   
@@ -22,6 +33,7 @@ class ActiveRecord::Base
   end
     
   def self.memcache_load_nil(id, cache)
+    raise 'null key not allowed' if id.nil? || id==''
     if cache
       if cache == nil_value(id)
         nil
@@ -51,5 +63,16 @@ class ActiveRecord::Base
     {self => [id,nil]}
   end
 
+  def self.multi_read_of_single_keys(keys)
+    keys.uniq!
+    keys.delete_if {|x| memcache_key_nil?(x) }
+    caches = Rails.cache.read_multi(*keys)
+    keys.each do |key|
+      cache = caches[key]
+      clazz, id = memceche_clazz_id(key)
+      caches[key] = clazz.memcache_load_nil(id, cache)
+    end
+    caches
+  end
    
 end
