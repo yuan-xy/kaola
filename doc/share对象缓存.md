@@ -19,63 +19,81 @@
 ### 1.2 动态内容缓存Etag
 
 
-这就导致了基于文件内容指纹的方案。很多Web开发框架的缓存方案也经历了从时间戳到文件指纹的缓存机制升级的过程。比如Rails开发框架在2.0版本有一个基于时间戳的缓存方案，所有的js文件，url中自动带上最后修改修改时间，比如：
+这就导致了基于文件内容指纹的方案。HTTP协议在1.1版本中增加了基于Etag的指纹缓存方案。下面是一个Etag使用的例子：
 
-   xxx.js?v=1482287874
+	curl -g --head 'http://scm.laobai.com:9391/tpsy_evaluation_questions.json?s[tpsy_evaluation_main_id]=4&many=tpsy_evaluation_options'
+	>HTTP/1.1 200 OK
+	>ETag: W/"758e07c4f86f8eaf09d590ef9f23e4d6"
+	>...
+
+首次请求，服务器端返回Etag。下次客户端请求同一个url的时候，带上Etag。如果服务器端无变化，那么返回304的响应，而不是200的响应。
+
+	curl -g --head -H 'If-None-Match: W/"758e07c4f86f8eaf09d590ef9f23e4d6"'  'http://scm.laobai.com:9391/tpsy_evaluation_questions.json?s[tpsy_evaluation_main_id]=4&many=tpsy_evaluation_options'
+	>HTTP/1.1 304 Not Modified
+	>ETag: W/"758e07c4f86f8eaf09d590ef9f23e4d6"
+	>Cache-Control: max-age=0, private, must-revalidate
+
+
+![与缓存有关的HTTP Header](http://alloyteam.com/wp-content/uploads/2012/03/http-header1.png)
+![缓存策略](./cachepolicy.png)
+<img src="./cachepolicy.png" width="70%" heigth="70%">
+
+
+很多Web开发框架的缓存方案也经历了从时间戳到文件指纹的缓存机制升级的过程。比如Rails开发框架在2.0版本有一个基于时间戳的缓存方案，所有的js文件，url中自动带上最后修改修改时间，比如：
+
+	xxx.js?v=1482287874
    
 然后在Rails3.0框架中，这套方案更改为基于文件内容Hash的文件重命名方案，比如：
 
-   xxx_hash.js
+	xxx_hash.js
 
-HTTP协议在1.1版本中增加了基于Etag的指纹缓存方案。下面是一个Etag使用的例子：
-
-
-curl -g --head 'http://scm.laobai.com:9391/tpsy_evaluation_questions.json?s[tpsy_evaluation_main_id]=4&many=tpsy_evaluation_options'
-
->HTTP/1.1 200 OK
->ETag: W/"758e07c4f86f8eaf09d590ef9f23e4d6"
->...
-
-
-curl -g --head -H 'If-None-Match: W/"758e07c4f86f8eaf09d590ef9f23e4d6"'  'http://scm.laobai.com:9391/tpsy_evaluation_questions.json?s[tpsy_evaluation_main_id]=4&many=tpsy_evaluation_options'
-
->HTTP/1.1 304 Not Modified
->ETag: W/"758e07c4f86f8eaf09d590ef9f23e4d6"
->Cache-Control: max-age=0, private, must-revalidate
 
 
 抓包查看健保通的心理咨询模块是否利用了Etag
-ngrep -q -d eth0  -W byline 'tpsy' port 3000
-ngrep -q -d eth0  -W byline 'ETag' port 3000
-ngrep -q -d eth0  -W byline 'If-None-Match' port 3000
 
-线上接口默认应该支持https／gzip／etag，这些需要做成标配。
+	ngrep -q -d eth0  -W byline 'tpsy' port 3000
+	ngrep -q -d eth0  -W byline 'ETag' port 3000
+	ngrep -q -d eth0  -W byline 'If-None-Match' port 3000
+
+备注：线上接口默认应该支持https／gzip／etag，这些需要做成标配。
 
 ### 1.3 Weak Etag
 
 
 上面例子里的Etag以‘W’开头，这是所谓的Weak Etag。产生Weak Etag的场景主要是内容压缩。Nginx1.7之前有一个Etag相关的Bug，而nginx开发组不认为是自己的bug。情况是这样的，当后端Web服务器提供的响应经过nginx压缩的时候，nginx会删除响应头里的etag。Nginx开发组的理由是，经过压缩后，文件内容已经变更，所以原来的etag必须删除。
 
-后来nginx和后端server各退一步，后端server提供Weak Etag，而nginx不删除Weak Etag。从Nginx1.7.3版本开始，其gzip模块能正确的处理Weak Etag了。如果response中带Weak Etag，那么Nginx的gzip模块不处理；如果response中带strong Etag，那么Nginx的gzip模块会把它转化为Weak Etag。
+从Nginx1.7.3版本开始，其gzip模块能正确的处理Weak Etag了。如果response中带Weak Etag，那么Nginx的gzip模块不处理；如果response中带strong Etag，那么Nginx的gzip模块会把它转化为Weak Etag。
 
 Weak Etag和 (strong) ETag的区别在于：Etag保证文件的内容是完全相同的，而Weak Etag只保证文件的内容是语义上相同的。区分ETag和Weak Etag对一些byte by byte的操作有影响，比如断点续传等。
 
 
 ### 1.4 参考资料
+*   [彻底弄懂 Http 缓存机制 - 基于缓存策略三要素分解法](https://segmentfault.com/p/1210000007850705?utm_source=weekly&utm_medium=email&utm_campaign=email_weekly)
+*   [Rails / Nginx 与 Weak Etag](https://ruby-china.org/topics/23193)
+*   [Web浏览器的缓存机制](http://www.alloyteam.com/2012/03/web-cache-2-browser-cache/)
+*   [HTTP 缓存](https://developers.google.cn/web/fundamentals/performance/optimizing-content-efficiency/http-caching?hl=zh-cn)
 
-彻底弄懂 Http 缓存机制 - 基于缓存策略三要素分解法
-https://segmentfault.com/p/1210000007850705?utm_source=weekly&utm_medium=email&utm_campaign=email_weekly
 
-Rails / Nginx 与 Weak Etag
-https://ruby-china.org/topics/23193
 
-【Web缓存机制系列】2 – Web浏览器的缓存机制
-http://www.alloyteam.com/2012/03/web-cache-2-browser-cache/
 
-HTTP 缓存
-https://developers.google.cn/web/fundamentals/performance/optimizing-content-efficiency/http-caching?hl=zh-cn
+
+
+
 
 ## 2. 内存模型
+
+### 2.1 CPU内存架构
+
+![三级缓存的处理器](http://static.oschina.net/uploads/img/201302/27113714_KQTE.png)
+
+![多核处理器处理器版图](https://cnet2.cbsistatic.com/img/GGq07gxoetkbIOviWPw1Dnl26Ow=/2011/09/13/97506276-fdb9-11e2-8c7c-d4ae52e62bcc/inside_intel_sandy_bridge_quad_core_processor.jpg)
+
+
+![索尼PS2游戏机CPU架构](http://www.vazgames.com/retro/figure_01.gif)
+
+
+[每个程序员都应该了解的 CPU 高速缓存](https://www.oschina.net/translate/what-every-programmer-should-know-about-cpu-cache-part2?print)
+
 
 ### 2.1 Linux内存模型
 
@@ -115,7 +133,7 @@ $pstree
  |     \-+= 04593 ylt irb 
  |       \--- 04624 ylt vim
 
-当然，fork和exec也可以单独运行。下面是单独运行fork的例子，可以看到COW机制：
+当然，fork和exec也可以单独运行。下面是单独运行fork的例子，可以看到进程内存的COW机制：
 
 $irb
 > i=1
@@ -222,6 +240,14 @@ getq vs gets ??
 比如说：某个查询数据库的接口，因为调用量比较大，所以加了缓存，并设定缓存过期后刷新，问题是当并发量比较大的时候，如果没有锁机制，那么缓存过期的瞬间，大量并发请求会穿透缓存直接查询数据库，造成雪崩效应，如果有锁机制，那么就可以控制只有一个请求去更新缓存，其它的请求视情况要么等待，要么使用过期的缓存。
 
 
+
+[]()
+[]()
+
+
+![](img_url)
+![](img_url)
+![](img_url)
 
 
 
