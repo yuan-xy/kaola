@@ -93,7 +93,6 @@ class ApplicationController < ActionController::Base
   end
   
   
-  
   def do_search
     @list = @model_clazz.order(@order)
     if params[:s]
@@ -303,6 +302,28 @@ class ApplicationController < ActionController::Base
   def check_field_exist(field, attrs)
     find = attrs.find{|x| x==field}
     raise "field:#{field} doesn't exists." unless find
+  end
+  
+  
+  def batch_update
+    raise "only support json input" unless request.format == 'application/json'
+    input = params[self.controller_name.to_sym]
+    clazz_name = self.controller_name.singularize.camelize
+    clazz = Object.const_get clazz_name
+    ret = []
+    if input.class == Array
+      ActiveRecord::Base.transaction do
+        input.each do |hash|
+          id = hash[:id]
+          hash.delete(:id)
+          ret << clazz.find(id).update_attributes!(hash.permit!)
+        end
+      end
+    else
+      raise 'batch_update no longer support hash input, use array instead.'
+    end
+    # clazz.update(hash.keys, hash.values)  #本update方法无法报告异常，所以弃用
+    render :json => {count: ret.size, updated:true}.to_json
   end
   
   

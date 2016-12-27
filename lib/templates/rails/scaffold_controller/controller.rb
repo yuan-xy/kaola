@@ -82,29 +82,6 @@ class <%= controller_class_name %>Controller < ApplicationController
       end
     end
   end
-
-  def batch_update
-    raise "only support json input" unless request.format == 'application/json'
-    input = params[:<%= plural_table_name %>]
-    if input.class == Array
-      ActiveRecord::Base.transaction do
-        input.each do |hash|
-          id = hash[:id]
-          hash.delete(:id)
-          <%= class_name %>.find(id).update_attributes!(hash.permit!)
-        end
-      end
-    elsif input.class == Hash
-      hash = input
-      ActiveRecord::Base.transaction do
-        hash.keys.each do |id|
-          <%= class_name %>.find(id).update_attributes!(hash[id].permit!)
-        end
-      end
-    end
-    # <%= class_name %>.update(hash.keys, hash.values)  #本update方法无法报告异常，所以弃用
-    render :json => hash.to_json
-  end
   
   # DELETE <%= route_url %>/1
   def destroy
