@@ -13,6 +13,7 @@ gem 'dalli'
 gem 'request_store'
 gem 'rest-client'
 gem 'pmap'
+gem 'rails-i18n', '~> 4.0.0'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
