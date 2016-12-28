@@ -27,4 +27,25 @@ File.open("public/index2.html","w") do |f|
 end
 
 
+hash = {"zh-CN"=>{"activerecord"=>{"models"=>{}, "attributes"=>{}}}}
+$database_tables.each do |db, tables|
+  if db != :DEFAULT
+    ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
+  else
+    ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
+  end
+  ActiveRecord::Base.connection.retrieve_table_comments.each do |k,v|
+    hash["zh-CN"]["activerecord"]["models"][k.singularize] = v
+  end
+  tables.each do |t|
+    cols = ActiveRecord::Base.connection.retrieve_column_comments(t)
+    cols.delete_if{|k,v| v.nil?}
+    cols = cols.map{|k,v| [k.to_s, v.split(" ")[0]]}.to_h
+    hash["zh-CN"]["activerecord"]["attributes"][t.singularize] = cols
+  end
+end
+
+File.open('./config/locales/zh-CN.yml', 'w') do |f| 
+  f.write(YAML.dump(hash))
+end
 

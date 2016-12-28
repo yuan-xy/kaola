@@ -52,7 +52,11 @@ class ApplicationController < ActionController::Base
       error_log err_str
       err.backtrace.each {|x| error_log x}
       if Rails.env == "production"
-        render_error("#{request.path}出错了: #{err.class}")
+        if err.class == ActiveRecord::RecordInvalid
+          render_error("#{request.path}出错了: #{err_str}")
+        else
+          render_error("#{request.path}出错了: #{err.class}")
+        end
       else
         render_error("#{request.path}出错了: #{err_str}")
       end
