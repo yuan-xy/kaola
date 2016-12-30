@@ -39,9 +39,16 @@ $database_tables.each do |db, tables|
   end
   tables.each do |t|
     cols = ActiveRecord::Base.connection.retrieve_column_comments(t)
-    cols.delete_if{|k,v| v.nil?}
-    cols = cols.map{|k,v| [k.to_s, v.split(" ")[0]]}.to_h
-    hash["zh-CN"]["activerecord"]["attributes"][t.singularize] = cols
+    colhash = {}
+    cols.each do |k,v|
+      k = k.to_s
+      if v.nil?
+        colhash[k] = k
+      else
+        colhash[k] = v.split(" ")[0]
+      end
+    end
+    hash["zh-CN"]["activerecord"]["attributes"][t.singularize] = colhash
   end
 end
 
