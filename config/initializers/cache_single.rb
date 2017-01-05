@@ -19,6 +19,9 @@ class ActiveRecord::Base
       id = arr[2] 
     elsif arr.size==2
       id = nil
+    elsif arr.size>3
+      id = arr[2..-1].join(":")
+      Rails.logger.warn "id contains ':' which is illegal."
     else
       raise "illegal memcache single key: #{key}"
     end
