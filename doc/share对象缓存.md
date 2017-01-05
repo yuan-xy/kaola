@@ -87,11 +87,11 @@ Weak Etag和 (strong) ETag的区别在于：Etag保证文件的内容是完全�
 	主存
 	虚拟内存
 
-![三级缓存的处理器](http://static.oschina.net/uploads/img/201302/27113714_KQTE.png)
+![三级缓存的处理器](./cpu1.png)
 
 多核处理器的存储系统结构：
 
-![多核处理器处理器版图](https://cnet2.cbsistatic.com/img/GGq07gxoetkbIOviWPw1Dnl26Ow=/2011/09/13/97506276-fdb9-11e2-8c7c-d4ae52e62bcc/inside_intel_sandy_bridge_quad_core_processor.jpg)
+![多核处理器处理器版图](./cpu2.jpg)
 
 常见处理器中存储体系最复杂的架构：PS2游戏机用到的Cell处理器
 ![索尼PS2游戏机CPU架构](http://www.vazgames.com/retro/figure_01.gif)
@@ -167,20 +167,41 @@ OS的内存空间和Program的应用内存空间隔离。
 
 #### 参考资料
 
-进程、线程及其内存模型
-http://buptjz.github.io/2014/04/23/processAndThreads
+[进程、线程及其内存模型](http://buptjz.github.io/2014/04/23/processAndThreads)
 
-探索 Linux 内存模型
-https://www.ibm.com/developerworks/cn/linux/l-memmod/
+[探索 Linux 内存模型](https://www.ibm.com/developerworks/cn/linux/l-memmod/)
+
+#### 补充
+
+*   变量与 内存 / 寄存器的关系
+*   CPU指令集的变迁：直接内存运算越来越少，需要寄存器的操作越来越多。
+*   stack vs heap
+
+![linux Address Space Layout](./linuxClassicAddressSpaceLayout.png)
 
 
 
 ### 2.3 java内存模型
-volatile
-cpu私有缓存／L2L3共享缓存／主存
+
+#### 为什么要有java内存模型规范 JSR 133
+Since 1997, several serious flaws have been discovered in the Java Memory Model as defined in Chapter 17 of the Java Language Specification. These flaws allowed for confusing behaviors (such as final fields being observed to change their value) and undermined the compiler's ability to perform common optimizations.
+
+The Java Memory Model was an ambitious undertaking; it was the first time that a programming language specification attempted to incorporate a memory model which could provide consistent semantics for concurrency across a variety of architectures. Unfortunately, defining a memory model which is both consistent and intuitive proved far more difficult than expected. JSR 133 defines a new memory model for the Java language which fixes the flaws of the earlier memory model. In order to do this, the semantics of final and volatile needed to change.
+
+
+[The Java Language Specification, Third Edition](https://docs.oracle.com/javase/specs/jls/se6/html/j3TOC.html)
+[JSR 133 (Java Memory Model) FAQ](https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html)
+
+
+
+
+
+
 
 深入理解Java内存模型（一）——基础
 http://www.infoq.com/cn/articles/java-memory-model-1
+
+
 
 Jvm内存模型
 http://gityuan.com/2016/01/09/java-memory/
