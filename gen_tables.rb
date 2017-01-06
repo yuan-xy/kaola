@@ -43,12 +43,8 @@ end
 def gen_db_tables(hash, re_try=true, parallel=true)
   errors = {}
   hash.each do |db, tables|
+    establish_conn(db)
     errors[db] = []
-    if db != :DEFAULT
-      ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
-    else
-      ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
-    end
     proc = Proc.new do |t|
       print '.' unless $verbose
       succ = true
@@ -63,7 +59,6 @@ def gen_db_tables(hash, re_try=true, parallel=true)
         succ = false
       end
       if succ
-        fix_primary_key(t)
         fix_table_name(t)
         fix_connection(t, db) if db != :DEFAULT
       end
@@ -77,5 +72,9 @@ def gen_db_tables(hash, re_try=true, parallel=true)
   if re_try
     puts "\nretry #{errors}" 
     gen_db_tables(errors, false, false)
+  end
+  hash.each do |db, tables|
+    establish_conn(db)
+    ActiveRecord::Base.connection.retrieve_views.each{|t| fix_primary_key(t) }
   end
 end

@@ -10,11 +10,11 @@ File.open("public/index2.html","w") do |f|
   f.puts "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8' /></head><body>"
   f.puts "<table>"
   $database_tables.each do |db, tables|
+    establish_conn(db)
     if db != :DEFAULT
       f.puts "<tr>"
       f.puts "<td>---database:#{db}---</td>"
       f.puts "</tr>"
-      ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
     end
     tables.each do |t|
       f.puts "<tr>"
@@ -29,11 +29,7 @@ end
 
 hash = {"zh-CN"=>{"activerecord"=>{"models"=>{}, "attributes"=>{}}}}
 $database_tables.each do |db, tables|
-  if db != :DEFAULT
-    ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
-  else
-    ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
-  end
+  establish_conn(db)
   ActiveRecord::Base.connection.retrieve_table_comments.each do |k,v|
     hash["zh-CN"]["activerecord"]["models"][k.singularize] = v
   end

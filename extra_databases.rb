@@ -30,6 +30,14 @@ def all_tables
   $database_tables.values.flatten
 end
 
+def establish_conn(db)
+  if db != :DEFAULT
+    ActiveRecord::Base.establish_connection("#{db}_#{Rails.env}".to_sym)
+  else
+    ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
+  end
+end
+
 $tables = all_tables
 
 class Hash

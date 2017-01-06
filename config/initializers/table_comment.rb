@@ -19,8 +19,9 @@ SQL
   
   def retrieve_views
     sql = "SELECT table_name FROM INFORMATION_SCHEMA.VIEWS WHERE table_schema = '#{database_name}'"
-    result = select_rows(sql) || []
-    result.flatten!
+    result = select_rows(sql)
+    result.flatten! if result
+    result
   end
 
 end
