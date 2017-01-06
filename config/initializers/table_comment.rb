@@ -16,6 +16,12 @@ SQL
     result = select_rows(table_comments_sql) || []
     Hash[result.map{|row| [row[0], row[1].presence]}]
   end
+  
+  def retrieve_views
+    sql = "SELECT table_name FROM INFORMATION_SCHEMA.VIEWS WHERE table_schema = '#{database_name}'"
+    result = select_rows(sql) || []
+    result.flatten!
+  end
 
 end
 end
