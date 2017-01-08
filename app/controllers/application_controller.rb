@@ -294,9 +294,19 @@ class ApplicationController < ActionController::Base
       keys.split(",").each{|x| check_field_exist(x, attrs)}
     elsif keys.index(".")
       model, field = keys.split(".")
-      check_field_exist(model+"_id", attrs)
-      clazz_name = clazz.get_belongs_class_name(model)
-      check_field_exist(field, Object.const_get(clazz_name).attribute_names)
+      if model.singularize == model
+        # 关联主表 belongs关系
+        check_field_exist(model+"_id", attrs)
+        clazz_name = clazz.get_belongs_class_name(model)
+        check_field_exist(field, Object.const_get(clazz_name).attribute_names)
+      else
+        manys = $many[@model_clazz.table_name.singularize]
+        unless manys.find{|x| x==model.singularize}
+          raise "#{@model_clazz.table_name} and #{model} hasn't one-to-many relation."
+        end
+        clazz_name = model.camelize.singularize
+        check_field_exist(field, Object.const_get(clazz_name).attribute_names)
+      end
       #TODO: 跨库的join查询，数据库不支持
     else
       check_field_exist(keys, attrs)
