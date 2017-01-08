@@ -106,6 +106,7 @@ class ApplicationController < ActionController::Base
       range_search
       in_search
       cmp_search
+      exists_search
       equal_search
     end
     @count = @list.count if params[:count]=="1"
@@ -266,6 +267,24 @@ class ApplicationController < ActionController::Base
     params[:s].delete(:cmp)      
   end 
   
+  def exists_search
+    return unless params[:s][:exists]
+    params[:s][:exists].each do |key,v|
+      arel = @model_clazz.arel_table
+      fid = @model_clazz.name.singularize.underscore+"_id"
+      sql = Object.const_get(key.camelize.singularize).select(fid.to_sym).to_sql
+      if v=="0"
+        @list = @list.where(arel[:id].not_in(Arel.sql(sql)))
+      elsif v=="1"
+        @list = @list.where(arel[:id].in(Arel.sql(sql)))
+      else
+        raise "exists search only support 0/1 value"
+      end
+    end
+    params[:s].delete(:exists)      
+  end
+  
+  
   def with_dot_query(hash)
     hash.select{|k,v| k.index(".")}
   end
@@ -281,9 +300,15 @@ class ApplicationController < ActionController::Base
   
   def check_search_param_exsit(hash,clazz)
     attrs = clazz.attribute_names
-    %w{like date range in cmp}.each do |op|
+    %w{like date range in cmp exists}.each do |op|
       next unless hash[op]
-      hash[op].each{|k,v| check_keys_exist(k, attrs, clazz)}
+      hash[op].each do |k,v|
+        if op == 'exists'
+          check_many_relation(k)
+        else
+          check_keys_exist(k, attrs, clazz)
+        end
+      end
       hash.delete(op)
     end
     hash.each{|k,v| check_keys_exist(k, attrs, clazz)}
@@ -300,10 +325,7 @@ class ApplicationController < ActionController::Base
         clazz_name = clazz.get_belongs_class_name(model)
         check_field_exist(field, Object.const_get(clazz_name).attribute_names)
       else
-        manys = $many[@model_clazz.table_name.singularize]
-        unless manys.find{|x| x==model.singularize}
-          raise "#{@model_clazz.table_name} and #{model} hasn't one-to-many relation."
-        end
+        check_many_relation(model)
         clazz_name = model.camelize.singularize
         check_field_exist(field, Object.const_get(clazz_name).attribute_names)
       end
@@ -316,6 +338,13 @@ class ApplicationController < ActionController::Base
   def check_field_exist(field, attrs)
     find = attrs.find{|x| x==field}
     raise "field:#{field} doesn't exists." unless find
+  end
+  
+  def check_many_relation(key)
+    manys = $many[@model_clazz.table_name.singularize]
+    unless manys.find{|x| x==key.singularize}
+      raise "#{@model_clazz.table_name} and #{key} hasn't one-to-many relation."
+    end
   end
   
   

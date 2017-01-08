@@ -307,6 +307,13 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 #### 枚举In查询
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[in[id]]=1,2,5"
 
+#### Exists查询
+主子表增加子表是否为空的exists查询。比如下面的查询表示查询所有的tbp_products，其在tbp_product_mappings表中不存在。主表是tbp_products，子表是tbp_product_mappings，且要求字表存在字段tbp_product_id。
+	curl -g "http://scm.laobai.com:9291/tbp_products.json?s[exists[tbp_product_mappings]]=0"
+
+查询的值只能是0或者1，分表代表子表集合为空或者非空。
+	curl -g "http://scm.laobai.com:9291/tbp_products.json?s[exists[tbp_product_mappings]]=1?count=1"
+	
 
 ### 查询的Count支持
 上面提到的所有列表／查询／分页／关联表查询json接口，都支持查询的同时返回符合记录的条数总数。方式是在url中增加count=1的参数：
