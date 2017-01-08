@@ -312,7 +312,7 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 	curl -g "http://scm.laobai.com:9291/tbp_products.json?s[exists[tbp_product_mappings]]=0"
 
 查询的值只能是0或者1，分表代表子表集合为空或者非空。
-	curl -g "http://scm.laobai.com:9291/tbp_products.json?s[exists[tbp_product_mappings]]=1?count=1"
+	curl -g "http://scm.laobai.com:9291/tbp_products.json?s[exists[tbp_product_mappings]]=1&count=1"
 	
 
 ### 查询的Count支持
