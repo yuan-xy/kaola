@@ -34,3 +34,16 @@ test:
 
 production:
   <<: *default
+  database: lbai_scm 
+  username: op_lbai_scm
+  password: <%= ENV["SCM_MYSQL_PASS"] %>
+  host: inlaobaiscm.mysql.rds.aliyuncs.com
+  port: 3598
+
+jbbase_production:
+  <<: *default
+  database: scm_user
+  username: op_scm_user
+  password: <%= ENV["USER_MYSQL_PASS"] %>
+  host: inlaobaiscm.mysql.rds.aliyuncs.com
+  port: 3598

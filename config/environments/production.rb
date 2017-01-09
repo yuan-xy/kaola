@@ -46,7 +46,7 @@ Rails.application.configure do
 
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
-  config.log_level = :debug
+  config.log_level = :warn
 
   # Prepend all log lines with the following tags.
   # config.log_tags = [ :subdomain, :uuid ]
@@ -59,7 +59,7 @@ Rails.application.configure do
   
   #If your servers are specified in ENV["MEMCACHE_SERVERS"] (e.g. on Heroku when using a third-party hosted addon), simply provide nil for the servers:
   config.cache_store = :dalli_store, nil,
-    { :namespace => "API", :expires_in => 1.day, :compress => true }
+    { :namespace => "SCMAPI", :expires_in => 1.day, :compress => true }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.action_controller.asset_host = 'http://assets.example.com'
