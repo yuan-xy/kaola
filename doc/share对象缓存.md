@@ -179,7 +179,7 @@ OS的内存空间和Program的应用内存空间隔离。
 
 ![linux Address Space Layout](./linuxClassicAddressSpaceLayout.png)
 
-
+![微信小程序Page 实例的生命周期](https://mp.weixin.qq.com/debug/wxadoc/dev/image/mina-lifecycle.png?t=201715)
 
 ### 2.3 java内存模型
 
@@ -191,26 +191,38 @@ The Java Memory Model was an ambitious undertaking; it was the first time that a
 
 [The Java Language Specification, Third Edition](https://docs.oracle.com/javase/specs/jls/se6/html/j3TOC.html)
 [JSR 133 (Java Memory Model) FAQ](https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html)
+[JSR 133](https://www.cs.umd.edu/~pugh/java/memoryModel/jsr133.pdf)
+
+#### Java内存模型
+
+The Java memory model describes how threads in the Java programming language interact through memory. 
+
+Java的volatile保证了线程间的交互，使得当一个线程写入一个volatile变量，不仅这次写入对其他线程可见，而且其他线程可以看到该线程所有的对volatile变量的写入。
+
+那么对于non-volatile变量又发生了什么呢？非volatile变量没有volatile关键字保证交互的好处。因此，编译器可以使用non-volatile变量的缓存值而不是volatile保证，volatile变量将总是从内存中读取。happens-before模型可以用来绑定同步访问到非volatile变量上。
 
 
+![Java内存模型](http://cdn1.infoqstatic.com/statics_s2_20170104-0355/resource/articles/java-memory-model-1/zh/resources/11.png)
+
+[深入理解Java内存模型（一）——基础](http://www.infoq.com/cn/articles/java-memory-model-1)
+
+#### Java虚拟机内存模型
+
+![JVM内存模型](http://gityuan.com/images/jvm/jvm_memory_1.png)
 
 
-
-
-
-深入理解Java内存模型（一）——基础
-http://www.infoq.com/cn/articles/java-memory-model-1
-
-
-
-Jvm内存模型
-http://gityuan.com/2016/01/09/java-memory/
-
+[Jvm内存模型](http://gityuan.com/2016/01/09/java-memory/)
 
 ### 2.4 Web应用内存模型
 内存／外部内存缓存memcache／数据库
-一级缓存／二级缓存
+hibernate的一级缓存／二级缓存
 
+http://tracylihui.github.io/2015/07/20/Hibernate%EF%BC%9A%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6%E7%9A%84%E5%AD%A6%E4%B9%A0/
+
+http://jinnianshilongnian.iteye.com/blog/1525884
+
+![一团浆糊的Hibernate缓存架构图](http://dl.iteye.com/upload/attachment/0068/0196/08f7e4f3-6bd0-3d37-951a-eba8798438a1.jpg)
+画
 ## 3. Web对象缓存系统的设计
 ### 客户端可见 vs 客户端不可见
 ### 缓存key的设计
