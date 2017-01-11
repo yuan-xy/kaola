@@ -106,6 +106,9 @@ class <%= controller_class_name %>Controller < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_<%= singular_table_name %>
       cache = <%= class_name %>.memcache_load(params[:id])
+      unless cache
+        return render :status => 404, :json => {:error => "object #{params[:id]} not found."}.to_json
+      end
       @<%= singular_table_name %> = cache
     end
 
