@@ -1,4 +1,5 @@
 require 'rails/generators'
+require 'byebug'
 require_relative '../../extra_databases'
 
 module MigrationComments::ActiveRecord::ConnectionAdapters
@@ -42,7 +43,7 @@ module Rails
         
         def human_table_name
           with_cache($cached_table_names,singular_table_name) do
-            clazz = Object.const_get(singular_table_name.camelize)
+            clazz = Object.const_get(class_name) #部分表名如jhc_sport_calories，singular_table_name!=singular_name
             find_database(clazz) unless clazz.table_exists?
             str = clazz.connection.retrieve_table_comment(plural_table_name)
             return human_name unless str
@@ -52,7 +53,7 @@ module Rails
         
         def human_column_name(col)
           with_cache($cached_column_names, singular_table_name+col) do
-            clazz = Object.const_get(singular_table_name.camelize)
+            clazz = Object.const_get(class_name)
             find_database(clazz) unless clazz.table_exists?
             hash = with_cache($cached_column_hash,plural_table_name) do
               clazz.connection.retrieve_column_comments(plural_table_name)
