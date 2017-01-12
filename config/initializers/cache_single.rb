@@ -44,7 +44,7 @@ class ActiveRecord::Base
         cache
       end
     else
-      ret = self.find_by_id(id)
+      ret = self.find(id)
       if ret.nil?
         ret = nil_value(id)
       end
@@ -54,7 +54,7 @@ class ActiveRecord::Base
   end
 
   def self.memcache_load_true(id)
-    ret = self.find_by_id(id)
+    ret = self.find(id)
     if ret.nil?
       ret = nil_value(id)
     end
