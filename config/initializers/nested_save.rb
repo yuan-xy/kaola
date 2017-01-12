@@ -19,7 +19,7 @@ class ActiveRecord::Base
   end
   
   def need_batch_save(params)
-    tname = self.class.table_name
+    tname = self.class.table_name.pluralize
     return true  if params[tname]
     false
   end
