@@ -1,8 +1,12 @@
 require_relative 'extra_databases'
 
 def human_table_name(t)
-  clazz_name = t.camelize.singularize
-  Object.const_get(clazz_name).connection.retrieve_table_comment(t)
+  begin
+    clazz_name = t.camelize.singularize
+    Object.const_get(clazz_name).connection.retrieve_table_comment(t)
+  rescue Exception => e
+    t
+  end
 end
 
 

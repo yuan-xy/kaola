@@ -75,7 +75,12 @@ end
 
 ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
 $tables.each do |t|
-  find_relation(t)
+  begin
+    find_relation(t)
+  rescue Exception => e
+    # 表的字段名包含中文等问题，导致scaffold生成失败时，会导致这里执行失败
+    puts e
+  end
 end
 
 
