@@ -11,6 +11,7 @@ class CacheController < ApplicationController
     end
     if ENV["rb_servers"]
       ENV["rb_servers"].split(',').each do |host|
+        next if Socket.ip_address_list.find{|x| x.ip_address==host}
         RestClient.post "http://#{host}/cache/expire", {tables: table, syn: "1"}
       end
     end
@@ -18,11 +19,12 @@ class CacheController < ApplicationController
   end
 
   def expire_all
-    $tables.each do |table|
+    $tables.each do |t|
       clear_cache(t, params[:syn] == "1")
     end
     if ENV["rb_servers"]
       ENV["rb_servers"].split(',').each do |host|
+        next if Socket.ip_address_list.find{|x| x.ip_address==host}
         RestClient.post "http://#{host}/cache/expire", {syn: "1"}
       end
     end
