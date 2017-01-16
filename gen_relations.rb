@@ -56,7 +56,6 @@ def test_relation(table_name,col_name,col_prefix)
 end
 
 def find_relation(t)
-  return if t.match /_\d/ #表的名字类似goodslist_20151127
   single = t.singularize
   clazz_name = t.camelize.singularize
   clazz = Object.const_get(clazz_name)
