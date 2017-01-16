@@ -12,7 +12,7 @@ class CacheController < ApplicationController
     if ENV["rb_servers"]
       ENV["rb_servers"].split(',').each do |host|
         next if Socket.ip_address_list.find{|x| x.ip_address==host}
-        RestClient.post "http://#{host}/cache/expire", {tables: table, syn: "1"}
+        RestClient.post "http://#{host}/cache/expire.json", {tables: table, syn: "1"}
       end
     end
     render :json => {status:"ok"}.to_json
@@ -25,7 +25,7 @@ class CacheController < ApplicationController
     if ENV["rb_servers"]
       ENV["rb_servers"].split(',').each do |host|
         next if Socket.ip_address_list.find{|x| x.ip_address==host}
-        RestClient.post "http://#{host}/cache/expire", {syn: "1"}
+        RestClient.post "http://#{host}/cache/expire.json", {syn: "1"}
       end
     end
     render :json => {status:"ok"}.to_json
