@@ -11,10 +11,9 @@ class CacheController < ApplicationController
     end
     if params[:syn] != "1" && ENV["rb_servers"]
       ENV["rb_servers"].split(',').each do |host|
-        next if Socket.ip_address_list.find{|x| x.ip_address==host}
+        next if Socket.ip_address_list.find{|x| x.ip_address==host.split(":")[0]}
         url = "http://#{host}/cache/expire.json"
         error_log url
-        #RestClient.post url, {tables: table, syn: "1"}
         RestClient::Request.execute(method: :post, url: url, 
             payload: {tables: table, syn: "1"}, timeout: 10)
       end
@@ -28,10 +27,9 @@ class CacheController < ApplicationController
     end
     if params[:syn] != "1" && ENV["rb_servers"]
       ENV["rb_servers"].split(',').each do |host|
-        next if Socket.ip_address_list.find{|x| x.ip_address==host}
+        next if Socket.ip_address_list.find{|x| x.ip_address==host.split(":")[0]}
         url = "http://#{host}/cache/expire_all.json"
         error_log url
-        #RestClient.post url, {syn: "1"}
         RestClient::Request.execute(method: :post, url: url, payload: {syn: "1"}, timeout: 10)
       end
     end
