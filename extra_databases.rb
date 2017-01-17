@@ -1,6 +1,7 @@
 def get_extra_dbs
-  dbs = Rails.configuration.database_configuration.keys.find_all{|x| x.match("_development")}
-  size = "_development".size+1
+  env = "_#{Rails.env}"
+  dbs = Rails.configuration.database_configuration.keys.find_all{|x| x.match(env)}
+  size = env.size+1
   dbs.map{|x| x[0..-size]}
 end
 

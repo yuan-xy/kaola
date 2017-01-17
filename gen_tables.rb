@@ -30,8 +30,8 @@ end
 def fix_connection(t, extra_db)
   single = t.singularize
   filename = "app/models/#{single}.rb"
-  str = "#{extra_db}_#{Rails.env}"
-  insert_into_file(filename, "\n  establish_connection '#{str}'.to_sym", "\nend", false)
+  str = extra_db+'_#{Rails.env}'
+  insert_into_file(filename, "\n  establish_connection \"#{str}\".to_sym", "\nend", false)
 end
 
 def proc_num
