@@ -9,7 +9,7 @@ class CacheController < ApplicationController
         raise "table #{table} doesn't exsits."
       end
     end
-    if ENV["rb_servers"]
+    if params[:syn] != "1" && ENV["rb_servers"]
       ENV["rb_servers"].split(',').each do |host|
         next if Socket.ip_address_list.find{|x| x.ip_address==host}
         RestClient.post "http://#{host}/cache/expire.json", {tables: table, syn: "1"}
@@ -22,7 +22,7 @@ class CacheController < ApplicationController
     $tables.each do |t|
       clear_cache(t, params[:syn] == "1")
     end
-    if ENV["rb_servers"]
+    if params[:syn] != "1" && ENV["rb_servers"]
       ENV["rb_servers"].split(',').each do |host|
         next if Socket.ip_address_list.find{|x| x.ip_address==host}
         RestClient.post "http://#{host}/cache/expire_all.json", {syn: "1"}
