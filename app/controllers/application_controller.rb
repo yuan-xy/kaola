@@ -171,8 +171,16 @@ class ApplicationController < ActionController::Base
     simple_query(params[:s][:date]).each do |k,v|
       arr = v.split(",")
       if arr.size==1
-        day = DateTime.parse(arr[0])
-        @list = @list.where(k => day.beginning_of_day..day.end_of_day)
+        if v[0]==','
+          v1 = v[1..-1]
+          @list = @list.where("#{k} <= ?", DateTime.parse(v1))
+        elsif v[-1]==','
+          v1 = v[0..-2]
+          @list = @list.where("#{k} >= ?", DateTime.parse(v1))
+        else
+          day = DateTime.parse(arr[0])
+          @list = @list.where(k => day.beginning_of_day..day.end_of_day)
+        end
       elsif arr.size==2
         day1 = DateTime.parse(arr[0])
         day2 = DateTime.parse(arr[1])
