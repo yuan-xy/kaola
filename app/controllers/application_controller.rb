@@ -169,14 +169,12 @@ class ApplicationController < ActionController::Base
   def date_search
     return unless params[:s][:date]
     simple_query(params[:s][:date]).each do |k,v|
-      arr = v.split(",")
+      arr = v.split(",").delete_if{|x| x==''}
       if arr.size==1
-        if v[0]==','
-          v1 = v[1..-1]
-          @list = @list.where("#{k} <= ?", DateTime.parse(v1))
-        elsif v[-1]==','
-          v1 = v[0..-2]
-          @list = @list.where("#{k} >= ?", DateTime.parse(v1))
+        if v[0]==',' ||  v[-1]==','
+          v1 = DateTime.parse(arr[0])
+          operator = (v[0]==","?  "<=" : ">=")
+          @list = @list.where("#{k} #{operator} ?", v1)
         else
           day = DateTime.parse(arr[0])
           @list = @list.where(k => day.beginning_of_day..day.end_of_day)
@@ -192,11 +190,15 @@ class ApplicationController < ActionController::Base
     with_dot_query(params[:s][:date]).each do |k,v|
       model, field = k.split(".")
       @list = @list.joins(model.to_sym)
-      arr = v.split(",")
+      arr = v.split(",").delete_if{|x| x==''}
       if arr.size==1
-        day = DateTime.parse(arr[0])
-        hash = {(model.pluralize) => { field => day.beginning_of_day..day.end_of_day}}
-        @list = @list.where(hash)
+        if v[0]==',' ||  v[-1]==','
+          logger.warn("date search 错误: #{k},#{v}. 外键字段暂不支持带,的单边日期查询")
+        else
+          day = DateTime.parse(arr[0])
+          hash = {(model.pluralize) => { field => day.beginning_of_day..day.end_of_day}}
+          @list = @list.where(hash)
+        end
       elsif arr.size==2
         day1 = DateTime.parse(arr[0])
         day2 = DateTime.parse(arr[1])
@@ -212,7 +214,7 @@ class ApplicationController < ActionController::Base
   def range_search
     return unless params[:s][:range]
     simple_query(params[:s][:range]).each do |k,v|
-      arr = v.split(",")
+      arr = v.split(",").delete_if{|x| x==''}
       if arr.size==1
         v1 = arr[0].to_f
         operator = (v[0]==","?  "<=" : ">=")
