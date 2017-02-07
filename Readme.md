@@ -187,8 +187,20 @@ key可以包含三种类型：单个key;多字段的Mkey，格式："key1,key2,.
 Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示匹配任意多个字符，“_”匹配任意一个字符。如果Like查询的值不包含特殊字符，则默认前后加上“%”。大部分情况下，查询时不需要加％这样的特殊字符，因为默认查询字符串前后都会加上“%”。除了一种情况：需要占位查询，比如以给定字符串开头或者结尾的查询。
 
 #### 日期查询
+
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=2016-05-11"
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=2016-05-11,2016-05-12"
+	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=,2016-05-12"
+	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=2016-05-12,"
+
+日期查询会把字符串格式的查询参数转换为日期，然后进行范围查询。上面的四个查询分别表示：
+
+	created_at字段的值在2016-05-11的0点，到2016-05-11的24点
+	created_at字段的值在2016-05-11的0点，到2016-05-12的24点
+	created_at字段的值小于到2016-05-12的24点
+	created_at字段的值大于到2016-05-12的0点
+
+
 
 #### 数值范围查询
 	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[id]]=1,5"

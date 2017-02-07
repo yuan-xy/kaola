@@ -174,6 +174,7 @@ class ApplicationController < ActionController::Base
         if v[0]==',' ||  v[-1]==','
           v1 = DateTime.parse(arr[0])
           operator = (v[0]==","?  "<=" : ">=")
+          v1 = v1.end_of_day if v[0]==','
           @list = @list.where("#{k} #{operator} ?", v1)
         else
           day = DateTime.parse(arr[0])
