@@ -11,12 +11,25 @@ def gen_scaffold(t)
   system("rails g scaffold #{clazz_name} #{fields} -f > /dev/null")
 end
 
-def fix_primary_key(t)
-  #TODO: 目前写死primary_key为id，以后也许可以自动检测
-  # 对于数据库view类型的模型，必须手动设置primary_key。更好的方式是只有view执行这个方法。
+def fix_primary_key(t, id='id')
   single = t.singularize
   filename = "app/models/#{single}.rb"
-  insert_into_file(filename, "\n  self.primary_key = 'id'", "\nend", false)
+  insert_into_file(filename, "\n  self.primary_key = '"+id+"'", "\nend", false)
+end
+
+def try_fix_primary_key(t)
+  clazz = Object.const_get(t.singularize.camelize) 
+  return if clazz.primary_key
+  if clazz.attribute_names.find{|x| x=='id'}
+    fix_primary_key(t)
+    return
+  end
+  id = clazz.attribute_names.find{|x| x.ends_with? '_id'}
+  if id
+    fix_primary_key(t, id)
+  else
+    puts "警告： 表#{t}不存在主键"
+  end
 end
 
 def fix_table_name(t)
@@ -69,12 +82,15 @@ def gen_db_tables(hash, re_try=true, parallel=true)
       tables.each &proc
     end
   end
-  if re_try
+  if re_try && errors.size>0
     puts "\nretry #{errors}" 
     gen_db_tables(errors, false, false)
   end
-  hash.each do |db, tables|
-    establish_conn(db)
-    ActiveRecord::Base.connection.retrieve_views.each{|t| fix_primary_key(t) }
+  if re_try # 表示首次调用，非递归
+    hash.each do |db, tables|
+      establish_conn(db)
+      tables.each{|t| try_fix_primary_key(t) }
+      #ActiveRecord::Base.connection.retrieve_views.each{|t| fix_primary_key(t) }
+    end
   end
 end
