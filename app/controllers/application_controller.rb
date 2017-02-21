@@ -109,7 +109,12 @@ class ApplicationController < ActionController::Base
       exists_search
       equal_search
     end
-    @count = @list.count if params[:count]=="1"
+    if params[:count]
+      @count = @list.count
+      if params[:count]=="2"
+        render :json => {count: @count}.to_json
+      end
+    end
     @list = @list.page(@page).per(@page_count)
 	  if params[:many] && params[:many].size>1
       @many = {}
