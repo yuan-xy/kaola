@@ -343,7 +343,7 @@ class ApplicationController < ActionController::Base
     hash.each{|k,v| check_keys_exist(k, attrs, clazz)}
   end
   
-  def check_keys_exist(keys, attrs, clazz, op)
+  def check_keys_exist(keys, attrs, clazz, op=nil)
     if keys.index(",")
       keys.split(",").each{|x| check_field_exist(x, attrs)}
     elsif keys.index(".")
