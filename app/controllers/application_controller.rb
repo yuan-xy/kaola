@@ -280,6 +280,18 @@ class ApplicationController < ActionController::Base
         end
       end
     end
+    with_dot_query(params[:s][:cmp]).each do |k,v|
+      model, field = k.split(".")
+      @list = @list.joins(model.to_sym)
+      ["!=","<=",">=","=","<",">"].each do |op|
+        if field.match(op)
+          arr = field.split(op)
+          next if arr.size != 2
+          @list = @list.where("#{model.pluralize}.#{arr[0]} #{op} #{arr[1]}")
+          break
+        end
+      end
+    end
     params[:s].delete(:cmp)      
   end 
   
@@ -322,7 +334,7 @@ class ApplicationController < ActionController::Base
         if op == 'exists'
           check_many_relation(k)
         else
-          check_keys_exist(k, attrs, clazz)
+          check_keys_exist(k, attrs, clazz, op)
         end
       end
       hash.delete(op)
@@ -330,11 +342,14 @@ class ApplicationController < ActionController::Base
     hash.each{|k,v| check_keys_exist(k, attrs, clazz)}
   end
   
-  def check_keys_exist(keys, attrs, clazz)
+  def check_keys_exist(keys, attrs, clazz, op)
     if keys.index(",")
       keys.split(",").each{|x| check_field_exist(x, attrs)}
     elsif keys.index(".")
       model, field = keys.split(".")
+      if op == 'cmp'
+        ["!=","<=",">=","=","<",">"].each{|x| field = field.split(x)[0]}
+      end
       if model.singularize == model
         # 关联主表 belongs关系
         check_field_exist(model+"_id", attrs)
