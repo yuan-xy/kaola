@@ -99,6 +99,7 @@ class ApplicationController < ActionController::Base
   
   def do_search
     @list = @model_clazz.order(@order)
+    @list = @list.use_index(params[:index]) if params[:index]
     if params[:s]
       check_search_param_exsit(params[:s].to_hash, @model_clazz)
       like_search
