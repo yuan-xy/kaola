@@ -96,8 +96,20 @@ class ApplicationController < ActionController::Base
     raise "raw_sql needs json output" unless request.format == 'application/json'
   end
   
+  def check_useless_params
+    hash = params.to_hash
+    %w{controller action format count per page order many index}.each{|x| hash.delete(x)}
+    if hash["s"]
+      %w{like date range in cmp exists}.each{|x| hash["s"].delete(x)}
+      hash["s"].each{|k,v| raise "查询参数s[#{k}]不支持" if v.class==Hash}
+      hash.delete("s")
+    end
+    raise "不支持的未知查询条件#{hash}" unless hash.empty?
+  end
+  
   
   def do_search
+    check_useless_params if Rails.env != 'production'
     @list = @model_clazz.order(@order)
     @list = @list.use_index(params[:index]) if params[:index]
     if params[:s]
