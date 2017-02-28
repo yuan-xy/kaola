@@ -18,15 +18,17 @@ class BulkController < ApplicationController
         arr << name
       end
       ret = []
-      (1..(sheet.count-1)).each do |row|
-        obj = clazz.new
-        arr.each_with_index{|name,i| obj.send(name+"=", sheet[row][i].value)}
-        obj.save!
-        ret << obj
+      ActiveRecord::Base.transaction do
+        (1..(sheet.count-1)).each do |row|
+          obj = clazz.new
+          arr.each_with_index{|name,i| obj.send(name+"=", sheet[row][i].value)}
+          obj.save!
+          ret << obj
+        end
       end
       render :json => ret
     elsif file.path.ends_with? 'xls'
-      
+      raise '暂不支持xls后缀，请转化为xlsx后缀'
     else
       raise '只能导入excel格式文件'
     end
