@@ -21,7 +21,7 @@
     <%%= f.label :password_confirmation %><br>
     <%%= f.password_field :password_confirmation %>
 <% else -%>
-    <%%= f.label :<%= human_column_name(attribute.name) %> %><br>
+    <%%= f.label '<%= human_column_name(attribute.name) %>' %><br>
     <%%= f.<%= attribute.field_type %> :<%= attribute.column_name %> %>
 <% end -%>
   </div>
