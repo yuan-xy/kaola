@@ -14,7 +14,8 @@ gem 'request_store'
 gem 'rest-client'
 gem 'pmap'
 gem 'rails-i18n', '~> 4.0.0'
-
+gem 'spreadsheet'
+gem 'rubyXL'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.6'

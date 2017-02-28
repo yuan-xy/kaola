@@ -1,0 +1,10 @@
+<h1>文件上传</h1>
+
+
+<%= form_tag '/bulk/import', multipart: true do %>
+  <label for="file">表名：</label> <%= text_field_tag "table", params[:table], size: 40 %>
+  <br/>
+  <label for="file">xls文件</label> <%= file_field_tag "file" %>
+  <br/>
+  <%= submit_tag %>
+<% end %>

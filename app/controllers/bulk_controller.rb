@@ -1,5 +1,37 @@
 class BulkController < ApplicationController
   
+  def file_upload
+  end
+  
+  def import
+    clazz = Object.const_get params[:table].singularize.camelize
+    file = params[:file].tempfile
+    if file.path.ends_with? 'xlsx'
+      workbook = RubyXL::Parser.parse(file)
+      sheet=workbook.worksheets[0]
+      size = sheet[0].size
+      arr = []
+      (0..size-1).each do |x|
+        v= sheet[0][x].value
+        name = clazz.column_names.find{|col| col==v || clazz.human_attribute_name(col) == v}
+        raise "#{v}对应的数据库列不存在" unless name
+        arr << name
+      end
+      ret = []
+      (1..(sheet.count-1)).each do |row|
+        obj = clazz.new
+        arr.each_with_index{|name,i| obj.send(name+"=", sheet[row][i].value)}
+        obj.save!
+        ret << obj
+      end
+      render :json => ret
+    elsif file.path.ends_with? 'xls'
+      
+    else
+      raise '只能导入excel格式文件'
+    end
+  end
+  
   def batch
     raise "only support json input" unless request.format == 'application/json'
     ret = {"insert":[], "update":[], "delete":[]}

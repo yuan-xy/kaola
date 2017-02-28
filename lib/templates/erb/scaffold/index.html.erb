@@ -28,5 +28,7 @@
 
 <br>
 
-<%%= link_to '添加 <%= human_table_name %>', new_<%= singular_table_name %>_path %>
+<%%= link_to '添加 <%= human_table_name %>', new_<%= singular_table_name %>_path %> , 
+<a href='/bulk/file_upload?table=<%= plural_table_name %>'>批量导入excel</a>
+
 <%%= paginate @<%= plural_table_name %> %>
