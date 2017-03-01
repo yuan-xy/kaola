@@ -17,7 +17,6 @@
 | 修改已有数据	|	PATCH	|   /表名/:id(.:format)       |
 | 修改已有数据	|	PUT	|     /表名/:id(.:format)         |
 | 删除已有数据	|	DELETE	|  /表名/:id(.:format)        |
-
 | 批量添加数据	|	POST	|    /表名(.:format)          | 
 | 批量修改数据	|	POST	|    /表名/batch_update(.:format)    | 
 | 批量删除数据	|	DELETE	|  /表名/:id[,:id](.:format)          |
@@ -417,6 +416,12 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 ### 健康检测接口
 
 	curl http://localhost:3000/sql/heartbeat.json
+
+### 数据批量导入
+
+	目前支持Excel文件的批量导入。
+	Excel文件的格式要求：第一行是要导入的数据的列名或者列的注释名，从第二行开始是要导入的数据。文件后缀是xlsx。 
+
 	
 ## 相关文档
 
