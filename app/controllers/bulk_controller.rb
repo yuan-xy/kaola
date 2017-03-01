@@ -25,6 +25,7 @@ class BulkController < ApplicationController
           obj.save!
           ret << obj
         end
+        #TODO: 似乎事务不起作用
       end
       render :json => ret
     elsif file.path.ends_with? 'xls'
