@@ -88,10 +88,10 @@ class <%= controller_class_name %>Controller < ApplicationController
         to_be_del = <%= class_name %>.find(id)
         if params[:many] && params[:many].size>1
           params[:many].split(",").each do |many|
-            to_be_del.send(many).try(:each){|y| y.destroy}
+            to_be_del.send(many).try(:each){|y| y.safe_destroy}
           end
         end
-        to_be_del.destroy
+        to_be_del.safe_destroy
       end
     end
     if request.format == 'application/json'

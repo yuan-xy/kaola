@@ -1,5 +1,14 @@
 class ActiveRecord::Base
   
+  def safe_destroy
+    many = $many[self.class.table_name.singularize]
+    many.try(:each) do |x| 
+      count = self.send(x.pluralize).count
+      raise "#{self.class.table_name}关联的#{x.pluralize}还有#{count}条数据，故不能删除" if count>0
+    end
+    self.destroy
+  end
+  
   def get_create_sql
     self.class.arel_table.create_insert.tap do |im| 
       im.insert(self.send(:arel_attributes_with_values_for_create,
