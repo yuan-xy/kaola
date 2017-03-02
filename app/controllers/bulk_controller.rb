@@ -1,5 +1,17 @@
 class BulkController < ApplicationController
   
+  def file_template
+    workbook = RubyXL::Workbook.new
+    worksheet = workbook[0]
+    clazz = Object.const_get params[:table].singularize.camelize
+    clazz.column_names.each_with_index do |col,i|
+      worksheet.add_cell(0, i, col)
+    end
+    send_data workbook.stream.string,
+              filename: "test.xlsx", disposition: 'attachment',
+              type: "application/xlsx"
+  end
+  
   def file_upload
   end
   
@@ -21,7 +33,7 @@ class BulkController < ApplicationController
       ActiveRecord::Base.transaction do
         (1..(sheet.count-1)).each do |row|
           obj = clazz.new
-          arr.each_with_index{|name,i| obj.send(name+"=", sheet[row][i].value)}
+          arr.each_with_index{|name,i| obj.send(name+"=", sheet[row][i].try(:value))}
           obj.save!
           ret << obj
         end

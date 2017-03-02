@@ -5,8 +5,12 @@
   <label for="file">表名：</label> <%= text_field_tag "table", params[:table], size: 40 %>
   <br/>
   <label for="file">Excel文件</label> <%= file_field_tag "file" %>
-  <br/>
-  Excel文件的格式要求：第一行是要导入的数据的列名或者列的注释名，从第二行开始是要导入的数据。文件后缀是xlsx。
   <br/>  
+
   <%= submit_tag %>
 <% end %>
+
+
+<hr/>
+  Excel文件的格式要求：第一行是要导入的数据的列名或者列的注释名，从第二行开始是要导入的数据。文件后缀是xlsx。
+<a href='/bulk/file_template?table=<%=params[:table]%>'>下载Excel模版</a>
