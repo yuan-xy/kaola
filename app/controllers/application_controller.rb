@@ -137,7 +137,16 @@ class ApplicationController < ActionController::Base
     end
     @belong_names = @model_clazz.belong_names
     @belongs = @model_clazz.belongs_to_multi_get(@list)
-    @list
+    plural_table_name = @model_clazz.name.pluralize.underscore
+    instance_variable_set("@#{plural_table_name}", @list)
+    respond_to do |format|
+      format.html
+      format.json
+      format.xlsx do 
+        workbook = @model_clazz.gen_workbook(@list)
+        send_excel(workbook, "#{plural_table_name}.xlsx")
+      end
+    end
   end
   
 
@@ -411,6 +420,11 @@ class ApplicationController < ActionController::Base
     end
     # clazz.update(hash.keys, hash.values)  #本update方法无法报告异常，所以弃用
     render :json => {count: ret.size, updated:true}.to_json
+  end
+  
+  def send_excel(workbook, filename, suffix='xlsx')
+    send_data workbook.stream.string,
+              filename: filename, disposition: 'attachment', type: "application/#{suffix}"
   end
   
   

@@ -1,15 +1,9 @@
 class BulkController < ApplicationController
   
   def file_template
-    workbook = RubyXL::Workbook.new
-    worksheet = workbook[0]
     clazz = Object.const_get params[:table].singularize.camelize
-    clazz.column_names.each_with_index do |col,i|
-      worksheet.add_cell(0, i, col)
-    end
-    send_data workbook.stream.string,
-              filename: "test.xlsx", disposition: 'attachment',
-              type: "application/xlsx"
+    workbook = clazz.gen_workbook_template
+    send_excel(workbook, "test.xlsx")
   end
   
   def file_upload

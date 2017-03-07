@@ -9,8 +9,7 @@ class <%= controller_class_name %>Controller < ApplicationController
   # GET <%= route_url %>
   def index
     @model_clazz = <%= class_name %>
-    @<%= plural_table_name %> = do_search
-    @<%= plural_table_name %>
+    do_search
   end
 
   # GET <%= route_url %>/1
