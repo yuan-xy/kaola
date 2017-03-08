@@ -48,8 +48,8 @@ def fix_connection(t, extra_db)
 end
 
 def proc_num
-  ret = 2 * Etc.nprocessors
-  ret = 20 if ret>20
+  ret = Etc.nprocessors
+  ret = 10 if ret>10
   ret
 end
 
