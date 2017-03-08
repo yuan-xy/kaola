@@ -21,7 +21,7 @@
 | 批量修改数据	|	POST	|    /表名/batch_update(.:format)    | 
 | 批量删除数据	|	DELETE	|  /表名/:id[,:id](.:format)          |
 
-format目前支持两种：一个是json，这个是提供给前端使用的api接口；一个是空，也就是不带format，这个是后台提供的html显示界面。
+format目前支持三种：一个是json，这个是提供给前端使用的api接口；一个是xlsx，这个是提供列表数据的Excel文件导出功能；一个是html，这个是后台提供的html显示界面。如果不带format，默认就是html。
 
 ### 数据库命名约定
 
@@ -417,11 +417,19 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 
 	curl http://localhost:3000/sql/heartbeat.json
 
-### 数据批量导入
+### 数据批量导入导出
 
+#### Excel导入
 	目前支持Excel文件的批量导入。
 	Excel文件的格式要求：第一行是要导入的数据的列名或者列的注释名，从第二行开始是要导入的数据。文件后缀是xlsx。 
-
+	
+### Excel导出
+	目前支持单表数据的Excel导出，文件后缀是xlsx。 列表数据的查询url中，把json更改为xlsx，就可以把查询到的数据导出为excel。比如下面的这些例子：
+	
+	http://scm.laobai.com:9291/tbw_warehouses.xlsx
+	http://scm.laobai.com:9291/tbw_warehouses.xlsx?page=1&per=100
+	http://scm.laobai.com:9291/tbw_warehouses.xlsx?s[range[id]]=1,5
+	
 	
 ## 相关文档
 
