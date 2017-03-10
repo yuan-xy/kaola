@@ -49,7 +49,7 @@ end
 
 def proc_num
   ret = Etc.nprocessors
-  ret = 10 if ret>10
+  ret = 4 if ret>4
   ret
 end
 
