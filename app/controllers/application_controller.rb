@@ -369,9 +369,7 @@ class ApplicationController < ActionController::Base
       keys.split(",").each{|x| check_field_exist(x, attrs)}
     elsif keys.index(".")
       model, field = keys.split(".")
-      if op == 'cmp'
-        ["!=","<=",">=","=","<",">"].each{|x| field = field.split(x)[0]}
-      end
+      field = split_field_for_cmp(field, op)
       if model.singularize == model
         # 关联主表 belongs关系
         check_field_exist(model+"_id", attrs)
@@ -384,11 +382,19 @@ class ApplicationController < ActionController::Base
       end
       #TODO: 跨库的join查询，数据库不支持
     else
-      check_field_exist(keys, attrs)
+      check_field_exist(keys, attrs, op)
     end
   end
   
-  def check_field_exist(field, attrs)
+  def split_field_for_cmp(field, op)
+    if op == 'cmp'
+      ["!=","<=",">=","=","<",">"].each{|x| field = field.split(x)[0]}
+    end
+    field
+  end
+  
+  def check_field_exist(field, attrs, op=nil)
+    field = split_field_for_cmp(field, op)
     find = attrs.find{|x| x==field}
     raise "field:#{field} doesn't exists." unless find
   end
