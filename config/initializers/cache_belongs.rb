@@ -41,7 +41,7 @@ class ActiveRecord::Base
   end
   
   def request_cache_key_of_belongs(method_name)
-    id = self.send(method_name+"_id")
+    id = self.send(get_belongs_fk(method_name))
     clazz_name = get_belongs_class_name(method_name)
     clazz_name+id.to_s
   end
@@ -88,7 +88,7 @@ class ActiveRecord::Base
   def cache_of_belongs_to(method_name)
     key = request_cache_key_of_belongs(method_name)
     return RequestStore.store[key] if RequestStore.store.has_key? key
-    id = self.send(method_name+"_id")
+    id = self.send(get_belongs_fk(method_name))
     clazz_name = get_belongs_class_name(method_name)
     ret = Object.const_get(clazz_name).memcache_load(id)
     RequestStore.store[key] = ret
@@ -96,10 +96,23 @@ class ActiveRecord::Base
   end
   
   def clazz_id_of_belongs(method_name)
-    id = self.send(method_name+"_id")
+    id = self.send(get_belongs_fk(method_name))
     clazz_name = get_belongs_class_name(method_name)
     [Object.const_get(clazz_name), id]
-  end  
+  end
+  
+  def get_belongs_fk(method_name)
+    self.class.get_belongs_fk(method_name)
+  end
+  
+  def self.get_belongs_fk(method_name)
+    if self.name == 'JhcBloodPressure' && method_name == 'jbu_user'
+      return 'user_id'
+    end
+    method_name+"_id"
+  end
+  
+  
   
   def get_belongs_class_name(method_name)
     self.class.get_belongs_class_name(method_name)
@@ -107,7 +120,7 @@ class ActiveRecord::Base
   
   def self.get_belongs_class_name(method_name)
     hash = $belongs_class[self.name.underscore]
-    clazz_name = hash[method_name+"_id"]
+    clazz_name = hash[get_belongs_fk(method_name)]
     return clazz_name if clazz_name
     method_name.camelize
   end
