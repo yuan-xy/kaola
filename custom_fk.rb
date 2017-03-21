@@ -3,10 +3,11 @@ File.open('custom_fk.txt').each_line do |x|
   next if x[0]=='#'
   fks << x.split(',').map{|x| x.strip}
 end
-#fks << ['jhc_blood_pressure', 'jbu_user', 'user_id']
 
 fks2 = fks.map do |arr|
   t1, t2, fk = arr
+  t1 = t1.singularize
+  t2 = t2.singularize
   c1 = Object.const_get(t1.camelize.singularize)
   c2 = Object.const_get(t2.camelize.singularize)
   fk_prefix = fk[0..-4]
