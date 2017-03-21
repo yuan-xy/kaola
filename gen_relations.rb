@@ -83,6 +83,9 @@ $tables.each do |t|
 end
 
 
+require_relative 'custom_fk'
+
+
 File.open('./public/belongs.yaml', 'w') {|f| f.write(YAML.dump($belongs2)) }
 File.open('./public/many.yaml', 'w') {|f| f.write(YAML.dump($many)) }
 #TODO: 是否不放在public目录下，提高安全性。目前在发布环境下，不提供静态文件下载，所以没有安全性漏洞。但是这也要求不能通过nginx等提供public目录的访问。
@@ -100,10 +103,16 @@ $belongs.each do |key, arr|
   end
 end
 
-$many.each do |key, arr|
+$many2.each do |key, arr|
   filename = "app/models/#{key}.rb"
   arr.each do |x|
-    insert_into_file(filename, "\n  has_many :#{x.pluralize}", "\nend", false)
+    if x.class==String
+      insert_into_file(filename, "\n  has_many :#{x.pluralize}", "\nend", false)
+    else
+      clazz, col_name = x
+      tt = clazz.name.underscore.pluralize
+      insert_into_file(filename, "\n  has_many :#{tt}, class_name: '#{clazz.name}', foreign_key: '#{col_name}'", "\nend", false)
+    end
   end
 end
 
