@@ -84,7 +84,7 @@ end
 
 
 require_relative 'custom_fk'
-
+merge_custome_relation
 
 File.open('./public/belongs.yaml', 'w') {|f| f.write(YAML.dump($belongs2)) }
 File.open('./public/many.yaml', 'w') {|f| f.write(YAML.dump($many)) }
