@@ -106,12 +106,10 @@ class ActiveRecord::Base
   end
   
   def self.get_belongs_fk(method_name)
-    if self.name == 'JhcBloodPressure' && method_name == 'jbu_user'
-      return 'user_id'
-    end
-    method_name+"_id"
+    fk_arr = $custom_fks.find{|arr| arr[0]==self.name.underscore && arr[1]==method_name }
+    return fk_arr[2] if fk_arr
+    return method_name+"_id"
   end
-  
   
   
   def get_belongs_class_name(method_name)

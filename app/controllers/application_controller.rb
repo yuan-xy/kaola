@@ -1,3 +1,6 @@
+require 'name_helper'
+include NameHelper
+
 class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
@@ -157,7 +160,7 @@ class ApplicationController < ActionController::Base
     @list = @list.where(query) 
     with_dot_query(params[:s]).each do |k,v|
       model, field = k.split(".")
-      hash = {(model.pluralize) => { field => v}}
+      hash = {(table_name_fix(model)) => { field => v}}
       @list = @list.joins(model.to_sym).where(hash)
     end
     with_comma_query(params[:s]).each do |k,v|
@@ -175,7 +178,7 @@ class ApplicationController < ActionController::Base
     with_dot_query(params[:s][:like]).each do |k,v|
       model, field = k.split(".")
       @list = @list.joins(model.to_sym)
-      @list = @list.where("#{model.pluralize}.#{field} like ?", like_value(v))
+      @list = @list.where("#{table_name_fix(model)}.#{field} like ?", like_value(v))
     end
     with_comma_query(params[:s][:like]).each do |k,v|
       keys = k.split(",")
@@ -224,13 +227,13 @@ class ApplicationController < ActionController::Base
           logger.warn("date search 错误: #{k},#{v}. 外键字段暂不支持带,的单边日期查询")
         else
           day = DateTime.parse(arr[0])
-          hash = {(model.pluralize) => { field => day.beginning_of_day..day.end_of_day}}
+          hash = {(table_name_fix(model)) => { field => day.beginning_of_day..day.end_of_day}}
           @list = @list.where(hash)
         end
       elsif arr.size==2
         day1 = DateTime.parse(arr[0])
         day2 = DateTime.parse(arr[1])
-        hash = {(model.pluralize) => { field => day1.beginning_of_day..day2.end_of_day}}
+        hash = {(table_name_fix(model)) => { field => day1.beginning_of_day..day2.end_of_day}}
         @list = @list.where(hash)
        else
         logger.warn("date search 错误: #{k},#{v}")
@@ -262,11 +265,11 @@ class ApplicationController < ActionController::Base
       if arr.size==1
         v1 = arr[0].to_f
         operator = (v[0]==","?  "<=" : ">=")
-        @list = @list.where("#{model.pluralize}.#{field} #{operator} ?", v1)
+        @list = @list.where("#{table_name_fix(model)}.#{field} #{operator} ?", v1)
       elsif arr.size==2
         v1 = arr[0].to_f
         v2 = arr[1].to_f
-        hash = {(model.pluralize) => { field => v1..v2}}
+        hash = {(table_name_fix(model)) => { field => v1..v2}}
         @list = @list.where(hash)
       else
         logger.warn("range search 错误: #{k},#{v}")
@@ -285,7 +288,7 @@ class ApplicationController < ActionController::Base
       model, field = k.split(".")
       @list = @list.joins(model.to_sym)
       arr = v.split(",")
-      @list = @list.where("#{model.pluralize}.#{field} in (?)", arr)
+      @list = @list.where("#{table_name_fix(model)}.#{field} in (?)", arr)
     end
     params[:s].delete(:in)      
   end 
@@ -309,7 +312,7 @@ class ApplicationController < ActionController::Base
         if field.match(op)
           arr = field.split(op)
           next if arr.size != 2
-          @list = @list.where("#{model.pluralize}.#{arr[0]} #{op} #{arr[1]}")
+          @list = @list.where("#{table_name_fix(model)}.#{arr[0]} #{op} #{arr[1]}")
           break
         end
       end
