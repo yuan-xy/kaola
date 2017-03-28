@@ -324,12 +324,14 @@ class ApplicationController < ActionController::Base
     return unless params[:s][:exists]
     params[:s][:exists].each do |key,v|
       arel = @model_clazz.arel_table
-      fid = @model_clazz.name.singularize.underscore+"_id"
-      sql = Object.const_get(key.camelize.singularize).select(fid.to_sym).to_sql
+      many_clazz = get_table_class(key)
+      fid = many_clazz.get_belongs_fk(@model_clazz.table_name)
+      sql = many_clazz.select(fid.to_sym).to_sql
+      pkey = @model_clazz.primary_key.to_sym
       if v=="0"
-        @list = @list.where(arel[:id].not_in(Arel.sql(sql)))
+        @list = @list.where(arel[pkey].not_in(Arel.sql(sql)))
       elsif v=="1"
-        @list = @list.where(arel[:id].in(Arel.sql(sql)))
+        @list = @list.where(arel[pkey].in(Arel.sql(sql)))
       else
         raise "exists search only support 0/1 value"
       end
