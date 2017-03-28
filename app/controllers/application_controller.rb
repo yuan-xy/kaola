@@ -375,7 +375,7 @@ class ApplicationController < ActionController::Base
       field = split_field_for_cmp(field, op)
       if model.singularize == model
         # 关联主表 belongs关系
-        check_field_exist(model+"_id", attrs)
+        check_field_exist(@model_clazz.get_belongs_fk(model), attrs)
         clazz_name = clazz.get_belongs_class_name(model)
         check_field_exist(field, Object.const_get(clazz_name).attribute_names)
       else

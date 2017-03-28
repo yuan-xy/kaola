@@ -15,8 +15,7 @@ def merge_custome_relation
     t2 = t2.singularize
     c1 = Object.const_get(t1.camelize.singularize)
     c2 = Object.const_get(t2.camelize.singularize)
-    fk_prefix = fk[0..-4]
-    [t1,t2, c1, c2, fk, fk_prefix]
+    [t1,t2, c1, c2, fk, t2]
   end
 
   $many2 = $many.clone
