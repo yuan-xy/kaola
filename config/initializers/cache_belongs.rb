@@ -106,7 +106,7 @@ class ActiveRecord::Base
   end
   
   def self.get_belongs_fk(method_name)
-    fk_arr = $custom_fks.find{|arr| arr[0]==self.name.underscore && arr[1]==method_name }
+    fk_arr = $custom_fks.find{|arr| arr[0]==self.table_name && arr[1]==method_name }
     return fk_arr[2] if fk_arr
     return method_name+"_id"
   end
