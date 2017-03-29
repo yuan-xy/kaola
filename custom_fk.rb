@@ -18,8 +18,7 @@ def merge_custome_relation
     [t1,t2, c1, c2, fk, t2]
   end
 
-  $many2 = $many.clone
-
+  $many2 = {}
 
   fks2.each do |arr|
     t1,t2, c1, c2, fk, fk_prefix = arr
@@ -39,9 +38,9 @@ def merge_custome_relation
       $many[t2] << t1
     end
     if $many2[t2].nil?
-      $many2[t2] = [[c1,fk]]
+      $many2[t2] = [[c1,fk,t1]]
     else
-      $many2[t2] << [c1,fk]
+      $many2[t2] << [c1,fk,t1]
     end
   end
 

@@ -106,15 +106,20 @@ end
 $many2.each do |key, arr|
   filename = "app/models/#{key}.rb"
   arr.each do |x|
-    if x.class==String
-      insert_into_file(filename, "\n  has_many :#{x.pluralize}", "\nend", false)
-    else
-      clazz, col_name = x
-      tt = clazz.name.underscore.pluralize
-      insert_into_file(filename, "\n  has_many :#{tt}, class_name: '#{clazz.name}', foreign_key: '#{col_name}'", "\nend", false)
-    end
+    clazz, col_name, _ = x
+    tt = clazz.name.underscore.pluralize
+    insert_into_file(filename, "\n  has_many :#{tt}, class_name: '#{clazz.name}', foreign_key: '#{col_name}'", "\nend", false)
   end
 end
+
+$many.each do |key, arr|
+  filename = "app/models/#{key}.rb"
+  arr.each do |x|
+    next if $many2[key] && $many2[key].find{|arr3| arr3[2]==x}
+    insert_into_file(filename, "\n  has_many :#{x.pluralize}", "\nend", false)
+  end
+end
+
 
 def extra_belongs_class
   $belongs.map do |key, arr|
