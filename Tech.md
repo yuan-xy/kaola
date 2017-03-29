@@ -261,5 +261,6 @@ Timestamp字段的作用是应用内部记录一张表的修改时间戳，用�
 发布脚本里对部署路径有依赖，比如新的分支名字是“a_new_branch”，那么执行下面的命令更新部署相关配置：
 
 	rpl ScmApiServer a_new_branch puma.rb 
+	rpl ScmApi a_new_branch app/views/layouts/application.html.erb
 	find . -name "*.sh" | xargs rpl ScmApiServer a_new_branch
 

@@ -61,7 +61,7 @@ class ActiveRecord::Base
   
   def self.belong_names
     tname = name.underscore
-    return [] if $belongs[tname].nil?
+    return [] if !$belongs || $belongs[tname].nil?
     $belongs[tname]
   end
 
