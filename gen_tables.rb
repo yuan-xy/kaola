@@ -17,15 +17,21 @@ def fix_primary_key(t, id='id')
   insert_into_file(filename, "\n  self.primary_key = '"+id+"'", "\nend", false)
 end
 
-def try_fix_primary_key(t)
+def try_fix_primary_key(t, views)
   clazz = Object.const_get(t.singularize.camelize) 
-  return if clazz.primary_key
+  if clazz.primary_key
+    if views.find{|x| x==t}
+      fix_primary_key(t)  #activerecord库对视图的主键处理有bug，所以这里强制设置视图的主键
+    end
+    return
+  end
   if clazz.attribute_names.find{|x| x=='id'}
     fix_primary_key(t)
     return
   end
   id = clazz.attribute_names.find{|x| x.ends_with? '_id'}
   if id
+    puts "警告：表#{t}的主键没有，启发式规则设置为#{id}"
     fix_primary_key(t, id)
   else
     puts "警告： 表#{t}不存在主键"
@@ -89,8 +95,8 @@ def gen_db_tables(hash, re_try=true, parallel=true)
   if re_try # 表示首次调用，非递归
     hash.each do |db, tables|
       establish_conn(db)
-      tables.each{|t| try_fix_primary_key(t) }
-      #ActiveRecord::Base.connection.retrieve_views.each{|t| fix_primary_key(t) }
+      views = ActiveRecord::Base.connection.retrieve_views
+      tables.each{|t| try_fix_primary_key(t, views) }
     end
   end
 end
