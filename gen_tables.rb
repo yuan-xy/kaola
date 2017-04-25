@@ -18,10 +18,11 @@ def fix_primary_key(t, id='id')
 end
 
 def try_fix_primary_key(t, views)
+  byebug if t=='jbu_user'
   clazz = Object.const_get(t.singularize.camelize) 
   if clazz.primary_key
     if views.find{|x| x==t}
-      fix_primary_key(t)  #activerecord库对视图的主键处理有bug，所以这里强制设置视图的主键
+      fix_primary_key(t, clazz.primary_key)  #activerecord库对视图的主键处理有bug，所以这里强制设置视图的主键
     end
     return
   end
