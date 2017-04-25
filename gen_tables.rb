@@ -18,7 +18,6 @@ def fix_primary_key(t, id='id')
 end
 
 def try_fix_primary_key(t, views)
-  byebug if t=='jbu_user'
   clazz = Object.const_get(t.singularize.camelize) 
   if clazz.primary_key
     if views.find{|x| x==t}
