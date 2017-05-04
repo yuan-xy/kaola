@@ -5,6 +5,7 @@ def read_custome_fk
     next if x[0]=='#'
     fks << x.split(',').map{|x| x.strip}
   end
+  fks.delete_if{|x| x.size!=3}  #空行/不符合格式行的删除
   fks
 end
 
