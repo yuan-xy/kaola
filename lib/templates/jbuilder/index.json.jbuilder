@@ -7,7 +7,7 @@ def func(json)
 	  @many.try(:each) do |x,value|
     	json.set! x do 
     		json.array!(value[i]) do |arr|
-    		  json.merge! arr.try(:filter_attributes)
+    		  json.merge! arr
     		end
     	end
 	  end

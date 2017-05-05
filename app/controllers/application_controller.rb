@@ -101,7 +101,7 @@ class ApplicationController < ActionController::Base
   
   def check_useless_params
     hash = params.to_hash
-    %w{controller action format count per page order many index}.each{|x| hash.delete(x)}
+    %w{controller action format count per page order many many_size index}.each{|x| hash.delete(x)}
     if hash["s"]
       %w{like date range in cmp exists}.each{|x| hash["s"].delete(x)}
       hash["s"].each{|k,v| raise "查询参数s[#{k}]不支持" if v.class==Hash}
@@ -135,7 +135,8 @@ class ApplicationController < ActionController::Base
 	  if params[:many] && params[:many].size>1
       @many = {}
 	    params[:many].split(",").each do |x|
-        @many[x] = @model_clazz.many_caches(x, @list)
+        many_size = params[:many_size] || 100
+        @many[x] = @model_clazz.many_caches(x, @list, many_size.to_i)
       end
     end
     @belong_names = @model_clazz.belong_names

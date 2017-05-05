@@ -16,8 +16,10 @@ class <%= controller_class_name %>Controller < ApplicationController
   def show
     @many = {}
     if params[:many] && params[:many].size>1
+      many_size = params[:many_size] || 100
+      many_depth = params[:depth] || 1
       params[:many].split(",").each do |x|
-        @many[x] = @<%= singular_table_name %>.many_cache(x)
+        @many[x] = @<%= singular_table_name %>.many_cache(x, many_size.to_i, many_depth.to_i)
       end
     end
     if params[:many]=="1" && Rails.env != "production"
