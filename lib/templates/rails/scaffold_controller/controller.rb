@@ -19,6 +19,7 @@ class <%= controller_class_name %>Controller < ApplicationController
       many_size = params[:many_size] || 100
       many_depth = params[:depth] || 1
       params[:many].split(",").each do |x|
+        raise "many查询#{x}必须是复数" if x.pluralize != x
         @many[x] = @<%= singular_table_name %>.many_cache(x, many_size.to_i, many_depth.to_i)
       end
     end

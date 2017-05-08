@@ -135,6 +135,7 @@ class ApplicationController < ActionController::Base
 	  if params[:many] && params[:many].size>1
       @many = {}
 	    params[:many].split(",").each do |x|
+        raise "many查询#{x}必须是复数" if x.pluralize != x
         many_size = params[:many_size] || 100
         @many[x] = @model_clazz.many_caches(x, @list, many_size.to_i)
       end
