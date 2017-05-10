@@ -108,10 +108,13 @@ class ActiveRecord::Base
   def self.get_belongs_fk(method_name)
     fk_arr = $custom_fks.find_all{|arr| arr[0]==self.table_name}
     if fk_arr
-       clazz = Object.const_get(method_name.camelize.singularize)
-       fk_arr = fk_arr.find{|arr| arr[1]==clazz.table_name}
-       return fk_arr[2] if fk_arr
-       #TODO: 预计算
+      begin
+        clazz = Object.const_get(method_name.camelize.singularize)
+        fk_arr = fk_arr.find{|arr| arr[1]==clazz.table_name}
+        return fk_arr[2] if fk_arr
+        #TODO: 预计算
+      rescue
+      end
     end
     return method_name+"_id"
   end
