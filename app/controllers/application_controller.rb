@@ -160,35 +160,55 @@ class ApplicationController < ActionController::Base
     query = {}
     query.merge!(simple_query(params[:s]))
     @list = @list.where(query) 
-    with_dot_query(params[:s]).each do |k,v|
-      model, field = k.split(".")
-      hash = {(table_name_fix(model)) => { field => v}}
-      @list = @list.joins(model.to_sym).where(hash)
-    end
     with_comma_query(params[:s]).each do |k,v|
       keys = k.split(",")
       t = @model_clazz.arel_table
       arel = t[keys[0].to_sym].eq(v)
-      keys[1..-1].each{|key| arel = arel.or(t[key.to_sym].eq(v))}
+      keys[1..-1].each do |key|
+        if  key.index(".")
+          model, field = key.split(".")
+          @list = @list.joins(model.to_sym)
+          t2= get_table_class(table_name_fix(model)).arel_table
+          arel = arel.or(t2[field.to_sym].eq(v))
+        else
+          arel = arel.or(t[key.to_sym].eq(v))
+        end
+      end
       @list = @list.where(arel)
+    end
+    del_comma_query(params[:s])
+    with_dot_query(params[:s]).each do |k,v|
+      model, field = k.split(".")
+      hash = {(table_name_fix(model)) => { field => v}}
+      @list = @list.joins(model.to_sym).where(hash)
     end
   end
 
   def like_search
     return unless params[:s][:like]
     simple_query(params[:s][:like]).each {|k,v| @list = @list.where("#{k} like ?", like_value(v))}
-    with_dot_query(params[:s][:like]).each do |k,v|
-      model, field = k.split(".")
-      @list = @list.joins(model.to_sym)
-      @list = @list.where("#{table_name_fix(model)}.#{field} like ?", like_value(v))
-    end
     with_comma_query(params[:s][:like]).each do |k,v|
       keys = k.split(",")
       vv = like_value(v)
       t = @model_clazz.arel_table
       arel = t[keys[0].to_sym].matches(vv)
-      keys[1..-1].each{|key| arel = arel.or(t[key.to_sym].matches(vv))}
+      keys[1..-1].each do |key|
+        if  key.index(".")
+          model, field = key.split(".")
+          @list = @list.joins(model.to_sym)
+          t2= get_table_class(table_name_fix(model)).arel_table
+          arel = arel.or(t2[field.to_sym].matches(vv))
+        else
+          arel = arel.or(t[key.to_sym].matches(vv))
+        end
+      end
       @list = @list.where(arel)
+    end
+    del_comma_query(params[:s][:like])
+    with_dot_query(params[:s][:like]).each do |k,v|
+      model, field = k.split(".")
+      @list = @list.joins(model.to_sym)
+      @list = @list.where("#{table_name_fix(model)}.#{field} like ?", like_value(v))
     end
     params[:s].delete(:like)
   end
@@ -349,6 +369,11 @@ class ApplicationController < ActionController::Base
   def with_comma_query(hash)
     hash.select{|k,v| k.index(",")}
   end
+  
+  
+  def del_comma_query(hash)
+    hash.delete_if{|k,v| k.index(",")}
+  end
 
   def simple_query(hash)
     hash.select{|k,v| !k.index(".") && !k.index(",")}
@@ -373,24 +398,34 @@ class ApplicationController < ActionController::Base
   
   def check_keys_exist(keys, attrs, clazz, op=nil)
     if keys.index(",")
-      keys.split(",").each{|x| check_field_exist(x, attrs)}
-    elsif keys.index(".")
-      model, field = keys.split(".")
-      field = split_field_for_cmp(field, op)
-      if model.singularize == model
-        # 关联主表 belongs关系
-        check_field_exist(@model_clazz.get_belongs_fk(model), attrs)
-        clazz_name = clazz.get_belongs_class_name(model)
-        check_field_exist(field, Object.const_get(clazz_name).attribute_names)
-      else
-        check_many_relation(model)
-        clazz_name = model.camelize.singularize
-        check_field_exist(field, Object.const_get(clazz_name).attribute_names)
+      keys.split(",").each do |x|
+        if x.index(".")
+          check_rel_keys_exist(x, attrs, clazz, op)
+        else
+          check_field_exist(x, attrs)
+        end
       end
-      #TODO: 跨库的join查询，数据库不支持
+    elsif keys.index(".")
+      check_rel_keys_exist(keys, attrs, clazz, op)
     else
       check_field_exist(keys, attrs, op)
     end
+  end
+  
+  def check_rel_keys_exist(keys, attrs, clazz, op=nil)
+    model, field = keys.split(".")
+    field = split_field_for_cmp(field, op)
+    if model.singularize == model
+      # 关联主表 belongs关系
+      check_field_exist(@model_clazz.get_belongs_fk(model), attrs)
+      clazz_name = clazz.get_belongs_class_name(model)
+      check_field_exist(field, Object.const_get(clazz_name).attribute_names)
+    else
+      check_many_relation(model)
+      clazz_name = model.camelize.singularize
+      check_field_exist(field, Object.const_get(clazz_name).attribute_names)
+    end
+    #TODO: 跨库的join查询，数据库不支持    
   end
   
   def split_field_for_cmp(field, op)
