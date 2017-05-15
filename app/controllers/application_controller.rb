@@ -163,15 +163,23 @@ class ApplicationController < ActionController::Base
     with_comma_query(params[:s]).each do |k,v|
       keys = k.split(",")
       t = @model_clazz.arel_table
-      arel = t[keys[0].to_sym].eq(v)
-      keys[1..-1].each do |key|
+      arel = nil
+      keys.each_with_index  do |key, index|
         if  key.index(".")
           model, field = key.split(".")
           @list = @list.joins(model.to_sym)
           t2= get_table_class(table_name_fix(model)).arel_table
-          arel = arel.or(t2[field.to_sym].eq(v))
+          if index==0
+            arel = t2[field.to_sym].eq(v)
+          else
+            arel = arel.or(t2[field.to_sym].eq(v))
+          end
         else
-          arel = arel.or(t[key.to_sym].eq(v))
+          if index==0
+            arel = t[key.to_sym].eq(v)
+          else
+            arel = arel.or(t[key.to_sym].eq(v))
+          end
         end
       end
       @list = @list.where(arel)
@@ -191,15 +199,23 @@ class ApplicationController < ActionController::Base
       keys = k.split(",")
       vv = like_value(v)
       t = @model_clazz.arel_table
-      arel = t[keys[0].to_sym].matches(vv)
-      keys[1..-1].each do |key|
+      arel = nil
+      keys.each_with_index  do |key, index|
         if  key.index(".")
           model, field = key.split(".")
           @list = @list.joins(model.to_sym)
           t2= get_table_class(table_name_fix(model)).arel_table
-          arel = arel.or(t2[field.to_sym].matches(vv))
+          if index==0
+            arel = t2[field.to_sym].matches(vv)
+          else
+            arel = arel.or(t2[field.to_sym].matches(vv))
+          end
         else
-          arel = arel.or(t[key.to_sym].matches(vv))
+          if index==0
+            arel = t[key.to_sym].matches(vv)
+          else
+            arel = arel.or(t[key.to_sym].matches(vv))
+          end
         end
       end
       @list = @list.where(arel)
