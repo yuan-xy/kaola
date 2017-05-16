@@ -140,4 +140,5 @@ File.open('./public/belongs_class.yaml', 'w') do |f|
 end
 
 
+require_relative 'gen_many2many_relation'
 
