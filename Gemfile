@@ -18,7 +18,7 @@ gem 'spreadsheet'
 gem 'rubyXL'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.6'
+gem 'rails', '~> 4.2.6'
 
 gem 'mysql2'
 gem 'oauth2'
