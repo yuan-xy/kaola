@@ -24,6 +24,23 @@ SQL
     result.flatten! if result
     result
   end
+  
+  def find_fks
+    sql = <<-FOO
+    SELECT table_name, referenced_table_name,
+    GROUP_CONCAT(column_name ORDER BY ORDINAL_POSITION) AS 'Columns'
+    FROM information_schema.KEY_COLUMN_USAGE
+    WHERE constraint_schema = '#{database_name}' 
+    AND referenced_table_schema = '#{database_name}' 
+    AND REFERENCED_TABLE_NAME is not null
+    group by table_name, 
+    referenced_table_schema,referenced_table_name,
+    CONSTRAINT_NAME
+    ORDER BY TABLE_NAME;
+FOO
+    result = select_rows(sql)
+    result
+  end
 
 end
 end

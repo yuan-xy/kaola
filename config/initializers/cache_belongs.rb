@@ -1,3 +1,4 @@
+
 class ActiveRecord::Base
   
   def self.belongs_to_multi_get(list)
@@ -106,7 +107,8 @@ class ActiveRecord::Base
   end
   
   def self.get_belongs_fk(method_name)
-    fk_arr = $custom_fks.find_all{|arr| arr[0]==self.table_name}
+    $all_fks = all_fks unless $all_fks
+    fk_arr = $all_fks.find_all{|arr| arr[0]==self.table_name}
     if fk_arr
       begin
         clazz = Object.const_get(method_name.camelize.singularize)

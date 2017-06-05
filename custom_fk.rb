@@ -1,4 +1,3 @@
-
 def read_custome_fk
   fks = []
   File.open('custom_fk.txt').each_line do |x|
@@ -9,8 +8,14 @@ def read_custome_fk
   fks
 end
 
+def all_fks
+  arr = ActiveRecord::Base.connection.find_fks
+  read_custome_fk.each{|x| arr << x}
+  arr
+end
+
 def merge_custome_relation
-  fks2 = read_custome_fk.map do |arr|
+  fks2 = all_fks.map do |arr|
     t1, t2, fk = arr
     t1 = t1.singularize
     t2 = t2.singularize

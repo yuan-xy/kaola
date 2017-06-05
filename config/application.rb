@@ -4,7 +4,6 @@ require 'rails/all'
 require 'rack/cors'
 
 require_relative '../custom_fk'
-$custom_fks = read_custome_fk
 
 $many = YAML.load(File.read('./public/many.yaml'))
 $belongs = YAML.load(File.read('./public/belongs.yaml'))
