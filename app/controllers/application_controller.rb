@@ -110,6 +110,9 @@ class ApplicationController < ActionController::Base
     raise "不支持的未知查询条件#{hash}" unless hash.empty?
   end
   
+  def jbuild2(*args, &block)
+    Jbuilder.new(*args, &block).attributes!
+  end
   
   def do_search
     check_useless_params if Rails.env != 'production'
@@ -146,7 +149,34 @@ class ApplicationController < ActionController::Base
     instance_variable_set("@#{plural_table_name}", @list)
     respond_to do |format|
       format.html
-      format.json
+      format.json do
+        result = jbuild2 do |json|
+          def func(json)
+          	json.array!(@list.each_with_index.to_a) do |(singular_table_name, i)|
+          	  json.merge! singular_table_name.try(:filter_attributes)
+          	  @belong_names.each do |name|
+          	    json.set! name, @belongs[i][name].try(:filter_attributes)
+          	  end
+          	  @many.try(:each) do |x,value|
+              	json.set! x do 
+              		json.array!(value[i]) do |arr|
+              		  json.merge! arr
+              		end
+              	end
+          	  end
+          	end
+          end
+          if params[:count]=="1"
+          	json.count @count
+          	json.data do
+          	  func(json)
+          	end
+          else
+          	func(json)
+          end
+        end
+        render :json => result
+      end
       format.xlsx do 
         workbook = @model_clazz.gen_workbook(@list)
         send_excel(workbook, "#{plural_table_name}.xlsx")
@@ -484,6 +514,43 @@ class ApplicationController < ActionController::Base
     end
     # clazz.update(hash.keys, hash.values)  #本update方法无法报告异常，所以弃用
     render :json => {count: ret.size, updated:true}.to_json
+  end
+  
+  def do_show
+    @many = {}
+    if params[:many] && params[:many].size>1
+      many_size = params[:many_size] || 100
+      many_depth = params[:depth] || 1
+      params[:many].split(",").each do |x|
+        raise "many查询#{x}必须是复数" if x.pluralize != x
+        @many[x] = @cache_obj.many_cache(x, many_size.to_i, many_depth.to_i)
+      end
+    end
+    if params[:many]=="1" && Rails.env != "production"
+      $many[singular_table_name(@model_clazz)].try(:each) do |x|
+        x = x.pluralize
+        @many[x] = @cache_obj.many_cache(x)
+      end
+    end
+    respond_to do |format|
+      format.html
+      format.json do
+        result = jbuild2 do |json|
+          json.merge! @cache_obj.attributes
+          @cache_obj.belongs_to_multi_get.each do |k,v|
+            json.set! k, v.try(:filter_attributes)
+          end
+          @many.try(:each) do |x,value|
+            	json.set! x do 
+            		json.array!(value) do |arr|
+            		  json.merge! arr
+            		end
+            	end
+          end
+        end
+        render :json => result
+      end
+    end
   end
   
   def send_excel(workbook, filename, suffix='xlsx')

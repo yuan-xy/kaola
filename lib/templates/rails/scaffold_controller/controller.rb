@@ -14,21 +14,8 @@ class <%= controller_class_name %>Controller < ApplicationController
 
   # GET <%= route_url %>/1
   def show
-    @many = {}
-    if params[:many] && params[:many].size>1
-      many_size = params[:many_size] || 100
-      many_depth = params[:depth] || 1
-      params[:many].split(",").each do |x|
-        raise "many查询#{x}必须是复数" if x.pluralize != x
-        @many[x] = @<%= singular_table_name %>.many_cache(x, many_size.to_i, many_depth.to_i)
-      end
-    end
-    if params[:many]=="1" && Rails.env != "production"
-      $many['<%= singular_table_name %>'].try(:each) do |x|
-        x = x.pluralize
-        @many[x] = @<%= singular_table_name %>.many_cache(x)
-      end
-    end
+    @model_clazz = <%= class_name %>
+    do_show
   end
 
   # GET <%= route_url %>/new
@@ -107,11 +94,11 @@ class <%= controller_class_name %>Controller < ApplicationController
     
     # Use callbacks to share common setup or constraints between actions.
     def set_<%= singular_table_name %>
-      cache = <%= class_name %>.memcache_load(params[:id])
-      unless cache
+      @cache_obj = <%= class_name %>.memcache_load(params[:id])
+      unless @cache_obj
         return render :status => 404, :json => {:error => "object #{params[:id]} not found."}.to_json
       end
-      @<%= singular_table_name %> = cache
+      @<%= singular_table_name %> = @cache_obj
     end
 
     # Only allow a trusted parameter "white list" through.

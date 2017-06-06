@@ -8,5 +8,9 @@ module NameHelper
     get_table_class(table_name).table_name
   end
   
+  def singular_table_name(clazz)
+    clazz.name.singularize.underscore
+  end
+  
 
 end

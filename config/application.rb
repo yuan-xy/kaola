@@ -36,6 +36,7 @@ module ScmApi
       g.test_framework  false
       g.stylesheets     false
       g.javascripts     false      
+      g.jbuilder        false
     end
     config.middleware.use Rack::Attack
     config.middleware.use Rack::Deflater
