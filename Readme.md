@@ -443,6 +443,11 @@ uv_insured_units/1.json?many=uv_insured_units&depth=3&many_size=1
 	http://scm.laobai.com:9291/tbw_warehouses.xlsx?page=1&per=100
 	http://scm.laobai.com:9291/tbw_warehouses.xlsx?s[range[id]]=1,5
 	
+
+## 已知的问题
+
+* 单复数表名同时存在，比如存在两张表'table'和'tables'，那么无法区分
+* 数据库不能有字段的名称是‘type’。如果有，则需要手动设置 inheritance_column = nil
 	
 ## 相关文档
 
