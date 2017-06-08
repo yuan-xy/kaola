@@ -6,11 +6,11 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
   #skip_before_action :verify_authenticity_token, if: :json_request?
-  skip_before_filter :verify_authenticity_token, :if => Proc.new { |c| c.request.format == 'application/json' }
+  skip_before_action :verify_authenticity_token, :if => Proc.new { |c| c.request.format == 'application/json' }
 
-  after_filter :cors_set_access_control_headers
+  after_action :cors_set_access_control_headers
   
-  before_filter :crud_json_check
+  before_action :crud_json_check
   
   def crud_json_check
      if Rails.env == "production"
@@ -40,7 +40,7 @@ class ApplicationController < ActionController::Base
     File.open("log/scm-error.log","a") {|f| f.puts msg.to_s}
   end
 
-  around_filter :exception_catch
+  around_action :exception_catch
   def exception_catch
     begin
       headers['Access-Control-Allow-Origin'] = '*'
@@ -100,7 +100,7 @@ class ApplicationController < ActionController::Base
   end
   
   def check_useless_params
-    hash = params.to_hash
+    hash = to_hash(params)
     %w{controller action format count per page order many many_size index}.each{|x| hash.delete(x)}
     if hash["s"]
       %w{like date range in cmp exists}.each{|x| hash["s"].delete(x)}
@@ -119,7 +119,7 @@ class ApplicationController < ActionController::Base
     @list = @model_clazz.order(@order)
     @list = @list.use_index(params[:index]) if params[:index]
     if params[:s]
-      check_search_param_exsit(params[:s].to_hash, @model_clazz)
+      check_search_param_exsit(to_hash(params[:s]), @model_clazz)
       like_search
       date_search
       range_search
@@ -187,8 +187,7 @@ class ApplicationController < ActionController::Base
 
   def equal_search
     return unless params[:s]
-    query = {}
-    query.merge!(simple_query(params[:s]))
+    query = to_hash simple_query(params[:s])
     @list = @list.where(query) 
     with_comma_query(params[:s]).each do |k,v|
       keys = k.split(",")
@@ -556,6 +555,12 @@ class ApplicationController < ActionController::Base
   def send_excel(workbook, filename, suffix='xlsx')
     send_data workbook.stream.string,
               filename: filename, disposition: 'attachment', type: "application/#{suffix}"
+  end
+  
+  def to_hash(params)
+    hash = {}
+    params.each_pair{|x,y| hash[x]=y}
+    hash
   end
   
   

@@ -16,10 +16,10 @@ end
 def all_database_tables
   tables = {}
   ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
-  tables[:DEFAULT] = ActiveRecord::Base.connection.tables.delete_if{|t| is_ignore_table?(t)}
+  tables[:DEFAULT] = ActiveRecord::Base.connection.data_sources.delete_if{|t| is_ignore_table?(t)}
   $extra_databases.each do |extra|
     ActiveRecord::Base.establish_connection("#{extra}_#{Rails.env}".to_sym)
-    tables[extra] = ActiveRecord::Base.connection.tables.delete_if{|t| is_ignore_table?(t)}
+    tables[extra] = ActiveRecord::Base.connection.data_sources.delete_if{|t| is_ignore_table?(t)}
   end
   ActiveRecord::Base.establish_connection("#{Rails.env}".to_sym)
   tables
