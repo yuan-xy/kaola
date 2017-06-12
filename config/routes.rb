@@ -6,4 +6,5 @@ end
 
 Rails.application.routes.draw do
   draw :route_common
+  draw :route_codegen
 end

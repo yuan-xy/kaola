@@ -1,6 +1,3 @@
-match ':controller(/:action(/:id(.:format)))', via: [:options], to:  lambda {|env| [200, {'Content-Type' => 'text/plain'}, ["OK\n"]]}
-match ':controller/batch_update(.:format)', action: :batch_update, controller: :controller, via: [:post]
-
 get 'sql/heartbeat', to: 'sql#heartbeat'
 get 'sql/search/:id', to: 'sql#search'
 get 'sql/exec/:id', to: 'sql#exec'
@@ -12,3 +9,8 @@ get 'bulk/file_upload', to: 'bulk#file_upload'
 get 'bulk/file_template', to: 'bulk#file_template'
 post 'cache/expire', to: 'cache#expire'
 post 'cache/expire_all', to: 'cache#expire_all'
+
+match 'sql(/:action(/:id(.:format)))', via: [:options], to:  lambda {|env| [200, {'Content-Type' => 'text/plain'}, ["OK\n"]]}
+match 'oauth2(/:action(/:id(.:format)))', via: [:options], to:  lambda {|env| [200, {'Content-Type' => 'text/plain'}, ["OK\n"]]}
+match 'bulk(/:action(/:id(.:format)))', via: [:options], to:  lambda {|env| [200, {'Content-Type' => 'text/plain'}, ["OK\n"]]}
+match 'cache(/:action(/:id(.:format)))', via: [:options], to:  lambda {|env| [200, {'Content-Type' => 'text/plain'}, ["OK\n"]]}
