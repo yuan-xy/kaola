@@ -74,10 +74,12 @@ def gen_db_tables(hash, re_try=true, parallel=true)
           succ = false
         end
       rescue Exception => e
+        puts e if $verbose
         errors[db] << t
         succ = false
       end
       if succ
+        gen_route(t)
         fix_table_name(t)
         fix_connection(t, db) if db != :DEFAULT
       end
