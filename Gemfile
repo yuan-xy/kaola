@@ -16,6 +16,7 @@ gem 'pmap'
 gem 'rails-i18n'
 gem 'spreadsheet'
 gem 'rubyXL'
+gem 'safe_attributes'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 #gem 'rails', '~> 4.2.6'
