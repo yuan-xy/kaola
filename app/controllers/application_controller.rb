@@ -558,8 +558,9 @@ class ApplicationController < ActionController::Base
   end
   
   def to_hash(params)
+    return params unless params.class==ActionController::Parameters
     hash = {}
-    params.each_pair{|x,y| hash[x]=y}
+    params.each_pair{|x,y| hash[x] = to_hash(y) }
     hash
   end
   
