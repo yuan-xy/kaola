@@ -14,7 +14,7 @@ end
 def gen_route(t)
   route =  <<-FOO
 match '#{t}(/:action(/:id(.:format)))', via: [:options], to:  lambda {|env| [200, {'Content-Type' => 'text/plain'}, ["OK\n"]]}
-match '#{t}/batch_update(.:format)', action: :batch_update, controller: :controller, via: [:post]
+match '#{t}/batch_update(.:format)', action: :batch_update, controller: :#{t}, via: [:post]
 FOO
   open('config/route_codegen.rb', 'a') do |f|
     f.puts route
