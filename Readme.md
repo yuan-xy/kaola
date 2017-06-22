@@ -1,455 +1,108 @@
-# Api接口自动生成系统使用
+# 开源一个超酷的Restful Api自动生成器：Koala
 
-## 命名约定
+## 0. 什么是Koala
 
-这套系统能够运行的关键是命名约定。
+Koala（考拉）是一个全自动的restful api代码自动生成系统。给定一个数据库，只需要配置好数据库连接，koala可以通过扫描数据库自动生成全套的restful api的后端代码。通过预先约定好的接口调用规范，前端就可以直接开发应用系统了。
 
-### URL命名约定
-本系统生成的Api接口是基于http的web接口，URL的命名符合REST规范。其中的表名都是复数形式。
+
+
+## 1. 为什么开发Koala
+
+类似koala的代码生成系统之前也有很多，比如rails自带的scaffold功能，以及更完善的Active Admin／Rails Admin等。但是这些系统都有两点不符合要求：
+1. 这些系统都是一套完整的系统，从后端到页面都一次性生成。实际的情况是，后端的接口比较通用，而界面和操作流程往往需要深度的定制。修改这些系统自动生成的页面是很困难的。
+2. 这些系统往往都是只支持单表CRUD操作，对多表之间的关联操作支持不够。
+
+所以我开发了这套koala系统，它的主要特点是：
+1. 只提供后端的restful api接口，前端的代码还是需要每个应用自己编写，采用前后端分离架构；
+2. 接口不仅支持常规的单表CRUD操作，还自动支持多表关联（一对多、多对多、自引用的树形结构），支持复杂的查询（分页、排序、计数、索引）、支持批量操作、以及拥有一套透明高效的缓存体系。
+
+当然，还有一点很关键的，就是定义了一套restful的基于约定的接口协议。基于这套约定的协议，前端程序员不需要后端提供繁琐的接口文档，可以轻松上手开始使用这套接口。
+
+
+## 2. 开始使用Koala
+
+Koala是基于ruby on rails开发的，主要在Mac和Linux操作系统下完成开发
+，数据库使用的是mysql。如果你的操作系统是windows，或者数据库不是mysql，大体上是兼容的，但可能会碰到问题。
+
+1. 安装ruby2.2以上版本，如何安置可参考https://www.ruby-lang.org/en/documentation/installation/；安装bundle；
+
+2. 下载koala的代码，在项目根目录运行“bundle install”安装依赖的第三方库
+
+3. 配置数据库连接文件config/database.yml
+
+4. 在项目的根目录运行“./autogen.sh”，自动生成所有的后端api代码
+
+5. 运行“rails s”启动api服务器
+
+
+然后打开浏览器访问http://localhost:3000/index2.html就可以看到生成的所有接口了。在开发环境下，koala除了api接口，也提供完整的CRUD的html页面（其实就是rails默认的scaffold生成的页面）。在发布环境下，只有接口调用可以访问，也就是以".json"结尾的url访问。
+
+## 3. Koala的接口协议约定
+Koala生成的Api接口是基于http的web接口，URL的命名基本沿用rails框架的命名约定，其中的表名都是复数形式。基本的CRUD接口的约定如下：
 
 | 操作 | HTTP Method  | URI |
 | :--------- | :-----| :---------- |
 | 获取列表数据	|	GET	|     /表名(.:format)             |
 | 添加新数据	|	POST	|    /表名(.:format)          | 
-| 编辑新数据	|	GET	|     /表名/new(.:format)         |
-| 编辑已有数据	|	GET	|     /表名/:id/edit(.:format)    |
-| 查看已有数据	|	GET	|     /表名/:id(.:format)         |
-| 修改已有数据	|	PATCH	|   /表名/:id(.:format)       |
 | 修改已有数据	|	PUT	|     /表名/:id(.:format)         |
+| 查看已有数据	|	GET	|     /表名/:id(.:format)         |
 | 删除已有数据	|	DELETE	|  /表名/:id(.:format)        |
-| 批量添加数据	|	POST	|    /表名(.:format)          | 
-| 批量修改数据	|	POST	|    /表名/batch_update(.:format)    | 
-| 批量删除数据	|	DELETE	|  /表名/:id[,:id](.:format)          |
 
-format目前支持三种：一个是json，这个是提供给前端使用的api接口；一个是xlsx，这个是提供列表数据的Excel文件导出功能；一个是html，这个是后台提供的html显示界面。如果不带format，默认就是html。
 
-### 数据库命名约定
+这只是对单表资源的CRUD操作，koala针对下列情况也定义了一套的Restful规范：
 
-* 表名用复数（注意特殊的英文复数规则）。如果要使用多个数据库，不同的数据库不要有同名的表
-* 主键的名字都是”id“。如果要使用批量删除接口，id的值不能包含逗号“,”
-* 外键的名字都是“表名单数_id”，如果一张表里有多个关联到另外一张表的外键，命名规则是“前缀_表名单数_id”
-* 每张表可以添加默认的创建时间／修改时间字段， 字段名称必须是"created_at" "updated_at"，类型是datetime
-* 字段的名字除了字母／数字／下划线，不能包含"."或者其它特殊字符
-* 给数据库的表和字段添加注释，主要是表和字段的名字。如果要添加其它内容，在名字后加空格。比如有一个字段op_type，其注释是“类型	1-亿保健康，2-签约商家，3-商铺，4-保险公司，5-投保单位，6-保单分组”。那么字段名称就是“类型”，后面是字段的详细说明。
+1. 查询／分页／排序的支持。 标准Restful接口只有一个列表的接口，对查询相关的功能没有约定，koala自行扩展了一套约定。
+2. 批量操作的支持。 Restful接口默认只支持单个资源的操作，而实际的业务场景中经常需要有批量操作的需求，比如商品的批量上架、数据的批量删除等。
+3. 有关联的数据表的支持。Restful只支持单个资源的CRUD，而实际业务中经常有主子表的级联保存，关联表的查询等。
 
 
-## 使用说明
-这里所有的使用说明都是以“http://scm.laobai.com:9291”网址的运行中系统为例子。
-###元数据查询
-查看所有的表
+这些具体的约定可以参考：
 
-	http://scm.laobai.com:9291/index2.html
-	
-查看所有的belongs_to(隶属)关系
+* [kaola api协议规范](doc/Api.md)；
 
-	http://scm.laobai.com:9291/belongs.yaml
-	
-查看所有的many(包含)关系
+## 4. 实现原理
 
-	http://scm.laobai.com:9291/many.yaml
+扫描数据库实现所有单表的CRUD功能接口，这个不难实现。比较难的是怎么处理数据关联关系。数据关联关系主要有三种：一对多，一对一，多对多。Koala在实现关联关系的时候，分两个阶段实现的。第一个阶段，在2016年项目最初开发的时候 ，只支持一对多关系。一对一关系是一对多关系的特例，而多对多关系则可以表示为两个一对多关系，所以只支持一对多关系也不算严重的缺陷。
 
-### CRUD功能
+那么如何自动发现数据库所有的一对多关系呢，主要通过三种方法：
+1. 通过数据库的外键。如果A表有一个外键指向B表，那么B表和A表就是一对多关系。
+2. 通过命名约定。外键的命名约定采用rails默认的约定，外键的名字都是“表名单数\_id”。同时有扩展，如果一张表里有多个关联到另外一张表的外键，命名规则是“前缀_表名单数\_id”。所有符合命名约定的表，即使没有设置数据库层的外键，也自动建立一对多关系。
+3.通过配置文件。有些遗留的数据库即没有配置外键，也不符合命名约定，那么在配置文件custom_fk.txt文件中配置好外键关系也可以。
 
-标准REST接口, 支持两种调用方式: 网页调用和json调用，对应的Content-Type的值分别为 application/x-www-form-urlencoded, application/json。如果json接口调用出错，那么返回的json中包含error字段提供错误的说明信息。
 
+关联关系是双向的，对于两个表table1s和table2s，如果table1有一个字段table2\_id，那么table1是多方，table2是一方，用rails来描述就是：
 
-#### 新增接口
-模拟x-www-form-urlencoded编码调用：
+	Table1 belongs_to table2
+	Table2 has_many  table1s
 
-	curl  -d "tjb_role[id]=1234&tjb_role[role_name]=name" http://scm.laobai.com:9291/tjb_roles.json
+第二个阶段是2017年，kaola开发完成接近一年的时候，有个项目组提出要多对多关系的支持，在压力下想明白了多对多关系。首先，rails支持两种多对多关系：直接式的“has_and_belongs_to_many”和间接式的“has_many through”
 
-模拟json编码调用：
+http://guides.rubyonrails.org/images/habtm.png
 
-	curl -X POST --header "Content-Type: application/json" -d @roles.json http://scm.laobai.com:9291/tjb_roles.json
+http://guides.rubyonrails.org/images/has_many_through.png
 
-#### 读取接口
+http://guides.rubyonrails.org/association_basics.html#choosing-between-has-many-through-and-has-and-belongs-to-many
 
-	curl http://scm.laobai.com:9291/tjb_roles/1234.json
+Rails已经不建议使用直接式的多对多关系，Kaola也不支持这种方式。 下面就是自动发现多对多关联的最关键一步：所有包含两个及以上外键（也包括命名约定／配置文件定义的外键 ）的表自动形成多对多关系。一张表有2/3/4个外键，分别会定义1/2/6个多对多关系，也就是给定n个外键，生产组合C2n个多对多关系。
 
-#### 修改接口
 
-	curl  -X PUT -d "tjb_role[role_name]=name2" http://scm.laobai.com:9291/tjb_roles/1234.json
+除了常规的三种关系，还有一种特殊的自引用关系：树形结构。树形结构最常见的例子有组织结构、产品类别等。为了存储树形结构，要求给定的表有一个指向自己的外键。外键值为空的节点是树的根节点。树形结构在kaola中被定义为一个指向自己的一对多关系。
 
+识别了这些常见的数据关联关系后，接下来的难题是如何支持对这些关系的增删改查操作。
 
-#### 删除接口
 
-	curl  -X DELETE http://scm.laobai.com:9291/tjb_roles/1234.json
-	
-很多浏览器不支持出了GET／POST以外的其它方法，那么可以通过下面的方式调用
-	
-	curl  -X POST -d "_method=delete" http://scm.laobai.com:9291/tjb_roles/1234.json
-	
+具体的技术实现细节可以参考：
 
-### 批量增删改功能
+* [kaola 技术实现](doc/Tech.md)；
 
-#### 批量新增接口
+## 5. 发布
+供应链例子
+健康干预系统例子
+api网关
+安全
 
-批量新增接口的url地址和新增接口一样，只是提交的数据格式不一样。
-批量新增的话，提交的里层数据是一个数组
+## 6. 杂项
 
-	{
-	    "表名复数": [{id:id, key:value,...},{}...]
-	}
-
-单个新增的话，提交的是一个hash对象
-
-	{
-	    "表名单数": {id:id, key:value,...}
-	}
-
-单个新增的话，有数据的验证，批量新增接口的是否对字段进行验证未知。
-
-#### 批量修改接口
-
-无法按照批量新增的模式重用修改接口，因为单条数据修改接口“PUT	/表名/:id”和单个id绑定了。所以定义了一个新的批量修改接口的url地址“/表名/batch_update.json”，提交的数据格式和批量新增接口一致。
-
-TODO：批量修改接口的参数传递格式修改为和批量新增接口一致。
-
-#### 批量删除接口
-批量删除接口的url地址和删除接口一样，只是id的格式不一样。批量删除接口，一次传入多个id，id之间以英文逗号“,”分割。比如
-
-	curl  -X DELETE http://scm.laobai.com:9291/tjb_roles/1234,5678.json
-
-表示删除id为1234和5678的两条记录。如果删除成功，返回值格式：
-
-		{id:[被删除的id], deleted:true}
-
-
-#### 通用的批量操作接口
-地址"/bulk.json", 在一个接口里完成多个表的数据新增／修改／删除。本接口功能太强，只在其他接口无法满足需求的情况下使用。
-
-{
-	'insert': {
-	    "表名1复数": [{id:id, key:value,...},{}...],
-	    "表名2复数": [{id:id, key:value,...},{}...],
-		...
-	},
-	'update': {
-	    "表名1复数": [{id:id, key:value,...},{}...],
-	    ...
-	},
-	'delete': {
-	    "表名1复数": [id1,id2,...],
-	    "表名2复数": [id1,id2,...],		
-	},		
-}
-	
-
-### 搜索相关功能
-Rails的scaffold自动生成的代码只有基本的CRUD功能，没有提供查询功能，所以这里的搜索功能是我自定义的一套查询语法，包含查询／分页／排序功能，且所有的功能可自由组合。目前支持的查询条件类型包括：
-
-	s[Mkey]=value
-	s[like[Mkey]]=value
-	s[date[Rkey]]=value
-	s[range[Rkey]]=value
-	s[in[Rkey]]=value
-	s[cmp[key1(OP)key2]]=
-	
-
-key可以包含三种类型：单个key;多字段的Mkey，格式："key1,key2,...";主子表的Rkey，格式：“key1.key2”。其中，多字段的Mkey的格式表示多个字段的or查询，只支持等于和like查询。
-
-
-如果有多个查询条件，条件之间是逻辑与的关系。
-
-	s[key]=value&s[like[key]]=value
-
-### 列表接口
-
-	curl http://scm.laobai.com:9291/tbw_warehouses.json
-
-
-### 分页/排序
-
-	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=1"
-	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=1&per=100"
-	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=1&order=id+desc"
-
-分页参数page支持负数，-1代表最后一页，也就是采用逆序以后的第一页。比如：
-
-	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=-1&order=created_at+asc"
-	
-排序order参数支持多个排序条件，以“,”号分隔，比如:
-
-	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=1&order=warehouse_name+desc,warehouse_category+asc"
-
-
-### 查询
-#### 等于查询
-
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[fax]=fax"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[fax]=fax&page=1&order=id+desc"
-
-#### Like查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[fax]]=f%25"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[fax]]=f%25&s[fax]=fax&s[old_supplier_id]=abcd"
-
-Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示匹配任意多个字符，“_”匹配任意一个字符。如果Like查询的值不包含特殊字符，则默认前后加上“%”。大部分情况下，查询时不需要加％这样的特殊字符，因为默认查询字符串前后都会加上“%”。除了一种情况：需要占位查询，比如以给定字符串开头或者结尾的查询。
-
-#### 日期查询
-
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=2016-05-11"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=2016-05-11,2016-05-12"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=,2016-05-12"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=2016-05-12,"
-
-日期查询会把字符串格式的查询参数转换为日期，然后进行范围查询。上面的四个查询分别表示：
-
-	created_at字段的值在2016-05-11的0点，到2016-05-11的24点
-	created_at字段的值在2016-05-11的0点，到2016-05-12的24点
-	created_at字段的值小于到2016-05-12的24点
-	created_at字段的值大于到2016-05-12的0点
-
-
-
-#### 数值范围查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[id]]=1,5"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[id]]=,5"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[id]]=3,"
-
-#### 枚举In查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[in[id]]=1,2,5"
-
-#### 比较Cmp查询
-调用方式 s[cmp[key1(OP)key2]]=
-比较cmp查询表示两个字段之间的数值关系，支持的OP类型包括："!=","<=",">=","=","<",">"。其中第二个参数可以是常量。
-注意，在url中传递时，OP中的等于号“=”需要转义为“%3D”。
-注意，本查询最后的等号“=”后面没有值
-
-	curl -g "/tout_products.json?s[cmp[weight%3D1111]]="
-	curl -g "/tout_products.json?s[cmp[out_sale_price>lb_sale_price]]="
-	
-
-
-#### 多字段OR查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[delivery_company,address]]=测试"
-	
-这个查询的意思是查找所有delivery_company包含‘测试’或者address包含‘测试’的所有仓库。
-
-多个查询条件仍然是AND的关系，比如下面的查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[delivery_company,address]]=测试&s[warehouse_code]=11111"
-
-其含义是查找（所有delivery_company包含‘测试’或者address包含‘测试’的仓库）并且 (warehouse_code等于11111)的所有仓库。
-
-## 关联表功能的使用
-
-### 关联表查看
-支持在查看一条数据时，自动带出关联的belongs_to的父表的数据。
-
-要自动带出所有的关联子表的数据（仅支持在开发环境下使用），传递“many=1”参数
-
-	http://scm.laobai.com:9291/tbw_warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=1
-
-带出给定的几个关联子表数据：传递参数many=表1[,表2]
-
-	http://118.178.17.98:3000/tbw_warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=tso_saleorder_details
-	http://scm.laobai.com:9291/tbw_warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=tbe_express_print_templates,tbp_curing_headers
-
-### 关联表的列表查看
-带出给定的几个关联子表数据：传递参数many=表1[,表2]
-
-	http://scm.laobai.com:9291/tbw_warehouses.json?many=tbe_express_print_templates,tbp_curing_headers
-
-列表和浏览接口里的many关系数据自动带出功能，默认返回100条数据，所以只支持many集合数据量较少的情况。如果数据量大，且需要排序／分页等需求，建议单独再调用一次列表查询接口。
-
-
-#### 关联表的加载数量控制
-在关联表的列表和单条数据的查询url中都支持控制每条数据下面自动获取的关联数据的数量，传递参数many\_size，默认值是100。
-
-### 关联表保存
-支持在一个事务里保存主表和关联的多个子表。
-在test/jsontest目录下有一个例子。
-
-	{
-		"tjb_role": {
-			"id": "57",
-			"owner_module": "test",
-			"role_name": "测试角色",
-			"role_desc": "HELLO1",
-			"state": 0,
-			"updated_tjb_operator_id": "048e7eb9-c533-40cc-ad39-738d24f0452d",
-			"updated_operator_name": "测试"
-		},
-		"tjb_operator_roles": [{
-			"id": "57",
-			"tjb_operator_id": "f9f5ae4b-50d6-42e5-b46e-46b0b3a44c50",
-			"state": 0,
-			"updated_tjb_operator_id": "048e7eb9-c533-40cc-ad39-738d24f0452d",
-			"updated_operator_name": "测试"
-		}]
-	}
-
-
-	curl -X POST --header "Content-Type: application/json" -d @roles.json http://scm.laobai.com:9291/tjb_roles.json
-	
-### 关联表删除
-关联表之间如果存在数据库外键约束，单独删除主表的数据是不能成功的。此时就需要把依赖于该主表的所有子表数据也删除。在删除的接口增加一个many参数，用于处理这种情况，传递格式“many=表1[,表2]”，比如：
-	
-	curl  -X DELETE http://scm.laobai.com:9291/tjb_roles/1234.json?many=tjb_operator_roles
-
-关联表删除和批量删除是一个接口, 可以一次性删除。比如： /1,2,3,4.json?many=table1s,table2s
-代表批量删除“1,2,3,4”四个数据，其中每个数据都级联删除两个子表“table1s,table2s”的所有关联数据。
-
-
-### 关联表查询
-关联表的查询支持所有单表查询的功能，包括等于／Like／日期／数值范围／枚举查询。关联表查询的时候，支持两个方向：获得子表数据且关联的字段在主表，获得主表数据且关联的字段在子表。两个方向的区别在于单复数规则，其url约定如下：
-
-获得子表数据且关联的字段在主表：
-
-	子表复数.json?s[主表单数.字段名]=
-
-获得主表数据且关联的字段在子表：
-
-	主表复数.json?s[子表复数.字段名]=
-
-
-#### 等于查询
-
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[tbc_company.company_name]=测试公司"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[tbc_company.company_name]=测试公司&page=1&order=id+desc"
-
-#### Like查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[tbc_company.company_name]=测试%25"
-
-#### 日期查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[tbc_company.created_at]]=2016-05-11"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[tbc_company.created_at]]=2016-05-11,2016-05-12"
-
-#### 数值范围查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[tbc_company.id]]=1,5"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[tbc_company.id]]=,5"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[tbc_company.id]]=3,"
-
-#### 枚举In查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[in[id]]=1,2,5"
-
-#### Exists查询
-主子表增加子表是否为空的exists查询。比如下面的查询表示查询所有的tbp_products，其在tbp_product_mappings表中不存在。主表是tbp_products，子表是tbp_product_mappings，且要求字表存在字段tbp_product_id。
-	curl -g "http://scm.laobai.com:9291/tbp_products.json?s[exists[tbp_product_mappings]]=0"
-
-查询的值只能是0或者1，分表代表子表集合为空或者非空。
-	curl -g "http://scm.laobai.com:9291/tbp_products.json?s[exists[tbp_product_mappings]]=1&count=1"
-
-	
-### 树形结构的查询
-树形结构最常见的例子有组织结构、产品类别等。为了存储树形结构，要求给定的表有一个指向自己的外键。外键值为空的节点是树的根节点。
-有两个参数：depth，表示嵌套的深度，many_size，表示每一层的数量限制。
-
-树形结构功能只针对单条数据的接口提供，返回该条数据下面的嵌套的多层子树数据。
-
-uv_insured_units/1.json?many=uv_insured_units&depth=3&many_size=1
-
-
-### 查询的Count支持
-上面提到的所有列表／查询／分页／关联表查询json接口，都支持查询的同时返回符合记录的条数总数。方式是在url中增加count参数。目前支持两种类型，count=1和count=2，比如：
-
-	curl http://scm.laobai.com:9291/tbw_warehouses.json?count=1
-
-带count=1的json输出的格式：
-
-	{
-		"count":数字
-		"data":[{字段名:值}]
-	}
-	
-带count=2的json输出的格式：
-
-	{
-		"count":数字
-	}	
-	
-
-如果是不带count的搜索页输出，格式为：
-
-	[{字段名:值}]
-
-### 查询的Index支持
-对于一些复杂的sql查询，需要自己指定使用的索引的时候，可以传递index参数来指定索引。比如：
-
-	curl http://scm.laobai.com:9291/tbw_warehouses.json?index=inq_out_product_lb_product_id
-
-
-### 查询的post支持（Todo）
-因为get请求有256字符的长度限制，后续考虑（还未实现）查询参数，也可以通过post的方式提交，比如：
-
-	curl "url" -d '{
-	    "s" : {
-			field1 : value1,
-			"like" : {
-				field2 : value2,
-				field3 : value3				
-			}
-		},
-		"page" : 1,
-		"per" : 100,
-		"count" : 1
-	}'
-
-	
-## 缓存
-
-所有的获取列表数据／查看单个数据的GET请求支持服务器端缓存。缓存是全自动化处理的，新增／修改／删除请求会自动过期涉及到的缓存数据。但是，如果通过其它方式直接修改了数据库而没有通过接口修改数据，那么需要通知接口过期相关的缓存。
-
-#### 过期特定表的缓存
-
-| 方法 | URL |
-| :------- | :------- |
-| post      | /cache/expire |
-
-| 参数 | 类型  | 必填 | 说明 |
-| :------|------- | :------|------- |
-| tables | String | 必填 | 需要过期缓存的数据库表，如果多张表则以,号分割 |
-
-
-#### 过期所有的缓存
-
-| 方法 | URL |
-| :------- | :------- |
-| post      | /cache/expire\_all |
-
-不需要传参数。
-
-所有的GET请求默认都支持ETAG，当客户端重复请求的时候，如果带上上次请求的ETAG，当服务器端内容无更新的时候，会返回304响应。
-
-## 其它接口
-
-### 直接数据库sql查询
-
-首先ts_sql_infos，定义要查询的sql语句以及动态参数的类型，其中的动态参数传入部分用"?"表示，类型包括s/i/f/d，分别代表字符串／整数／浮点数／日期。多个参数类型，以英文逗号","分割。
-
-查询的url是"/search/:id.json", 参数通过"1=...&2=..."来传递。暂不支持可选参数。
-
-	curl http://localhost:3000/sql/search/3.json?1=5672c997783d1024b4bffa4c&2=%25%25&3=%25YD%25
-	
-
-### 数据库存储过程执行
-待完善：
-
-	curl http://localhost:3000/sql/exec/
-	
-### 健康检测接口
-
-	curl http://localhost:3000/sql/heartbeat.json
-
-### 数据批量导入导出
-
-#### Excel导入
-	目前支持Excel文件的批量导入。
-	Excel文件的格式要求：第一行是要导入的数据的列名或者列的注释名，从第二行开始是要导入的数据。文件后缀是xlsx。 
-	
-### Excel导出
-	目前支持单表数据的Excel导出，文件后缀是xlsx。 列表数据的查询url中，把json更改为xlsx，就可以把查询到的数据导出为excel。比如下面的这些例子：
-	
-	http://scm.laobai.com:9291/tbw_warehouses.xlsx
-	http://scm.laobai.com:9291/tbw_warehouses.xlsx?page=1&per=100
-	http://scm.laobai.com:9291/tbw_warehouses.xlsx?s[range[id]]=1,5
-	
-
-## 已知的问题
-
-* 单复数表名同时存在，比如存在两张表'table'和'tables'，那么无法区分
-* 数据库不能有字段的名称是‘type’。如果有，则需要手动设置 inheritance_column = nil
-	
-## 相关文档
-
-* [内部实现原理](http://git.ebaolife.net/SCM/ScmApiServer/blob/master/Tech.md)；
+###为何取名Koala
+俗话说，懒惰是程序员的美德，能够让计算机自动完成的事情，就不要重复劳动了。取名Koala是希望这套系统让程序员可以像考拉一样悠闲，同时restful也有宁静的含义，和考拉的形象比较匹配。
 
