@@ -1,6 +1,7 @@
-source 'https://gems.ruby-china.org'
+#source 'https://gems.ruby-china.org'  #在windows下默认ssl会出错
+source 'http://gems.ruby-china.org'  
 
-gem "schema_validations"
+gem "schema_validations", :git => 'https://github.com/yuanxinyu/schema_validations'
 gem "activerecord-import"
 gem "migration_comments"
 gem 'kaminari'

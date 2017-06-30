@@ -1,5 +1,14 @@
+GIT
+  remote: https://github.com/yuanxinyu/schema_validations
+  revision: dddcc500af3aa13948a9581525ae4e47f9817304
+  specs:
+    schema_validations (2.2.1)
+      activerecord (>= 4.2.1, < 5.1)
+      schema_plus_columns
+      valuable
+
 GEM
-  remote: https://gems.ruby-china.org/
+  remote: http://gems.ruby-china.org/
   specs:
     actioncable (5.0.0)
       actionpack (= 5.0.0)
@@ -186,10 +195,6 @@ GEM
       activerecord (>= 4.2, < 5.1)
       its-it (~> 1.2)
       schema_plus_core
-    schema_validations (2.2.1)
-      activerecord (>= 4.2.1, < 5.1)
-      schema_plus_columns
-      valuable
     sdoc (0.4.2)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
@@ -253,7 +258,7 @@ DEPENDENCIES
   rubyXL
   safe_attributes
   sass-rails
-  schema_validations
+  schema_validations!
   sdoc (~> 0.4.0)
   spreadsheet
   spring
