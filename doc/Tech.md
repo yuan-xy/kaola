@@ -1,7 +1,7 @@
 # Api接口自动生成系统原理
 
 ## 概览
-该Api接口自动生成系统的输入是数据库连接（支持多个数据库连接），输出是一套ruby on rails代码。该代码运行后提供Api接口服务。接口采用REST规范，每一张表对应到一个REST的URI，提供增删改查的功能，且支持复杂查询和表关联。采用这套系统后，DBA负责设计好数据库，然后前端就可以直接针对Api接口进行开发了，采用前后端分离的开发模式。
+Kaola系统的输入是数据库连接（支持多个数据库连接），输出是一套ruby on rails代码。该代码运行后提供Api接口服务。接口采用REST规范，每一张表对应到一个REST的URI，提供增删改查的功能，且支持复杂查询和表关联。采用这套系统后，DBA负责设计好数据库，然后前端就可以直接针对Api接口进行开发了，采用前后端分离的开发模式。
 
 注意：这套接口不能直接在外网开放，只能内部调用。
 
@@ -18,21 +18,12 @@
 * 字段的名字除了字母／数字／下划线，不能包含"."或者其它特殊字符
 * 给数据库的表和字段添加注释，主要是表和字段的名字。如果要添加其它内容，在名字后加空格。比如有一个字段op_type，其注释是“类型	1-亿保健康，2-签约商家，3-商铺，4-保险公司，5-投保单位，6-保单分组”。那么字段名称就是“类型”，后面是字段的详细说明。
 
-### URL命名约定
-本系统生成的Api接口是基于http的web接口，URL的命名符合REST规范。
+在使用kaola的实际应用中，有支持遗留历史数据库的需求。这些数据库往往不符合上面的数据库命名约定。为了支持这些数据库，对命名约定做了一些扩展：
 
-| 操作 | HTTP Method  | URI |
-| :--------- | :-----| :---------- |
-| 获取列表数据	|	GET	|     /表名(.:format)             |
-| 添加新数据	|	POST	|    /表名(.:format)          | 
-| 编辑新数据	|	GET	|     /表名/new(.:format)         |
-| 编辑已有数据	|	GET	|     /表名/:id/edit(.:format)    |
-| 查看已有数据	|	GET	|     /表名/:id(.:format)         |
-| 修改已有数据	|	PATCH	|   /表名/:id(.:format)       |
-| 修改已有数据	|	PUT	|     /表名/:id(.:format)         |
-| 删除已有数据	|	DELETE	|  /表名/:id(.:format)        |
+* 表名：如果表名不是复数，在生成的代码中记录表的实际名字，所以这个不是问题；
+* 主键：对主键不是id的表，通过查找primary\_key然后在生成的代码中记录表的主键字段的名字，问题也不大。但是对于mysql视图，由于没有primary\_key索引，所以需要通过一个启发式的方法发现主键字段的名字；
+* 外键：对于遗留的历史数据库，可以通过custom\_fk.txt来指定外键关系
 
-format目前支持两种：一个是json，这个是提供给前端使用的api接口；一个是空，也就是不带format，这个是后台提供的html显示界面。
 
 ## 代码生成过程
 ### 第一步，获取数据库的表信息
@@ -74,10 +65,14 @@ Table1 belongs_to table2
 Table2 has_many  table1s
 
 
-#### 3.更新模型层
-根据上面扫描得到的表关联信息，更新Ruby代码的模型层，增加belongs_to和has_many的申明，这样就可以支持在ruby层通过table1.table2、table2.table1s这样的对象访问的方式遍历关系层次。
+#### 3.通过外键和配置信息发行表关联
+通过查询数据库的schema，发现所有在数据库里定义的外键。读取配置文件custom_fk.txt文件，发现所有的外键关系。
 
-#### 4.序列化关系数据，并在运行时读取
+
+#### 4.更新模型层
+根据上面3步得到的表关联信息，更新Ruby代码的模型层，增加belongs_to和has_many的申明，这样就可以支持在ruby层通过table1.table2、table2.table1s这样的对象访问的方式遍历关系层次。
+
+#### 5.序列化关系数据，并在运行时读取
 上面扫描得到的两个关系：belongs_to和has_many，组织成两个hash表，key是表名，value是对应关系的表名的数组，然后把这两个hash对象序列化成YAML文件，文件名分别是belongs.yaml和many.yaml。Rails程序启动时，会读取这两个文件，然后重新反序列化得到belongs_to和has_many的两个hash表。
 
 
@@ -186,7 +181,7 @@ Timestamp字段的作用是应用内部记录一张表的修改时间戳，用�
 	
 ### 1. Clone代码库
 
-	git clone http://git.ebaolife.net/SCM/ScmApiServer.git
+	git clone http://git.ebaolife.net/SCM/kaola.git
 	
 建立一个分支，并chekout到该分支
 
@@ -260,7 +255,7 @@ Timestamp字段的作用是应用内部记录一张表的修改时间戳，用�
 	
 发布脚本里对部署路径有依赖，比如新的分支名字是“a_new_branch”，那么执行下面的命令更新部署相关配置：
 
-	rpl ScmApiServer a_new_branch puma.rb 
-	rpl ScmApi a_new_branch app/views/layouts/application.html.erb
-	find . -name "*.sh" | xargs rpl ScmApiServer a_new_branch
+	rpl kaola a_new_branch puma.rb 
+	rpl kaola a_new_branch app/views/layouts/application.html.erb
+	find . -name "*.sh" | xargs rpl kaola a_new_branch
 

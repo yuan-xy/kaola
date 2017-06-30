@@ -1,11 +1,8 @@
-# Api接口自动生成系统使用
+# Kaola Restful Api接口协议
 
 ## 命名约定
 
-这套系统能够运行的关键是命名约定。
-
-### URL命名约定
-本系统生成的Api接口是基于http的web接口，URL的命名符合REST规范。其中的表名都是复数形式。
+Kaola生成的Api接口是基于http的web接口，URL的命名符合REST规范。其中的表名都是复数形式。
 
 | 操作 | HTTP Method  | URI |
 | :--------- | :-----| :---------- |
@@ -23,30 +20,22 @@
 
 format目前支持三种：一个是json，这个是提供给前端使用的api接口；一个是xlsx，这个是提供列表数据的Excel文件导出功能；一个是html，这个是后台提供的html显示界面。如果不带format，默认就是html。
 
-### 数据库命名约定
-
-* 表名用复数（注意特殊的英文复数规则）。如果要使用多个数据库，不同的数据库不要有同名的表
-* 主键的名字都是”id“。如果要使用批量删除接口，id的值不能包含逗号“,”
-* 外键的名字都是“表名单数_id”，如果一张表里有多个关联到另外一张表的外键，命名规则是“前缀_表名单数_id”
-* 每张表可以添加默认的创建时间／修改时间字段， 字段名称必须是"created_at" "updated_at"，类型是datetime
-* 字段的名字除了字母／数字／下划线，不能包含"."或者其它特殊字符
-* 给数据库的表和字段添加注释，主要是表和字段的名字。如果要添加其它内容，在名字后加空格。比如有一个字段op_type，其注释是“类型	1-亿保健康，2-签约商家，3-商铺，4-保险公司，5-投保单位，6-保单分组”。那么字段名称就是“类型”，后面是字段的详细说明。
 
 
 ## 使用说明
-这里所有的使用说明都是以“http://scm.laobai.com:9291”网址的运行中系统为例子。
+这里所有的使用说明都是以“http://localhost:3000”本地网址的系统为例子，kaola在开发环境下，默认监听在3000端口。
 ###元数据查询
 查看所有的表
 
-	http://scm.laobai.com:9291/index2.html
+	http://localhost:3000/index2.html
 	
 查看所有的belongs_to(隶属)关系
 
-	http://scm.laobai.com:9291/belongs.yaml
+	http://localhost:3000/belongs.yaml
 	
 查看所有的many(包含)关系
 
-	http://scm.laobai.com:9291/many.yaml
+	http://localhost:3000/many.yaml
 
 ### CRUD功能
 
@@ -56,28 +45,28 @@ format目前支持三种：一个是json，这个是提供给前端使用的api�
 #### 新增接口
 模拟x-www-form-urlencoded编码调用：
 
-	curl  -d "tjb_role[id]=1234&tjb_role[role_name]=name" http://scm.laobai.com:9291/tjb_roles.json
+	curl  -d "tjb_role[id]=1234&tjb_role[role_name]=name" http://localhost:3000/tjb_roles.json
 
 模拟json编码调用：
 
-	curl -X POST --header "Content-Type: application/json" -d @roles.json http://scm.laobai.com:9291/tjb_roles.json
+	curl -X POST --header "Content-Type: application/json" -d @roles.json http://localhost:3000/tjb_roles.json
 
 #### 读取接口
 
-	curl http://scm.laobai.com:9291/tjb_roles/1234.json
+	curl http://localhost:3000/tjb_roles/1234.json
 
 #### 修改接口
 
-	curl  -X PUT -d "tjb_role[role_name]=name2" http://scm.laobai.com:9291/tjb_roles/1234.json
+	curl  -X PUT -d "tjb_role[role_name]=name2" http://localhost:3000/tjb_roles/1234.json
 
 
 #### 删除接口
 
-	curl  -X DELETE http://scm.laobai.com:9291/tjb_roles/1234.json
+	curl  -X DELETE http://localhost:3000/tjb_roles/1234.json
 	
 很多浏览器不支持出了GET／POST以外的其它方法，那么可以通过下面的方式调用
 	
-	curl  -X POST -d "_method=delete" http://scm.laobai.com:9291/tjb_roles/1234.json
+	curl  -X POST -d "_method=delete" http://localhost:3000/tjb_roles/1234.json
 	
 
 ### 批量增删改功能
@@ -103,12 +92,11 @@ format目前支持三种：一个是json，这个是提供给前端使用的api�
 
 无法按照批量新增的模式重用修改接口，因为单条数据修改接口“PUT	/表名/:id”和单个id绑定了。所以定义了一个新的批量修改接口的url地址“/表名/batch_update.json”，提交的数据格式和批量新增接口一致。
 
-TODO：批量修改接口的参数传递格式修改为和批量新增接口一致。
 
 #### 批量删除接口
 批量删除接口的url地址和删除接口一样，只是id的格式不一样。批量删除接口，一次传入多个id，id之间以英文逗号“,”分割。比如
 
-	curl  -X DELETE http://scm.laobai.com:9291/tjb_roles/1234,5678.json
+	curl  -X DELETE http://localhost:3000/tjb_roles/1234,5678.json
 
 表示删除id为1234和5678的两条记录。如果删除成功，返回值格式：
 
@@ -133,20 +121,27 @@ TODO：批量修改接口的参数传递格式修改为和批量新增接口一�
 	    "表名2复数": [id1,id2,...],		
 	},		
 }
-	
+
+TODO：本接口对事务的支持细化，是否支持部分数据提交成功。
 
 ### 搜索相关功能
-Rails的scaffold自动生成的代码只有基本的CRUD功能，没有提供查询功能，所以这里的搜索功能是我自定义的一套查询语法，包含查询／分页／排序功能，且所有的功能可自由组合。目前支持的查询条件类型包括：
+通常的restful api只约定有基本的CRUD功能，没有提供查询功能的规范，所以这里的搜索功能是kaola自定义的一套查询语法，包含查询／分页／排序功能，且所有的功能可自由组合。目前支持的查询条件类型包括：
 
-	s[Mkey]=value
-	s[like[Mkey]]=value
+	s[MRkey]=value
+	s[like[MRkey]]=value
 	s[date[Rkey]]=value
 	s[range[Rkey]]=value
 	s[in[Rkey]]=value
-	s[cmp[key1(OP)key2]]=
+	s[cmp[Rkey1(OP)key2]]=
 	
 
-key可以包含三种类型：单个key;多字段的Mkey，格式："key1,key2,...";主子表的Rkey，格式：“key1.key2”。其中，多字段的Mkey的格式表示多个字段的or查询，只支持等于和like查询。
+key可以包含四种类型：
+	基本的单个key，表示数据库的一个字段；
+	多字段的Mkey，格式："key1,key2,..."；
+	主子表的Rkey，格式：“key1.key2”，兼容单个的key；
+	多字段的主子表的组合MRkey
+	
+其中，多字段的Mkey的格式表示多个字段的or查询，只支持等于和like查询。
 
 
 如果有多个查询条件，条件之间是逻辑与的关系。
@@ -155,42 +150,42 @@ key可以包含三种类型：单个key;多字段的Mkey，格式："key1,key2,.
 
 ### 列表接口
 
-	curl http://scm.laobai.com:9291/tbw_warehouses.json
+	curl http://localhost:3000/warehouses.json
 
 
 ### 分页/排序
 
-	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=1"
-	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=1&per=100"
-	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=1&order=id+desc"
+	curl "http://localhost:3000/warehouses.json?page=1"
+	curl "http://localhost:3000/warehouses.json?page=1&per=100"
+	curl "http://localhost:3000/warehouses.json?page=1&order=id+desc"
 
 分页参数page支持负数，-1代表最后一页，也就是采用逆序以后的第一页。比如：
 
-	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=-1&order=created_at+asc"
+	curl "http://localhost:3000/warehouses.json?page=-1&order=created_at+asc"
 	
 排序order参数支持多个排序条件，以“,”号分隔，比如:
 
-	curl "http://scm.laobai.com:9291/tbw_warehouses.json?page=1&order=warehouse_name+desc,warehouse_category+asc"
+	curl "http://localhost:3000/warehouses.json?page=1&order=warehouse_name+desc,warehouse_category+asc"
 
 
 ### 查询
 #### 等于查询
 
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[fax]=fax"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[fax]=fax&page=1&order=id+desc"
+	curl -g "http://localhost:3000/warehouses.json?s[fax]=fax"
+	curl -g "http://localhost:3000/warehouses.json?s[fax]=fax&page=1&order=id+desc"
 
 #### Like查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[fax]]=f%25"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[fax]]=f%25&s[fax]=fax&s[old_supplier_id]=abcd"
+	curl -g "http://localhost:3000/warehouses.json?s[like[fax]]=f%25"
+	curl -g "http://localhost:3000/warehouses.json?s[like[fax]]=f%25&s[fax]=fax&s[old_supplier_id]=abcd"
 
 Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示匹配任意多个字符，“_”匹配任意一个字符。如果Like查询的值不包含特殊字符，则默认前后加上“%”。大部分情况下，查询时不需要加％这样的特殊字符，因为默认查询字符串前后都会加上“%”。除了一种情况：需要占位查询，比如以给定字符串开头或者结尾的查询。
 
 #### 日期查询
 
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=2016-05-11"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=2016-05-11,2016-05-12"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=,2016-05-12"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[created_at]]=2016-05-12,"
+	curl -g "http://localhost:3000/warehouses.json?s[date[created_at]]=2016-05-11"
+	curl -g "http://localhost:3000/warehouses.json?s[date[created_at]]=2016-05-11,2016-05-12"
+	curl -g "http://localhost:3000/warehouses.json?s[date[created_at]]=,2016-05-12"
+	curl -g "http://localhost:3000/warehouses.json?s[date[created_at]]=2016-05-12,"
 
 日期查询会把字符串格式的查询参数转换为日期，然后进行范围查询。上面的四个查询分别表示：
 
@@ -202,12 +197,12 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 
 
 #### 数值范围查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[id]]=1,5"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[id]]=,5"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[id]]=3,"
+	curl -g "http://localhost:3000/warehouses.json?s[range[id]]=1,5"
+	curl -g "http://localhost:3000/warehouses.json?s[range[id]]=,5"
+	curl -g "http://localhost:3000/warehouses.json?s[range[id]]=3,"
 
 #### 枚举In查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[in[id]]=1,2,5"
+	curl -g "http://localhost:3000/warehouses.json?s[in[id]]=1,2,5"
 
 #### 比较Cmp查询
 调用方式 s[cmp[key1(OP)key2]]=
@@ -221,12 +216,12 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 
 
 #### 多字段OR查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[delivery_company,address]]=测试"
+	curl -g "http://localhost:3000/warehouses.json?s[like[delivery_company,address]]=测试"
 	
 这个查询的意思是查找所有delivery_company包含‘测试’或者address包含‘测试’的所有仓库。
 
 多个查询条件仍然是AND的关系，比如下面的查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[like[delivery_company,address]]=测试&s[warehouse_code]=11111"
+	curl -g "http://localhost:3000/warehouses.json?s[like[delivery_company,address]]=测试&s[warehouse_code]=11111"
 
 其含义是查找（所有delivery_company包含‘测试’或者address包含‘测试’的仓库）并且 (warehouse_code等于11111)的所有仓库。
 
@@ -237,17 +232,17 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 
 要自动带出所有的关联子表的数据（仅支持在开发环境下使用），传递“many=1”参数
 
-	http://scm.laobai.com:9291/tbw_warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=1
+	http://localhost:3000/warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=1
 
 带出给定的几个关联子表数据：传递参数many=表1[,表2]
 
-	http://118.178.17.98:3000/tbw_warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=tso_saleorder_details
-	http://scm.laobai.com:9291/tbw_warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=tbe_express_print_templates,tbp_curing_headers
+	http://118.178.17.98:3000/warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=tso_saleorder_details
+	http://localhost:3000/warehouses/23dd811b-cd07-4f80-b7e2-62674f400c8e.json?many=tbe_express_print_templates,tbp_curing_headers
 
 ### 关联表的列表查看
 带出给定的几个关联子表数据：传递参数many=表1[,表2]
 
-	http://scm.laobai.com:9291/tbw_warehouses.json?many=tbe_express_print_templates,tbp_curing_headers
+	http://localhost:3000/warehouses.json?many=tbe_express_print_templates,tbp_curing_headers
 
 列表和浏览接口里的many关系数据自动带出功能，默认返回100条数据，所以只支持many集合数据量较少的情况。如果数据量大，且需要排序／分页等需求，建议单独再调用一次列表查询接口。
 
@@ -279,12 +274,12 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 	}
 
 
-	curl -X POST --header "Content-Type: application/json" -d @roles.json http://scm.laobai.com:9291/tjb_roles.json
+	curl -X POST --header "Content-Type: application/json" -d @roles.json http://localhost:3000/tjb_roles.json
 	
 ### 关联表删除
 关联表之间如果存在数据库外键约束，单独删除主表的数据是不能成功的。此时就需要把依赖于该主表的所有子表数据也删除。在删除的接口增加一个many参数，用于处理这种情况，传递格式“many=表1[,表2]”，比如：
 	
-	curl  -X DELETE http://scm.laobai.com:9291/tjb_roles/1234.json?many=tjb_operator_roles
+	curl  -X DELETE http://localhost:3000/tjb_roles/1234.json?many=tjb_operator_roles
 
 关联表删除和批量删除是一个接口, 可以一次性删除。比如： /1,2,3,4.json?many=table1s,table2s
 代表批量删除“1,2,3,4”四个数据，其中每个数据都级联删除两个子表“table1s,table2s”的所有关联数据。
@@ -304,30 +299,30 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 
 #### 等于查询
 
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[tbc_company.company_name]=测试公司"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[tbc_company.company_name]=测试公司&page=1&order=id+desc"
+	curl -g "http://localhost:3000/warehouses.json?s[tbc_company.company_name]=测试公司"
+	curl -g "http://localhost:3000/warehouses.json?s[tbc_company.company_name]=测试公司&page=1&order=id+desc"
 
 #### Like查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[tbc_company.company_name]=测试%25"
+	curl -g "http://localhost:3000/warehouses.json?s[tbc_company.company_name]=测试%25"
 
 #### 日期查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[tbc_company.created_at]]=2016-05-11"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[date[tbc_company.created_at]]=2016-05-11,2016-05-12"
+	curl -g "http://localhost:3000/warehouses.json?s[date[tbc_company.created_at]]=2016-05-11"
+	curl -g "http://localhost:3000/warehouses.json?s[date[tbc_company.created_at]]=2016-05-11,2016-05-12"
 
 #### 数值范围查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[tbc_company.id]]=1,5"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[tbc_company.id]]=,5"
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[range[tbc_company.id]]=3,"
+	curl -g "http://localhost:3000/warehouses.json?s[range[tbc_company.id]]=1,5"
+	curl -g "http://localhost:3000/warehouses.json?s[range[tbc_company.id]]=,5"
+	curl -g "http://localhost:3000/warehouses.json?s[range[tbc_company.id]]=3,"
 
 #### 枚举In查询
-	curl -g "http://scm.laobai.com:9291/tbw_warehouses.json?s[in[id]]=1,2,5"
+	curl -g "http://localhost:3000/warehouses.json?s[in[id]]=1,2,5"
 
 #### Exists查询
 主子表增加子表是否为空的exists查询。比如下面的查询表示查询所有的tbp_products，其在tbp_product_mappings表中不存在。主表是tbp_products，子表是tbp_product_mappings，且要求字表存在字段tbp_product_id。
-	curl -g "http://scm.laobai.com:9291/tbp_products.json?s[exists[tbp_product_mappings]]=0"
+	curl -g "http://localhost:3000/tbp_products.json?s[exists[tbp_product_mappings]]=0"
 
 查询的值只能是0或者1，分表代表子表集合为空或者非空。
-	curl -g "http://scm.laobai.com:9291/tbp_products.json?s[exists[tbp_product_mappings]]=1&count=1"
+	curl -g "http://localhost:3000/tbp_products.json?s[exists[tbp_product_mappings]]=1&count=1"
 
 	
 ### 树形结构的查询
@@ -342,7 +337,7 @@ uv_insured_units/1.json?many=uv_insured_units&depth=3&many_size=1
 ### 查询的Count支持
 上面提到的所有列表／查询／分页／关联表查询json接口，都支持查询的同时返回符合记录的条数总数。方式是在url中增加count参数。目前支持两种类型，count=1和count=2，比如：
 
-	curl http://scm.laobai.com:9291/tbw_warehouses.json?count=1
+	curl http://localhost:3000/warehouses.json?count=1
 
 带count=1的json输出的格式：
 
@@ -365,7 +360,7 @@ uv_insured_units/1.json?many=uv_insured_units&depth=3&many_size=1
 ### 查询的Index支持
 对于一些复杂的sql查询，需要自己指定使用的索引的时候，可以传递index参数来指定索引。比如：
 
-	curl http://scm.laobai.com:9291/tbw_warehouses.json?index=inq_out_product_lb_product_id
+	curl http://localhost:3000/warehouses.json?index=inq_out_product_lb_product_id
 
 
 ### 查询的post支持（Todo）
@@ -439,17 +434,18 @@ uv_insured_units/1.json?many=uv_insured_units&depth=3&many_size=1
 ### Excel导出
 	目前支持单表数据的Excel导出，文件后缀是xlsx。 列表数据的查询url中，把json更改为xlsx，就可以把查询到的数据导出为excel。比如下面的这些例子：
 	
-	http://scm.laobai.com:9291/tbw_warehouses.xlsx
-	http://scm.laobai.com:9291/tbw_warehouses.xlsx?page=1&per=100
-	http://scm.laobai.com:9291/tbw_warehouses.xlsx?s[range[id]]=1,5
+	http://localhost:3000/warehouses.xlsx
+	http://localhost:3000/warehouses.xlsx?page=1&per=100
+	http://localhost:3000/warehouses.xlsx?s[range[id]]=1,5
 	
 
 ## 已知的问题
 
 * 单复数表名同时存在，比如存在两张表'table'和'tables'，那么无法区分
-* 数据库不能有字段的名称是‘type’。如果有，则需要手动设置 inheritance_column = nil
+* 不支持跨数据库的事务，不支持跨数据库的连接查询
+* 主子表数据一次性保存的时候，如果有数据库外键，会导致死锁
 	
 ## 相关文档
 
-* [内部实现原理](http://git.ebaolife.net/SCM/ScmApiServer/blob/master/Tech.md)；
+* [内部实现原理](./Tech.md)；
 
