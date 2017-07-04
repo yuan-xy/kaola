@@ -1,13 +1,4 @@
-config/routes.rb
-app/views/*
-app/models/*
-app/controllers/t*
-app/controllers/j*
 bin/*
-belong*.yaml
-many.yaml
-public/index.html
-public/index2.html
 
 /.bundle
 
