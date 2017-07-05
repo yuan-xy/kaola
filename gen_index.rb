@@ -22,7 +22,7 @@ File.open("public/index2.html","w") do |f|
     end
     tables.each do |t|
       f.puts "<tr>"
-      f.puts "<td>#{human_table_name(t)}</td><td><a href='./#{t.pluralize}'>#{t}</a></td>"
+      f.puts "<td>#{human_table_name(t)}</td><td><a href='./#{t.pluralize}'>#{t}</a></td><td><a href='./#{t.pluralize}.json'>#{t.pluralize}.json</a></td>"
       f.puts "</tr>"
     end
     
