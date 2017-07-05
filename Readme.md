@@ -24,18 +24,18 @@ Kaola（考拉，英文koala）是一个全自动的restful api代码自动生�
 Kaola是基于ruby on rails开发的，主要在Mac和Linux操作系统下完成开发
 ，数据库使用的是mysql。如果你的操作系统是windows，或者数据库不是mysql，大体上是兼容的，但可能会碰到问题。
 
-1. 安装ruby2.2以上版本，如何安置可参考https://www.ruby-lang.org/en/documentation/installation/。安装完成ruby以后，在命令行运行”gem install bundle”以安装bundle；
+1. 安装ruby2.2以上版本，如何安装可参考[这个链接](https://www.ruby-lang.org/en/documentation/installation/)。安装完成ruby以后，在命令行运行”gem install bundle”以安装bundle；
 
-2. 下载koala的代码，在项目根目录运行“bundle install”安装依赖的第三方库
+2. 下载koala的代码，在项目根目录运行“bundle install”安装依赖的第三方库；
 
 3. 配置数据库连接，具体参考[数据库配置](doc/配置文件.md)；
 
-4. 在项目的根目录运行“./autogen.sh”，自动生成所有的后端api代码
+4. 在项目的根目录运行“./autogen.sh”，自动生成所有的后端api代码；
 
 5. 启动api服务器，在开发环境下就是运行“rails server”
 
 
-然后打开浏览器访问http://localhost:3000/index2.html就可以看到生成的所有接口了。在开发环境下，koala除了api接口，也提供完整的CRUD的html页面（其实就是rails默认的scaffold生成的页面）。在发布环境下，只有接口调用可以访问，基本就是以".json"结尾的url访问。
+然后打开浏览器访问[这个链接](http://localhost:3000/index2.html)就可以看到生成的所有接口了。在开发环境下，koala除了api接口，也提供完整的CRUD的html页面（其实就是rails默认的scaffold生成的页面）。在发布环境下，只有接口调用可以访问，基本就是以".json"结尾的url访问。
 
 ## 3. Kaola的接口协议约定
 Kaola生成的Api接口是基于http的web接口，URL的命名基本沿用rails框架的命名约定，其中的表名都是复数形式。基本的CRUD接口的约定如下：
@@ -88,7 +88,7 @@ Kaola的查询参数一一对应到数据库中的字段，格式是通过把jso
 
 那么如何自动发现数据库所有的一对多关系呢，主要通过三种方法：
 1. 通过数据库的外键。如果A表有一个外键指向B表，那么B表和A表就是一对多关系。
-2. 通过命名约定。外键的命名约定采用rails默认的约定，外键的名字都是“表名单数\_id”。同时有扩展，如果一张表里有多个关联到另外一张表的外键，命名规则是“前缀_表名单数\_id”。所有符合命名约定的表，即使没有设置数据库层的外键，也自动建立一对多关系。
+2. 通过命名约定。外键的命名约定采用rails默认的约定，外键的名字都是“表名单数\_id”。同时对 rails的约定有扩展，如果一张表里有多个关联到另外一张表的外键，命名规则是“前缀_表名单数\_id”。所有符合命名约定的表，即使没有设置数据库层的外键，也自动建立一对多关系。
 3.通过配置文件。有些遗留的数据库即没有配置外键，也不符合命名约定，那么在配置文件custom_fk.txt文件中配置好外键关系也可以。
 
 
@@ -99,23 +99,22 @@ Kaola的查询参数一一对应到数据库中的字段，格式是通过把jso
 
 ### 识别多对多关系
 
-第二个阶段是2017年，kaola开发完成接近一年的时候，有个项目组提出要多对多关系的支持，在压力下想明白了多对多关系。首先，rails支持两种多对多关系：直接式的“has_and_belongs_to_many”和间接式的“has_many through”
+第二个阶段是2017年，kaola开发完成接近一年的时候，有个项目组提出要多对多关系的支持，在压力下想明白了多对多关系。首先，rails支持两种多对多关系：直接式的“has_and_belongs_to_many”和间接式的“has_many through”, 对应的例子见下图：
 
-http://guides.rubyonrails.org/images/habtm.png
+![has_and_belongs_to_many](http://guides.rubyonrails.org/images/habtm.png)
 
-http://guides.rubyonrails.org/images/has_many_through.png
+![has_many through](http://guides.rubyonrails.org/images/has_many_through.png)
 
-http://guides.rubyonrails.org/association_basics.html#choosing-between-has-many-through-and-has-and-belongs-to-many
 
-Rails已经不建议使用直接式的多对多关系，Kaola也不支持这种方式。 下面就是自动发现多对多关联的最关键一步：所有包含两个及以上外键（也包括命名约定／配置文件定义的外键 ）的表自动形成多对多关系。一张表有2/3/4个外键，分别会定义1/2/6个多对多关系，也就是给定n个外键，生产组合C2n个多对多关系。
+Rails已经不建议使用直接式的多对多关系[参考](http://guides.rubyonrails.org/association_basics.html#choosing-between-has-many-through-and-has-and-belongs-to-many)，Kaola也不支持这种方式。 下面就是自动发现多对多关联的最关键一步：所有包含两个及以上外键（也包括命名约定／配置文件定义的外键 ）的表自动形成多对多关系。一张表有2/3/4个外键，分别会定义1/2/6个多对多关系，也就是给定n个外键，生产组合C(2,n)个多对多关系。
 
-例子：
 
 除了常规的三种关系，还有一种特殊的自引用关系：树形结构。树形结构最常见的例子有组织结构、产品类别等。为了存储树形结构，要求给定的表有一个指向自己的外键。外键值为空的节点是树的根节点。树形结构在kaola中被定义为一个指向自己的一对多关系。
 
-### 关系的增删改查
+### 关系的增删改
 
-识别了这些常见的数据关联关系后，接下来的任务是如何支持对这些关系的增删改查操作。由于kaola采用json格式提交数据，所以新增和修改有关系的数据是比较容易的，json格式很容易支持用嵌套结构来表达一对多关系。比如单个新增的话，提交的是一个hash对象
+识别了这些常见的数据关联关系后，接下来的任务是如何支持对这些关系的增删改查操作。目前对关系数据的增删改还只支持一对多关系，不支持多对多关系。
+由于kaola采用json格式提交数据，所以新增和修改有关系的数据是比较容易的，json格式很容易支持用嵌套结构来表达一对多关系。比如单个新增的话，提交的是一个hash对象
 
 	{
 	    "表名单数": {id:id, key:value,...}
@@ -131,21 +130,20 @@ Rails已经不建议使用直接式的多对多关系，Kaola也不支持这种�
 		],
 		其它子表...
 	}
+
+
+### 关系的查询
 	
-下一步是如何定义和实现关联关系的查询。
+下一步是如何定义和实现关联关系的查询。Kaola使用了面向对象语言的“.”操作符来表达主子表的关系，从而可以达到比sql语句更简单自然的查询表达式。比如有两张表：公司表companies和仓库表warehouses，一个公司可以有 多个仓库，那么下面的查询
 
+warehouses.json?s[company.name]='公司A'
 
-#### Exists查询
-主子表增加子表是否为空的exists查询。比如下面的查询表示查询所有的tbp_products，其在tbp_product_mappings表中不存在。主表是tbp_products，子表是tbp_product_mappings，且要求字表存在字段tbp_product_id。
-	curl -g "http://scm.laobai.com:9291/tbp_products.json?s[exists[tbp_product_mappings]]=0"
+表示查询所有的name为‘公司A’的公司所有的仓库。对应的Sql查询是：
 
-查询的值只能是0或者1，分表代表子表集合为空或者非空。
-	curl -g "http://scm.laobai.com:9291/tbp_products.json?s[exists[tbp_product_mappings]]=1&count=1"
+select * from warehouses join companies on warehouses.company_id = companies.id where companies.name='公司A'
 
-
-#### 树形结构查询
-
-
+关联表的查询支持所有单表查询的功能，包括等于／Like／日期／数值范围／枚举查询。
+此外，针对一对多关系，还支持两种特殊的查询：Exists查询（给定主表是否有子表数据）和树形结构查询（给定数据节点的所有深层嵌套子节点）。
 
 具体的技术实现细节可以参考：
 
@@ -188,18 +186,18 @@ end
 
 ### 发布
 
-api网关
-安全
+由于kaola提供api接口能力太广泛，不能直接暴露在网络上。所以在发布的时候，需要部署在一个api网关后面，比如Netflix/zuul这样的网关。
+
 
 ### License
-MIT License.
-https://opensource.org/licenses/MIT
+Kaola采用 MIT License， https://opensource.org/licenses/MIT
 
 ### 为何取名Kaola
 俗话说，懒惰是程序员的美德，能够让计算机自动完成的事情，就不要重复劳动了。取名Kaola是希望这套系统让程序员可以像考拉一样悠闲，同时restful也有宁静的含义，和考拉的形象比较匹配。
 
+### 去年的技术分享
 
 2016年在高可用架构社区做的一次技术分享：
 
+* [kaola 2016高可用架构社区技术分享](https://mp.weixin.qq.com/s?__biz=MzAwMDU1MTE1OQ==&mid=2653548079&idx=1&sn=2377b625db58b2ea93c3ef2d87e4c395&chksm=813a7fb7b64df6a1cd6d1da7ebcc18f958939b7d1226555552dcc098fa64dca9441bc054e567&mpshare=1&scene=1&srcid=0614sXGSoNt6Ui7prVEKq9Ds&key=c32c17d7706c6e263803a518919c45991df530ede512160f78cb7ecd9fcadafb6fed879cdbef2291a467656ef7fe682f7d005c2c6ef1da2a86f4b47ab54c99d576f588f735bbbd40c48e8038f2b3a6a9&ascene=0&uin=MTc3MzI3NTcyMA%3D%3D&devicetype=iMac+MacBook8%2C1+OSX+OSX+10.12.5+build(16F73)&version=12020810&nettype=WIFI&fontScale=100&pass_ticket=kGb2Xo4rtE5Ub9eaFIV%2BhqY9nrNwXuFOvY%2FafkI9B8p9LvU5vtqtOalHZ8EaB4je)；
 * [kaola 2016技术分享](doc/share技术分享.md)；
-
