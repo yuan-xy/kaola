@@ -214,6 +214,22 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 	curl -g "/tout_products.json?s[cmp[out_sale_price>lb_sale_price]]="
 	
 
+#### Null查询
+给定字段'key'等于null查询：
+
+	s[cmp[key%3Dnull]]=
+	
+对应的sql查询是:
+
+	key  is null
+	
+给定字段'key'不等于null查询：
+
+	s[cmp[key!%3Dnull]]=
+	
+对应的sql查询是:
+
+	key  is not null
 
 #### 多字段OR查询
 	curl -g "http://localhost:3000/warehouses.json?s[like[delivery_company,address]]=测试"

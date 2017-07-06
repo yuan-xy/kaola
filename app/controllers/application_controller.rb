@@ -363,26 +363,58 @@ class ApplicationController < ActionController::Base
   def cmp_search
     return unless params[:s][:cmp]
     simple_query(params[:s][:cmp]).each do |key,v|
+      found =false
       ["!=","<=",">=","=","<",">"].each do |op|
         if key.match(op)
           arr = key.split(op)
-          next if arr.size != 2
-          @list = @list.where("#{arr[0]} #{op} #{arr[1]}")
+          next if arr.size != 2  #throw exception?
+          found = true
+          if arr[1]=="null"
+            opv = case
+            when op=='!='
+              "is not"
+            when op=='='
+              "is"
+            else
+              raise "cmp查询对null值只允许等于和不等于操作：#{op}"
+            end
+            opv = op=="!="? "is not" : "is"
+            @list = @list.where("#{arr[0]} #{opv} null")
+          else
+            @list = @list.where("#{arr[0]} #{op} #{arr[1]}")
+          end
           break
         end
       end
+      raise "不支持的cmp查询：是否没有正确转义，比如“=”需要转义为“%3D”" unless found
     end
     with_dot_query(params[:s][:cmp]).each do |k,v|
       model, field = k.split(".")
       @list = @list.joins(model.to_sym)
+      found = false
       ["!=","<=",">=","=","<",">"].each do |op|
         if field.match(op)
           arr = field.split(op)
           next if arr.size != 2
-          @list = @list.where("#{table_name_fix(model)}.#{arr[0]} #{op} #{arr[1]}")
+          found = true
+          if arr[1]=="null"
+            opv = case
+            when op=='!='
+              "is not"
+            when op=='='
+              "is"
+            else
+              raise "cmp查询对null值只允许等于和不等于操作：#{op}"
+            end
+            opv = op=="!="? "is not" : "is"
+            @list = @list.where("#{table_name_fix(model)}.#{arr[0]} #{opv} null")
+          else
+            @list = @list.where("#{table_name_fix(model)}.#{arr[0]} #{op} #{arr[1]}")
+          end
           break
         end
       end
+      raise "不支持的cmp查询：是否没有正确转义，比如“=”需要转义为“%3D”" unless found
     end
     params[:s].delete(:cmp)      
   end 
