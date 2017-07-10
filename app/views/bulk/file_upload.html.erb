@@ -1,7 +1,7 @@
 <h1>文件上传</h1>
 
 
-<%= form_tag '/bulk/import', multipart: true do %>
+<%= form_tag '/bulk/import.json', multipart: true do %>
   <label for="file">表名：</label> <%= text_field_tag "table", params[:table], size: 40 %>
   <br/>
   <label for="file">Excel文件</label> <%= file_field_tag "file" %>
@@ -13,4 +13,4 @@
 
 <hr/>
   Excel文件的格式要求：第一行是要导入的数据的列名或者列的注释名，从第二行开始是要导入的数据。文件后缀是xlsx。
-<a href='/bulk/file_template?table=<%=params[:table]%>'>下载Excel模版</a>
+<a href='/bulk/file_template.xlsx?table=<%=params[:table]%>'>下载Excel模版</a>

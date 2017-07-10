@@ -14,7 +14,7 @@ class ApplicationController < ActionController::Base
   
   def crud_json_check
      if Rails.env == "production"
-       redirect_to "/500.html" unless request.format == 'application/json'
+       redirect_to "/500.html" unless (request.format == 'application/json' || request.format == 'application/xlsx')
      end
   end
 
