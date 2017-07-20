@@ -60,6 +60,7 @@ Kaola的查询参数一一对应到数据库中的字段，格式是通过把jso
 
 * [kaola api协议规范](doc/Api.md)；
 
+
 ## 3. 开始使用Kaola
 
 Kaola是基于ruby on rails开发的，主要在Mac和Linux操作系统下完成开发
@@ -77,6 +78,7 @@ Kaola是基于ruby on rails开发的，主要在Mac和Linux操作系统下完成
 
 
 然后打开浏览器访问[这个链接](http://localhost:3000/index2.html)就可以看到生成的所有接口了。在开发环境下，koala除了api接口，也提供完整的CRUD的html页面（其实就是rails默认的scaffold生成的页面）。在发布环境下，只有接口调用可以访问，基本就是以".json"结尾的url访问。
+
 
 ## 4. 实现原理
 
