@@ -19,25 +19,7 @@ Kaola（考拉，英文koala）是一个全自动的restful api代码自动生�
 当然，还有一点很重要的，就是定义了一套restful的基于约定的接口协议。基于这套约定的协议，前端程序员不需要后端提供繁琐的不一致接口文档，可以轻松上手开始使用这套接口。
 
 
-## 2. 开始使用Kaola
-
-Kaola是基于ruby on rails开发的，主要在Mac和Linux操作系统下完成开发
-，数据库使用的是mysql。如果你的操作系统是windows，或者数据库不是mysql，大体上是兼容的，但可能会碰到问题。
-
-1. 安装ruby2.2以上版本，如何安装可参考[这个链接](https://www.ruby-lang.org/en/documentation/installation/)。安装完成ruby以后，在命令行运行”gem install bundle”以安装bundle；
-
-2. 下载koala的代码，在项目根目录运行“bundle install”安装依赖的第三方库；
-
-3. 配置数据库连接，具体参考[数据库配置](doc/配置文件.md)；
-
-4. 在项目的根目录运行“./autogen.sh”，自动生成所有的后端api代码；
-
-5. 启动api服务器，在开发环境下就是运行“rails server”
-
-
-然后打开浏览器访问[这个链接](http://localhost:3000/index2.html)就可以看到生成的所有接口了。在开发环境下，koala除了api接口，也提供完整的CRUD的html页面（其实就是rails默认的scaffold生成的页面）。在发布环境下，只有接口调用可以访问，基本就是以".json"结尾的url访问。
-
-## 3. Kaola的接口协议约定
+## 2. Kaola的接口协议约定
 Kaola生成的Api接口是基于http的web接口，URL的命名基本沿用rails框架的命名约定，其中的表名都是复数形式。基本的CRUD接口的约定如下：
 
 | 操作 | HTTP Method  | URI |
@@ -77,6 +59,24 @@ Kaola的查询参数一一对应到数据库中的字段，格式是通过把jso
 针对查询／分页／排序／批量操作／关联表操作／导入导出等的具体的约定（前端开发者需要细看）可以参考：
 
 * [kaola api协议规范](doc/Api.md)；
+
+## 3. 开始使用Kaola
+
+Kaola是基于ruby on rails开发的，主要在Mac和Linux操作系统下完成开发
+，数据库使用的是mysql。如果你的操作系统是windows，或者数据库不是mysql，大体上是兼容的，但可能会碰到问题。
+
+1. 安装ruby2.2以上版本，如何安装可参考[这个链接](https://www.ruby-lang.org/en/documentation/installation/)。安装完成ruby以后，在命令行运行”gem install bundle”以安装bundle；
+
+2. 下载koala的代码，在项目根目录运行“bundle install”安装依赖的第三方库；
+
+3. 配置数据库连接，具体参考[数据库配置](doc/配置文件.md)；
+
+4. 在项目的根目录运行“./autogen.sh”，自动生成所有的后端api代码；
+
+5. 启动api服务器，在开发环境下就是运行“rails server”
+
+
+然后打开浏览器访问[这个链接](http://localhost:3000/index2.html)就可以看到生成的所有接口了。在开发环境下，koala除了api接口，也提供完整的CRUD的html页面（其实就是rails默认的scaffold生成的页面）。在发布环境下，只有接口调用可以访问，基本就是以".json"结尾的url访问。
 
 ## 4. 实现原理
 
