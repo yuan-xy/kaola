@@ -1,8 +1,8 @@
 defaults: &defaults
-  key: ebao
-  secret: Oush5toh1F
-  authorize_url: http://service.laobai.com/auth/oauth/authorize
-  token_url: http://service.laobai.com/auth/oauth/token
+  key: 
+  secret: 
+  authorize_url: 
+  token_url: 
 
 development:
   <<: *defaults

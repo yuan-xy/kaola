@@ -21,14 +21,14 @@
 
 这就导致了基于文件内容指纹的方案。HTTP协议在1.1版本中增加了基于Etag的指纹缓存方案。下面是一个Etag使用的例子：
 
-	curl -g --head 'http://scm.laobai.com:9391/tpsy_evaluation_questions.json?s[tpsy_evaluation_main_id]=4&many=tpsy_evaluation_options'
+	curl -g --head 'http://localhost:3000/tpsy_evaluation_questions.json?s[tpsy_evaluation_main_id]=4&many=tpsy_evaluation_options'
 	>HTTP/1.1 200 OK
 	>ETag: W/"758e07c4f86f8eaf09d590ef9f23e4d6"
 	>...
 
 首次请求，服务器端返回Etag。下次客户端请求同一个url的时候，带上Etag。如果服务器端无变化，那么返回304的响应，而不是200的响应。
 
-	curl -g --head -H 'If-None-Match: W/"758e07c4f86f8eaf09d590ef9f23e4d6"'  'http://scm.laobai.com:9391/tpsy_evaluation_questions.json?s[tpsy_evaluation_main_id]=4&many=tpsy_evaluation_options'
+	curl -g --head -H 'If-None-Match: W/"758e07c4f86f8eaf09d590ef9f23e4d6"'  'http://localhost:3000/tpsy_evaluation_questions.json?s[tpsy_evaluation_main_id]=4&many=tpsy_evaluation_options'
 	>HTTP/1.1 304 Not Modified
 	>ETag: W/"758e07c4f86f8eaf09d590ef9f23e4d6"
 	>Cache-Control: max-age=0, private, must-revalidate
