@@ -212,7 +212,9 @@ Like查询的值支持两种特殊字符“%”和“_”，其中“%”表示�
 
 	curl -g "/tout_products.json?s[cmp[weight%3D1111]]="
 	curl -g "/tout_products.json?s[cmp[out_sale_price>lb_sale_price]]="
-	
+
+#### 全文搜索full查询
+	curl -g "http://localhost:3000/warehouses.json?s[full[text]]=sometext"	
 
 #### Null查询
 给定字段'key'等于null查询：
