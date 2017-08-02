@@ -59,7 +59,7 @@ class <%= controller_class_name %>Controller < ApplicationController
   def update
     if request.format == 'application/json'
       @<%= singular_table_name %>.update!(<%= "#{singular_table_name}_params" %>)
-      render :status => 200, :json => @tsr_salereturnorder_header.to_json
+      render :status => 200, :json => @<%= singular_table_name %>.to_json
     else
       if @<%= orm_instance.update("#{singular_table_name}_params") %>
         redirect_to @<%= singular_table_name %>, notice: <%= "'#{human_name} was successfully updated.'" %>
