@@ -103,7 +103,7 @@ class ApplicationController < ActionController::Base
     hash = to_hash(params)
     %w{controller action format count per page order many many_size index}.each{|x| hash.delete(x)}
     if hash["s"]
-      %w{like date range in cmp exists}.each{|x| hash["s"].delete(x)}
+      %w{like date range in cmp exists full}.each{|x| hash["s"].delete(x)}
       hash["s"].each{|k,v| raise "查询参数s[#{k}]不支持" if v.class==Hash}
       hash.delete("s")
     end
@@ -126,6 +126,7 @@ class ApplicationController < ActionController::Base
       in_search
       cmp_search
       exists_search
+      full_search
       equal_search
     end
     if params[:count]
@@ -438,7 +439,14 @@ class ApplicationController < ActionController::Base
     params[:s].delete(:exists)      
   end
   
-  
+  def full_search
+    return unless params[:s][:full]
+    params[:s][:full].each do |key,v|
+      @list = @list.where("MATCH(#{key}) AGAINST('#{v}')")
+    end
+    params[:s].delete(:full)      
+  end
+    
   def with_dot_query(hash)
     hash.select{|k,v| k.index(".")}
   end
@@ -459,7 +467,7 @@ class ApplicationController < ActionController::Base
   
   def check_search_param_exsit(hash,clazz)
     attrs = clazz.attribute_names
-    %w{like date range in cmp exists}.each do |op|
+    %w{like date range in cmp exists full}.each do |op|
       next unless hash[op]
       hash[op].each do |k,v|
         if op == 'exists'
