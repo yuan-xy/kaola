@@ -63,19 +63,16 @@ def fix_connection(t, extra_db)
   insert_into_file(filename, "\n  establish_connection \"#{str}\".to_sym", "\nend", false)
 end
 
-def proc_num
-  ret = Etc.nprocessors
-  ret = 4 if ret>4
-  ret
-end
 
-def gen_db_tables(hash, re_try=true, parallel=true)
+def gen_db_tables(hash, re_try=false, parallel=false)
   errors = {}
   hash.each do |db, tables|
     establish_conn(db)
     errors[db] = []
-    proc = Proc.new do |t|
+    tables.each do |t|
       print '.' unless $verbose
+      next if t == 'ar_internal_metadata' || t == 'ar_internal_metadatas'
+      next if t == 'schema_migrations'
       succ = true
       begin
         flag = gen_scaffold(t)
@@ -94,11 +91,6 @@ def gen_db_tables(hash, re_try=true, parallel=true)
         fix_connection(t, db) if db != :DEFAULT
       end
     end
-    if parallel
-      tables.peach(proc_num, &proc)
-    else
-      tables.each &proc
-    end
   end
   if re_try && errors.size>0
     puts "\nretry #{errors}" 
@@ -112,3 +104,4 @@ def gen_db_tables(hash, re_try=true, parallel=true)
     end
   end
 end
+
