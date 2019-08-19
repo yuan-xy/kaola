@@ -9,8 +9,8 @@ $many = YAML.load(File.read('./public/many.yaml'))
 $belongs = YAML.load(File.read('./public/belongs.yaml'))
 $belongs_class = YAML.load(File.read('./public/belongs_class.yaml'))
 
-$belongs.each{|k,v| raise "$belongs duplicate: #{k} -> #{v}" if v.uniq.size != v.size} if $belongs
-$many.each{|k,v| raise "$many duplicate: #{k} -> #{v}" if v.uniq.size != v.size} if $many
+#$belongs.each{|k,v| raise "$belongs duplicate: #{k} -> #{v}" if v.uniq.size != v.size} if $belongs
+#$many.each{|k,v| raise "$many duplicate: #{k} -> #{v}" if v.uniq.size != v.size} if $many
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.

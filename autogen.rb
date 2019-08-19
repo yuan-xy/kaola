@@ -5,7 +5,7 @@ $verbose = ARGV.find{|x| x=="verbose"}
 
 File.truncate('config/route_codegen.rb', 0)
 
-gen_db_tables($database_tables, true, false)
+gen_db_tables($database_tables, false, false)
 
 require_relative 'gen_relations'
 
