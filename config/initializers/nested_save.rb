@@ -55,6 +55,8 @@ class ActiveRecord::Base
       ret = [self]
       transaction do
         self.save!
+      end
+      transaction do
         single = self.class.name.underscore
         $many[single].each do |x|
           xs = x.pluralize
