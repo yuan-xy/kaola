@@ -1,6 +1,7 @@
-#source 'https://gems.ruby-china.org'  #在windows下默认ssl会出错
-source 'http://gems.ruby-china.org'  
+source 'https://gems.ruby-china.com'  
 
+#gem 'sidekiq'
+#gem 'exception_notification'
 gem "schema_validations", :git => 'https://github.com/yuanxinyu/schema_validations'
 gem "activerecord-import"
 gem "migration_comments"
@@ -21,7 +22,7 @@ gem 'safe_attributes'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 #gem 'rails', '~> 4.2.6'
-gem 'rails', '= 5.0.0'
+gem 'rails', '~>  5.0.0'
 
 gem 'thor', '0.19.1'
 
