@@ -175,7 +175,7 @@ GEM
     rubyXL (3.4.5)
       nokogiri (>= 1.4.4)
       rubyzip (>= 1.1.6)
-    rubyzip (1.2.3)
+    rubyzip (2.0.0)
     safe_attributes (1.0.10)
       activerecord (>= 3.0.0)
     sass-rails (6.0.0)
