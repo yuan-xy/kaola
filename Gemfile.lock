@@ -131,7 +131,7 @@ GEM
     pmap (1.1.1)
     puma (4.1.0)
       nio4r (~> 2.0)
-    rack (2.0.7)
+    rack (2.0.8)
     rack-attack (6.1.0)
       rack (>= 1.0, < 3)
     rack-cors (1.0.5)
