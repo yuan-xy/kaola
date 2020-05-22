@@ -129,7 +129,7 @@ GEM
       multi_xml (~> 0.5)
       rack (>= 1.2, < 3)
     pmap (1.1.1)
-    puma (4.3.3)
+    puma (4.3.5)
       nio4r (~> 2.0)
     rack (2.0.8)
     rack-attack (6.1.0)
