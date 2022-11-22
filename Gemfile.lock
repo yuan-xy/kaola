@@ -62,7 +62,7 @@ GEM
     coffee-script-source (1.12.2)
     concurrent-ruby (1.1.6)
     crass (1.0.6)
-    dalli (2.7.10)
+    dalli (3.2.3)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     erubis (2.7.0)
